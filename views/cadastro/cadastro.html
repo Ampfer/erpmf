@@ -1,0 +1,98 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Cadastros</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados Cadastrais</a></li>
+                    <li><a data-toggle="tab" href="#menu1">Endereços</a></li>
+                    <li><a data-toggle="tab" href="#menu2">Contatos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                        {{=formCadastro.custom.begin}}
+                        <div class="well">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Tipo de Pessoa</label>
+                                    {{=formCadastro.custom.widget.tipo}}
+                                </div>
+                                <div class="col-md-4">
+                                    <label id="cadastros_cnpj_cpf__label">CPF</label>
+                                    {{=formCadastro.custom.widget.cnpj_cpf}}
+
+                                </div>
+                                <div class="col-md-4">
+                                    <label id="cadastros_ie_rg__label">RG</label>
+                                    {{=formCadastro.custom.widget.ie_rg}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p></p>
+                                    <label>Razão Social</label>
+                                    {{=formCadastro.custom.widget.razao}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-info">
+                            <div class="panel-body">
+                                <div class="right">
+                                    {{=formCadastro.custom.submit}}
+                                    {{=btnNovo}}
+                                    {{=btnVoltar}}
+                                    {{=btnExcluir}}
+                                </div>
+                            </div>
+                        </div>
+                        {{=formCadastro.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formCadastroEnderecos}}
+                </div>
+                <div id="menu2" class="tab-pane fade">
+                    {{=formCadastroContatos}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    if($('#cadastros_tipo option:selected').val() == 'Física'){
+       $("#cadastros_cnpj_cpf").mask("999.999.999-99");
+       $("#cadastros_ie_rg").mask("99.999.999-9");
+       $("#cadastros_cnpj_cpf__label").text('CPF');
+       $("#cadastros_ie_rg__label").text('RG');
+     }
+     else {
+       $("#cadastros_cnpj_cpf").mask("99.999.999/9999-99");
+       $("#cadastros_ie_rg").unmask();
+       $("#cadastros_cnpj_cpf__label").text('CNPJ');
+       $("#cadastros_ie_rg__label").text('Incrição Estadual');
+     }
+   // Alterando as máscaras conforme escolhe do tipo de pessoa.
+   $('#cadastros_tipo').on('change',function() {
+     if($('#cadastros_tipo option:selected').val() == 'Física'){
+       $("#cadastros_cnpj_cpf").mask("999.999.999-99");
+       $("#cadastros_ie_rg").mask("99.999.999-9");
+       $("#cadastros_cnpj_cpf__label").text('CPF');
+       $("#cadastros_ie_rg__label").text('RG');
+     }
+     else {
+       $("#cadastros_cnpj_cpf").mask("99.999.999/9999-99");
+       $("#cadastros_ie_rg").unmask();
+       $("#cadastros_cnpj_cpf__label").text('CNPJ');
+       $("#cadastros_ie_rg__label").text('Incrição Estadual');
+     }
+   });
+});
+</script>
+
+
+
+
+
+
+

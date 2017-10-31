@@ -1,0 +1,68 @@
+<p></p>
+{{=form_pesq.custom.begin}}
+<div class="row">
+    <div class="col-md-3">
+        {{=form_pesq.custom.label.abc}}
+        {{=form_pesq.custom.widget.abc}}
+    </div>
+    <div class="col-md-3">
+        {{=form_pesq.custom.label.tipo}}
+        {{=form_pesq.custom.widget.tipo}}
+    </div>
+    <div class="col-md-3">
+        <h3></h3>
+        {{=form_pesq.custom.submit}}
+    </div>
+</div>
+{{=form_pesq.custom.end}}
+<p></p>
+<table id="curvaabc" class="display" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>Pos</th>
+            <th>Descricão</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Total</th>
+            <th>Porcentagem</th>
+            <th>Acumulado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for r in curvaabc:}}
+        <tr>
+            <td>{{=r.id}}</td>
+            <td>{{=r.descricao}}</td>
+            <td>{{=r.quantidade}}</td>
+            <td>{{=r.valor}}</td>
+            <td>{{=r.total}}</td>
+            <td>{{=r.porcentagem}}</td>
+            <td>{{=r.acumulado}}</td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+    $('#curvaabc').DataTable({
+        select: true,
+        paging: false,
+        scrollY: 300,
+        scrollCollapse: true,
+        searching: false,
+        ordering:  true,
+        language: {"url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json"},
+    });
+    $('#pesquisar_abc').click(function(){
+        var valorabc = $('#pesquisar_abc').val();
+        if(valorabc != 'INSUMO'){
+          $('#pesquisar_tipo').val('TODOS');
+          $('#pesquisar_tipo').prop('disabled',true);
+        } else {
+          $('#pesquisar_tipo').prop('disabled',false);
+        }
+    });
+});
+
+</script>

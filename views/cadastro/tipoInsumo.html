@@ -1,0 +1,44 @@
+{{extend 'layout.html'}}
+<div class="container">
+    {{if formTpInsumo.create_form or formTpInsumo.update_form:}}
+        {{=formTpInsumo[1].custom.begin}}
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4>Cadastro de Tipo de Insumos</h4></div>
+            <div class="panel-body">
+                <div class="well">
+                    <div class="row">
+                        <div class="col-md-1">
+                            {{=formTpInsumo[1].custom.label.sigla}}
+                            {{=formTpInsumo[1].custom.widget.sigla}}
+                        </div>
+                        <div class="col-md-6">
+                            {{=formTpInsumo[1].custom.label.descricao}}
+                            {{=formTpInsumo[1].custom.widget.descricao}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-body">
+                <div class="right">
+                    {{=formTpInsumo[1].custom.submit}}
+                    {{=voltar('tipoInsumo')}}
+                    {{if formTpInsumo.update_form:}}
+                        {{=novo('tipoInsumo/new/tipoInsumo')}}
+                        {{=excluir('#')}}
+                    {{pass}}
+                </div>
+            </div>
+        </div>
+        {{=formTpInsumo[1].custom.end}}
+    {{else:}}
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4>Tipo de Insumos</h4></div>
+                <div class="panel-body">
+                    {{=formTpInsumo}}
+                </div>
+            </div>
+        </div>
+    {{pass}}
+</div>

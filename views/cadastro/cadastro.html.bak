@@ -1,0 +1,22 @@
+{{extend 'layout.html'}}
+<h1>Incluir ou Alterar Cadastros</h1>
+{{=voltar}}
+{{=novo}}
+<div class="container">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#home">Dados Cadastrais</a></li>
+    <li><a data-toggle="tab" href="#menu1">Endereços</a></li>
+    <li><a data-toggle="tab" href="#menu2">Contatos</a></li>
+  </ul>
+  <div class="tab-content">
+    <div id="home" class="tab-pane fade in active">
+        {{= form_cadastro_editar}}
+    </div>
+    <div id="menu1" class="tab-pane fade">
+        {{= form_enderecos}}
+    </div>         
+    <div id="menu2" class="tab-pane fade">
+        {{= form_contatos}}  
+    </div>
+  </div>
+</div>

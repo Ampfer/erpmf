@@ -1,0 +1,46 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Cadastro de Fornecedores</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados Cadastrais</a></li>
+                    <li><a data-toggle="tab" href="#menu1">Insumos</a></li>
+                </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=form_fornecedor.custom.begin}}
+                    <div class="well">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{=form_fornecedor.custom.label.cadastro}}
+                                {{=form_fornecedor.custom.widget.cadastro}}
+                            </div>
+                            <div class="col-md-6">
+                                {{=form_fornecedor.custom.label.nome}}
+                                {{=form_fornecedor.custom.widget.nome}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p></p>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="right">
+                                {{=form_fornecedor.custom.submit}}
+                                {{=btnNovo}}
+                                {{=btnVoltar}}
+                                {{=btnExcluir}}
+                            </div>
+                        </div>
+                    </div>
+                    {{=form_fornecedor.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formInsumo}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

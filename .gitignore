@@ -1,0 +1,13 @@
+###Web2py###
+
+# sqlite database files
+*.sqlite
+
+# web2py cache, errors and sessions files
+cache/*
+errors/*
+sessions/*
+uploads/*
+databases/*
+static/pdf/*
+

@@ -1,0 +1,53 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h6>Cadastro de Composição</h6></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Composição</a></li>
+                <li><a data-toggle="tab" href="#menu1">Insumos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                        {{=formComposicao.custom.begin}}
+                        <div class="well">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    {{=formComposicao.custom.label.descricao}}
+                                    {{=formComposicao.custom.widget.descricao}}
+                                </div>
+                                <div class="col-md-3">
+                                    {{=formComposicao.custom.label.unidade}}
+                                    {{=formComposicao.custom.widget.unidade}}
+                                </div>
+                                <div class="col-md-2">
+                                    {{=formComposicao.custom.label.empreita}}
+                                    {{=formComposicao.custom.widget.empreita}}
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Valor:</label>
+                                    <h4><strong>{{=valorComposicao}}</strong></h4>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-info">
+                            <div class="panel-body">
+                                <div class="right">
+                                    {{=formComposicao.custom.submit}}
+                                    {{=btnNovo}}
+                                    {{=voltar('composicao')}}
+                                    {{=btnExcluir}}
+                                </div>
+                            </div>
+                        </div>
+                        {{=formComposicao.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formInsumos}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

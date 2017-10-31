@@ -1,0 +1,10 @@
+{{=form}}
+<pre>Total Selecionado : <b>{{=session.total_pagar}}</b>    Total de Pagamentos : <b>{{=session.total_pagamentos}}</b></pre>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#novo").click(function(e) {
+       show_modal("{{=URL("pagar","pagamentos",vars={'reload_div':'map'})}}","Pagamentos");
+    });
+  }); 
+</script>
+

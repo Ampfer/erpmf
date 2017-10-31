@@ -1,0 +1,10 @@
+{{=form_conta}}
+<pre>Total de Recebiemntos : <b>{{=session.totrec}}</b>    Total de Pagamentos : <b>{{=session.totpag}}</b></pre>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#novo").click(function(e) {
+    show_modal("{{=URL("financeiro","conta_lancamento")}}","Conta Corrente");
+  });
+});
+</script>

@@ -1,0 +1,28 @@
+{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{extend 'layout.html'}}
+{{include 'modal.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Conta Corrente</h4></div>
+        <div class="panel-body">
+            {{=form_pesq.custom.begin}}
+            <div class="row">
+            <div class="col-md-6"> Conta {{=form_pesq.custom.widget.conta}} </div>
+            <div class="col-md-2"> Data Inicial {{=form_pesq.custom.widget.datainicial}} </div>
+            <div class="col-md-2"> Data Final {{=form_pesq.custom.widget.datafinal}} </div>
+            <div class="col-md-1"> Filtro {{=form_pesq.custom.submit}}</div>
+            {{=form_pesq.custom.end}}
+        </div><!-- /.row -->
+        {{=form_extrato}}
+    </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  //$("input[value =Selecionar]").hide();
+  $("#pesquisar_conta").change(function() {
+    $("input[value =Filtrar]").click();
+  });
+});
+</script>
+

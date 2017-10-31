@@ -1,0 +1,19 @@
+<button type="button" id="pesquisar" class="btn btn-primary btn-md" > 
+  Selecionar Cadastro
+</button>
+
+{{=form}}
+
+<script type="text/javascript">
+  function selecionar(id_cadastro){
+     hide_modal(); 
+     $.post("{{=URL('cadastro', 'dados_cadastro')}}",{id_cadastro:id_cadastro},function(result){
+       $("#dados_cadastro").html(result);
+     });
+  };
+  $(document).ready(function(){
+    $("#pesquisar").click(function(e) {
+       show_modal("{{=URL("AmpEng","cadastro","pesquisar_Cadastros.load")}}","Pesquisar Cadastro");
+    });
+  }); 
+</script>

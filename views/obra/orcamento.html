@@ -1,0 +1,62 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Orçamento</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
+                <li><a data-toggle="tab" href="#menu1">Itens</a></li>
+                <li><a data-toggle="tab" href="#menu2">Mão de Obra</a></li>
+                <li><a data-toggle="tab" href="#menu3">Insumos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=formOrcamento.custom.begin}}
+                    <div class="well">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {{=formOrcamento.custom.label.dtorcamento}}
+                                {{=formOrcamento.custom.widget.dtorcamento}}
+                            </div>
+                            <div class="col-md-4">
+                                {{=formOrcamento.custom.label.cliente}}
+                                {{=formOrcamento.custom.widget.cliente}}
+                            </div>
+                            <div class="col-md-6">
+                                {{=formOrcamento.custom.label.descricao}}
+                                {{=formOrcamento.custom.widget.descricao}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p></p>
+                            <div class="col-md-12">
+                                {{=formOrcamento.custom.label.observacao}}
+                                {{=formOrcamento.custom.widget.observacao}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="right">
+                                {{=formOrcamento.custom.submit}}
+                                {{=btnNovo}}
+                                {{=btnVoltar}}
+                                {{=btnExcluir}}
+                            </div>
+                        </div>
+                    </div>
+                    {{=formOrcamento.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formComposicao}}
+                </div>
+                <div id="menu2" class="tab-pane fade">
+                    {{=formMaodeObra}}
+                </div>
+                <div id="menu3" class="tab-pane fade">
+                    {{=formInsumoRelacao}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

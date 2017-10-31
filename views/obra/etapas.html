@@ -1,0 +1,44 @@
+{{extend 'layout.html'}}
+<div class="container">
+    {{if form_etapa.create_form or form_etapa.update_form:}}
+        {{=form_etapa[1].custom.begin}}
+        <div class="panel panel-info">
+            <div class="panel-heading"><h6>Etapas</h6></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{=form_etapa[1].custom.label.etapa}}
+                        {{=form_etapa[1].custom.widget.etapa}}
+                    </div>
+                    <div class="col-md-2">
+                        {{=form_etapa[1].custom.label.item}}
+                        {{=form_etapa[1].custom.widget.item}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-body">
+                <div class="right">
+                    {{=form_etapa[1].custom.submit}}
+                    {{=voltar('etapas')}}
+                    {{if form_etapa.update_form:}}
+                        {{=novo("etapas/new/etapas")}}
+                        {{=excluir("#")}}
+                    {{pass}}
+                </div>
+            </div>
+        </div>
+        {{=form_etapa[1].custom.end}}
+    {{elif form_etapa.view_form:}}
+        {{=form_etapa.view_form}}
+    {{else:}}
+        <div class="panel panel-info">
+            <div class="panel-heading"><h6>Etapas</h6></div>
+                <div class="panel-body">
+                    {{=form_etapa}}
+                </div>
+            </div>
+        </div>
+    {{pass}}
+</div>

@@ -1,0 +1,37 @@
+{{if formInsumoFornecedor.create_form or formInsumoFornecedor.update_form:}}
+    {{=formInsumoFornecedor[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-6">
+                {{=formInsumoFornecedor[1].custom.label.fornecedor}}
+                {{=formInsumoFornecedor[1].custom.widget.fornecedor}}
+            </div>
+            <div class="col-md-2">
+                {{=formInsumoFornecedor[1].custom.label.unidade}}
+                {{=formInsumoFornecedor[1].custom.widget.unidade}}
+            </div>
+            <div class="col-md-2">
+                {{=formInsumoFornecedor[1].custom.label.embalagem}}
+                {{=formInsumoFornecedor[1].custom.widget.embalagem}}
+            </div>
+            <div class="col-md-2">
+                {{=formInsumoFornecedor[1].custom.label.custo}}
+                {{=formInsumoFornecedor[1].custom.widget.custo}}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="right">
+                {{=formInsumoFornecedor[1].custom.submit}}
+                {{=btnVoltar}}
+                {{=btnExcluir}}
+            </div>
+        </div>
+    </div>
+    {{=formInsumoFornecedor[1].custom.end}}
+{{else:}}
+    <div class="well">
+        {{=formInsumoFornecedor}}
+    </div>
+{{pass}}

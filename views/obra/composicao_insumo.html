@@ -1,0 +1,46 @@
+    {{if formComposicaoInsumos.create_form or formComposicaoInsumos.update_form:}}
+    {{=formComposicaoInsumos[1].custom.begin}}
+        <div class="well">
+            <div class="row">
+                 <div class="col-md-6">
+                     {{=formComposicaoInsumos[1].custom.label.insumo}}
+                     {{=formComposicaoInsumos[1].custom.widget.insumo}}
+                 </div>
+                <div class="col-md-1">
+                     {{=formComposicaoInsumos[1].custom.label.unidade}}
+                     {{=formComposicaoInsumos[1].custom.widget.unidade}}
+                 </div>
+                 <div class="col-md-2">
+                    {{=formComposicaoInsumos[1].custom.label.quantidade}}
+                    {{=formComposicaoInsumos[1].custom.widget.quantidade}}
+                    </div>
+                 <div class="col-md-2">
+                    <p>Preço</p>
+                    <div id="preco">preco</div>
+                 </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-body">
+                <div class="right">
+                    {{=formComposicaoInsumos[1].custom.submit}}
+                    {{=voltar1('composicao_insumo')}}
+                    {{if formComposicaoInsumos.update_form:}}
+                        {{=excluir('#')}}
+                    {{pass}}
+                </div>
+            </div>
+        </div>
+        {{=formComposicaoInsumos[1].custom.end}}
+    {{else:}}
+            <p></p>
+            {{=formComposicaoInsumos}}
+            <p></p>
+            <div class="panel panel-info">
+                <div class="panel-body">
+                    <div class="right">{{=voltar2()}}</div>
+                </div>
+            </div>
+
+    {{pass}}
+

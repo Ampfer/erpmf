@@ -1,0 +1,90 @@
+{{extend 'layout.html'}}
+{{include 'modal.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Pedido de Compra</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
+                <li><a data-toggle="tab" href="#menu1">Insumos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=formCompra.custom.begin}}
+                    <div class="well">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {{=formCompra.custom.label.fornecedor}}
+                                <div class="input-group">
+                                    {{=formCompra.custom.widget.fornecedor}}
+                                    <span class="input-group-btn">
+                                        {{=btnPesquisar}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                {{=formCompra.custom.label.documento}}
+                                {{=formCompra.custom.widget.documento}}
+                            </div>
+                            <div class="col-md-2">
+                                {{=formCompra.custom.label.emissao}}
+                                {{=formCompra.custom.widget.emissao}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p></p>
+                            <div class="col-md-4">
+                                {{=formCompra.custom.label.condicao}}
+                                {{=formCompra.custom.widget.condicao}}
+                            </div>
+                            <div class="col-md-4">
+                                {{=formCompra.custom.label.obra}}
+                                {{=formCompra.custom.widget.obra}}
+                            </div>
+                            <div class="col-md-4">
+                                {{=formCompra.custom.label.tipo}}
+                                {{=formCompra.custom.widget.tipo}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p></p>
+                            <div class="col-md-12">
+                                {{=formCompra.custom.label.obs}}
+                                {{=formCompra.custom.widget.obs}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="right">
+                                {{=formCompra.custom.submit}}
+                                {{=pdf_link}}
+                                {{=btnEmail}}
+                                {{=btnNovo}}
+                                {{=btnExcluir}}
+                            </div>
+                        </div>
+                    </div>
+                    {{=formCompra.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formCompraInsumos}}
+                </div>
+              </div>
+            <div class="panel panel-info">
+                <div class="panel-body">
+                    <div class="right">
+                        {{=btnVoltar}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function selecionar(id){
+        $('#compras_fornecedor').val(id).focus();
+        hide_modal();
+    };
+</script

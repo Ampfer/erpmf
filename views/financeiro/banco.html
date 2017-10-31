@@ -1,0 +1,37 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Cheques</h4></div>
+        <div class="panel-body">
+            {{if formBanco.create_form or formBanco.update_form:}}
+                {{=formBanco[1].custom.begin}}
+                <div class="row">
+                    <div class="col-md-2">
+                        {{=formBanco[1].custom.label.codigo}}
+                        {{=formBanco[1].custom.widget.codigo}}
+                    </div>
+                    <div class="col-md-6">
+                        {{=formBanco[1].custom.label.nome}}
+                        {{=formBanco[1].custom.widget.nome}}
+                    </div>
+                </div>
+                <h1></h1>
+                <div class="panel panel-info">
+                    <div class="panel-body">
+                        <div class="right">
+                            {{=formBanco[1].custom.submit}}
+                            {{=A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",_title="Voltar...",_href=URL(c="financeiro", f="banco"))}}
+                            {{if formBanco.update_form:}}
+                                {{=A(SPAN(_class="glyphicon glyphicon-plus"), ' Novo ', _class="btn btn-primary",_title="Novo...", _href=URL("banco/new/banco"))}}
+                                {{=A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",_href="#")}}
+                            {{pass}}
+                        </div>
+                    </div>
+                </div>
+                {{=formBanco[1].custom.end}}
+            {{else:}}
+                {{=formBanco}}
+            {{pass}}
+        </div>
+    </div>
+</div>

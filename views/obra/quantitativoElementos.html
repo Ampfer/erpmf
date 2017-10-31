@@ -1,0 +1,66 @@
+{{if formQ.create_form or formQ.update_form:}}
+    {{=formQ[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-6">
+                {{=formQ[1].custom.label.descricao}}
+                {{=formQ[1].custom.widget.descricao}}
+            </div>
+            <div class="col-md-2">
+                {{=formQ[1].custom.label.espessura}}
+                {{=formQ[1].custom.widget.espessura}}
+            </div>
+            <div class="col-md-2">
+                {{=formQ[1].custom.label.largura}}
+                {{=formQ[1].custom.widget.largura}}
+            </div>
+            <div class="col-md-2">
+                {{=formQ[1].custom.label.comprimento}}
+                {{=formQ[1].custom.widget.comprimento}}
+            </div>
+        </div>
+        <div class="row">
+            <p></p>
+            <div class="col-md-3">
+                {{=formQ[1].custom.label.nucleo}}
+                {{=formQ[1].custom.widget.nucleo}}
+            </div>
+            <div class="col-md-3">
+                {{=formQ[1].custom.label.cima}}
+                {{=formQ[1].custom.widget.cima}}
+            </div>
+            <div class="col-md-3">
+                {{=formQ[1].custom.label.baixo}}
+                {{=formQ[1].custom.widget.baixo}}
+            </div>
+            <div class="col-md-3">
+                {{=formQ[1].custom.label.etapa}}
+                {{=formQ[1].custom.widget.etapa}}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="right">
+                {{=formQ[1].custom.submit}}
+                {{=voltar1('quantitativoelementos')}}
+                {{if formQ.update_form:}}
+                    {{=excluir('#')}}
+                {{pass}}
+            </div>
+        </div>
+    </div>
+    {{=formQ[1].custom.end}}
+{{else:}}
+    <div class="well">
+        {{=formQ}}
+    </div>
+{{pass}}
+
+<div class="panel panel-info">
+    <div class="panel-body">
+        <div class="right">
+          {{=voltar('quantitativos')}}
+        </div>
+    </div>
+</div>

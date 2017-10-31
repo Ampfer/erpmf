@@ -1,0 +1,85 @@
+{{extend 'layout.html'}}
+{{include 'modal.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Conta a Pagar</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
+                <li><a data-toggle="tab" href="#menu1">Insumos</a></li>
+                <li><a data-toggle="tab" href="#menu2">Parcelas</a></li>
+                <li><a data-toggle="tab" href="#menu3">Despesas</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=form_pagar.custom.begin}}
+                    <div class="well">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {{=form_pagar.custom.label.fornecedor}}
+                                <div class="input-group">
+                                    {{=form_pagar.custom.widget.fornecedor}}
+                                    <span class="input-group-btn">
+                                        {{=btnPesquisar}}
+                                    </span>
+                                </div><!-- /input-group -->
+                            </div>
+                            <div class="col-md-2">
+                                {{=form_pagar.custom.label.documento}}
+                                {{=form_pagar.custom.widget.documento}}
+                            </div>
+                            <div class="col-md-2">
+                                {{=form_pagar.custom.label.emissao}}
+                                {{=form_pagar.custom.widget.emissao}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p></p>
+                            <div class="col-md-2">
+                                {{=form_pagar.custom.label.valor}}
+                                {{=form_pagar.custom.widget.valor}}
+                            </div>
+                            <div class="col-md-3">
+                                {{=form_pagar.custom.label.condicao}}
+                                {{=form_pagar.custom.widget.condicao}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="right">
+                                {{=form_pagar.custom.submit}}
+                                {{=btnNovo}}
+                                {{=btnExcluir}}
+                            </div>
+                        </div>
+                    </div>
+                    {{=form_pagar.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=form_insumos}}
+                </div>
+                <div id="menu2" class="tab-pane fade">
+                    {{=form_parcelas}}
+                </div>
+                <div id="menu3" class="tab-pane fade">
+                    {{=form_despesas}}
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-body">
+                    <div class="right">
+                        {{=btnVoltar}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function selecionar(id){
+        $('#pagar_fornecedor').val(id).focus();
+        hide_modal();
+    };
+</script

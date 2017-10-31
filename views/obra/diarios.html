@@ -1,0 +1,94 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <h3>Diário de Obras</h3>
+    {{if form_diario.create_form or form_diario.update_form:}}
+    {{=form_diario[1].custom.begin}}
+    <div class="panel panel-info">
+        <div class="panel-heading">Dados da Obra</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3">
+                    {{=form_diario[1].custom.label.dtdiario}}
+                    {{=form_diario[1].custom.widget.dtdiario}}
+                </div>
+                <div class="col-md-6">
+                    {{=form_diario[1].custom.label.obra}}
+                    {{=form_diario[1].custom.widget.obra}}
+                </div>
+                <div class="col-md-3">
+                    {{=form_diario[1].custom.label.tempo}}
+                    {{=form_diario[1].custom.widget.tempo}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">Equipe de Obra</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    {{=form_diario[1].custom.label.pedreiro}}
+                    {{=form_diario[1].custom.widget.pedreiro}}
+                </div>
+                <div class="col-md-2">
+                    {{=form_diario[1].custom.label.servente}}
+                    {{=form_diario[1].custom.widget.servente}}
+                </div>
+                <div class="col-md-2">
+                    {{=form_diario[1].custom.label.pintor}}
+                    {{=form_diario[1].custom.widget.pintor}}
+                </div>
+                <div class="col-md-2">
+                    {{=form_diario[1].custom.label.eletrecista}}
+                    {{=form_diario[1].custom.widget.eletrecista}}
+                </div>
+                <div class="col-md-2">
+                    {{=form_diario[1].custom.label.encanador}}
+                    {{=form_diario[1].custom.widget.encanador}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">Serviços Executados</div>
+        <div class="panel-body">
+            {{=form_diario[1].custom.widget.servicos}}
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">Equipamentos</div>
+        <div class="panel-body">
+            {{=form_diario[1].custom.widget.equipamentos}}
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">Ocorrências</div>
+        <div class="panel-body">
+            {{=form_diario[1].custom.widget.ocorrencia}}
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="right">
+                {{=form_diario[1].custom.submit}}
+                {{=btnVoltar}}
+                {{if form_diario.update_form:}}
+                    {{=btnExcluir}}
+                {{pass}}
+            </div>
+        </div>
+    </div>
+    {{=form_diario[1].custom.end}}
+    {{elif form_diario.view_form:}}
+        {{=form_diario.view_form}}
+    {{else:}}
+        <div class="panel panel-info">
+            <div class="panel-heading"><h6>Etapas</h6></div>
+                <div class="panel-body">
+                    {{=form_diario}}
+                </div>
+            </div>
+        </div>
+    {{pass}}
+</div>
+

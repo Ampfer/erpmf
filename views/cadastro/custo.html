@@ -1,0 +1,37 @@
+{{if formCusto.create_form or formCusto.update_form:}}
+    {{=formCusto[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-6">
+                {{=formCusto[1].custom.label.insumo}}
+                {{=formCusto[1].custom.widget.insumo}}
+            </div>
+            <div class="col-md-2">
+                {{=formCusto[1].custom.label.unidade}}
+                {{=formCusto[1].custom.widget.unidade}}
+            </div>
+            <div class="col-md-2">
+                {{=formCusto[1].custom.label.embalagem}}
+                {{=formCusto[1].custom.widget.embalagem}}
+            </div>
+            <div class="col-md-2">
+                {{=formCusto[1].custom.label.custo}}
+                {{=formCusto[1].custom.widget.custo}}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="right">
+                {{=formCusto[1].custom.submit}}
+                {{=btnVoltar}}
+                {{=btnExcluir}}
+            </div>
+        </div>
+    </div>
+    {{=formCusto[1].custom.end}}
+{{else:}}
+    <div class="well">
+        {{=formCusto}}
+    </div>
+{{pass}}

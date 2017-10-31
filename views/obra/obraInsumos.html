@@ -1,0 +1,32 @@
+<div class="well">
+    {{=form_pesq.custom.begin}}
+    <div class="row">
+        <div class="col-md-3">
+            {{=form_pesq.custom.label.dtinicial}}
+            {{=form_pesq.custom.widget.dtinicial}}
+        </div>
+        <div class="col-md-3">
+            {{=form_pesq.custom.label.dtfinal}}
+            {{=form_pesq.custom.widget.dtfinal}}
+        </div>
+        <div class="col-md-3">
+            <h3></h3>
+            {{=form_pesq.custom.submit}}
+        </div>
+    </div>
+    {{=form_pesq.custom.end}}
+    {{=insumos}}
+</div>
+
+<script>
+$(document).ready(function(){
+    $('#obrainsumos').DataTable({
+        paging: false,
+        scrollY: 300,
+        scrollCollapse: true,
+        searching: false,
+        ordering:  false,
+        language: {"url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json"},
+    });
+});
+</script>

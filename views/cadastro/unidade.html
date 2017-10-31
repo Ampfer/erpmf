@@ -1,0 +1,44 @@
+{{extend 'layout.html'}}
+<div class="container">
+    {{if formUnidade.create_form or formUnidade.update_form:}}
+        {{=formUnidade[1].custom.begin}}
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4>Cadastro de Unidades</h4></div>
+            <div class="panel-body">
+                <div class="well">
+                    <div class="row">
+                        <div class="col-md-2">
+                            {{=formUnidade[1].custom.label.unidade}}
+                            {{=formUnidade[1].custom.widget.unidade}}
+                        </div>
+                        <div class="col-md-6">
+                            {{=formUnidade[1].custom.label.descricao}}
+                            {{=formUnidade[1].custom.widget.descricao}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-body">
+                <div class="right">
+                    {{=formUnidade[1].custom.submit}}
+                    {{=voltar('unidade')}}
+                    {{if formUnidade.update_form:}}
+                        {{=novo('unidade/new/unidade')}}
+                        {{=excluir('#')}}
+                    {{pass}}
+                </div>
+            </div>
+        </div>
+        {{=formUnidade[1].custom.end}}
+    {{else:}}
+        <div class="panel panel-info">
+            <div class="panel-heading"><h4>Unidades</h4></div>
+                <div class="panel-body">
+                    {{=formUnidade}}
+                </div>
+            </div>
+        </div>
+    {{pass}}
+</div>

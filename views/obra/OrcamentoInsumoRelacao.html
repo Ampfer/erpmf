@@ -1,0 +1,51 @@
+<p></p>
+{{=form_pesq.custom.begin}}
+<div class="row">
+    <div class="col-md-3">
+        {{=form_pesq.custom.label.etapa}}
+        {{=form_pesq.custom.widget.etapa}}
+    </div>
+        <div class="col-md-4">
+        {{=form_pesq.custom.label.composicao}}
+        {{=form_pesq.custom.widget.composicao}}
+    </div>
+    <div class="col-md-3">
+        {{=form_pesq.custom.submit}}
+    </div>
+</div>
+{{=form_pesq.custom.end}}
+<p></p>
+<div class="col-md-12">
+    <table class="table table-striped table-hover table-bordered">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Insumo</th>
+                <th>Quantidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{for i,row in enumerate(rows):}}
+                {{if i==1000: break}}
+                    <tr>
+                        <td>{{=Insumo(row.orcamentoInsumos.insumo).codigo}}</td>
+                        <td>{{=Insumo(row.orcamentoInsumos.insumo).descricao}}</td>
+                        <td>{{=row[sum]}}</td>
+                    </tr>
+                {{pass}}
+            {{pass}}
+        </tbody>
+    </table>
+</div>
+    
+<script type="text/javascript">
+jQuery(function($){
+  $("input[value=Filtrar]").hide();
+  $("#pesquisar_etapa").change(function() {
+    $("input[value=Filtrar]").click();
+  });
+    $("#pesquisar_composicao").change(function() {
+    $("input[value=Filtrar]").click();
+  });
+});
+</script>

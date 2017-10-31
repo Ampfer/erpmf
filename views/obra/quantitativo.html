@@ -1,0 +1,43 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Quantitativo</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
+                <li><a data-toggle="tab" href="#menu1">Elementos</a></li>
+                <li><a data-toggle="tab" href="#menu2">Resumo</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=formQuantitativo.custom.begin}}
+                    <div class="well">
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{=formQuantitativo.custom.label.descricao}}
+                                {{=formQuantitativo.custom.widget.descricao}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="right">
+                                {{=formQuantitativo.custom.submit}}
+                                {{=btnNovo}}
+                                {{=btnVoltar}}
+                                {{=btnExcluir}}
+                            </div>
+                        </div>
+                    </div>
+                    {{=formQuantitativo.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formElementos}}
+                </div>
+                <div id="menu2" class="tab-pane fade">
+                    {{=formResumo}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

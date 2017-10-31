@@ -1,0 +1,78 @@
+{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{extend 'layout.html'}}
+{{include 'modal.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Ficha do Fornecedor</h4></div>
+        <div class="panel-body">
+            {{=form_pesq.custom.begin}}
+            <div class="well">
+                <div class="row">
+                    <div class="col-md-6">
+                      <div class="input-group">
+                          {{=form_pesq.custom.widget.fornecedor}}
+                          <span class="input-group-btn">
+                            {{=form_pesq.custom.submit}}
+                            {{=btnPesquisar}}
+                          </span>
+                      </div><!-- /input-group -->
+                    </div><!-- /.col-md-6 -->
+                </div><!-- /.row -->
+            </div><!-- /.well -->
+            {{=form_pesq.custom.end}}
+
+            {{if session.fornecedor:}}
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Ficha Fornecedor</a></li>
+                <li><a data-toggle="tab" href="#menu1">Pagamentos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=form_parcelas}}
+                    <p></p>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p>Total:</p>
+                                    <h5><b>{{=total}}</b></h5>
+                                </div>
+                                <div class="col-md-4">
+                                    <p>Total Pago:</p>
+                                    <h5><b>{{=total_pago}}</b></h5>
+                                </div>
+                                <div class="col-md-4">
+                                    <p>Total Pendente:</p>
+                                    <h5><b>{{=total_pendente}}</b></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formPagamentos}}
+                </div>
+            </div>
+            {{pass}}
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+jQuery(function($){
+   $("input[value='Salvar']").attr('value','Pagar Parcelas');
+   $("input[value =Selecionar]").hide();
+   $("#pesquisar_fornecedor").change(function() {
+     $("input[value =Selecionar]").click().reload();
+   });
+});
+    function selecionar(id){
+        $('#pesquisar_fornecedor').val(id);
+        $("input[value =Selecionar]").click().reload();
+        hide_modal();
+    };
+
+</script>
+
+
+

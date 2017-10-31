@@ -1,0 +1,55 @@
+{{if formDespesas.create_form or formDespesas.update_form:}}
+    {{=formDespesas[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-8">
+                {{=formDespesas[1].custom.label.descricao}}
+                {{=formDespesas[1].custom.widget.descricao}}
+            </div>
+            <div class="col-md-2">
+                {{=formDespesas[1].custom.label.dtdespesa}}
+                {{=formDespesas[1].custom.widget.dtdespesa}}
+            </div>
+            <div class="col-md-2">
+                {{=formDespesas[1].custom.label.valor}}
+                {{=formDespesas[1].custom.widget.valor}}
+            </div>
+        </div>
+        <div class="row">
+            <p></p>
+            <div class="col-md-3">
+                {{=formDespesas[1].custom.label.etapa}}
+                {{=formDespesas[1].custom.widget.etapa}}
+            </div>
+            <div class="col-md-3">
+                {{=formDespesas[1].custom.label.obra}}
+                {{=formDespesas[1].custom.widget.obra}}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="right">
+                {{=formDespesas[1].custom.submit}}
+                {{=btnVoltar}}
+                {{=btnExcluir}}
+            </div>
+        </div>
+    </div>
+    {{=formDespesas[1].custom.end}}
+{{else:}}
+    <div class="well">
+        {{=formDespesas}}
+        <div class="left">
+            <b> Total Despesas: {{=total_despesas}}</b>
+        </div>
+    </div>
+{{pass}}
+
+<script type="text/javascript">
+
+    jQuery(function($){
+       $("#pagar_dtdespesa").mask('99/99/9999');
+    });
+</script>
+

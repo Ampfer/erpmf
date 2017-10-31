@@ -1,0 +1,38 @@
+{{if formOrcamentoInsumos.create_form or formOrcamentoInsumos.update_form:}}
+    {{=formOrcamentoInsumos[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-5">
+                {{=formOrcamentoInsumos[1].custom.label.insumo}}
+                {{=formOrcamentoInsumos[1].custom.widget.insumo}}
+            </div>
+            <div class="col-md-1">
+                {{=formOrcamentoInsumos[1].custom.label.unidade}}
+                {{=formOrcamentoInsumos[1].custom.widget.unidade}}
+            </div>
+            <div class="col-md-2">
+                {{=formOrcamentoInsumos[1].custom.label.quantidade}}
+                {{=formOrcamentoInsumos[1].custom.widget.quantidade}}
+            </div>
+            <div class="col-md-2">
+                {{=formOrcamentoInsumos[1].custom.label.preco}}
+                {{=formOrcamentoInsumos[1].custom.widget.preco}}
+            </div>
+            <div class="col-md-1">
+                <div style = "padding-top: 0.6cm;">
+                    {{=formOrcamentoInsumos[1].custom.submit}}
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div style = "padding-top: 0.6cm;padding-left: 2px">
+                    {{=voltar1('orcamentoinsumos')}}
+                </div>
+            </div>
+        </div>
+    </div>
+    {{=formOrcamentoInsumos[1].custom.end}}
+{{else:}}
+    {{=formOrcamentoInsumos}}
+    <span><h4 >Valor da Composicão: R$ {{=totalComposicao}} </h4></span>
+
+{{pass}}
