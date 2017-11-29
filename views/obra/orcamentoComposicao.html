@@ -18,13 +18,9 @@
                {{=formOrcamentoComposicao[1].custom.label.item}}
                {{=formOrcamentoComposicao[1].custom.widget.item}}
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 {{=formOrcamentoComposicao[1].custom.label.quantidade}}
                 {{=formOrcamentoComposicao[1].custom.widget.quantidade}}
-            </div>
-            <div class="col-md-1">
-                {{=formOrcamentoComposicao[1].custom.label.empreita}}
-                {{=formOrcamentoComposicao[1].custom.widget.empreita}}
             </div>
             <div class="col-md-1" style = "padding-top: 0.6cm;">
                 {{=formOrcamentoComposicao[1].custom.submit}}
@@ -37,27 +33,16 @@
         {{=formOrcamentoComposicao}}
     </div>
 {{pass}}
-<div class="panel panel-info">
-    <div class="panel-body">
-        {{if formOrcamentoComposicao.create_form or formOrcamentoComposicao.update_form:}}
-            <h4>Insumos da Composição</h4>
-            {{=formInsumos}}
-        {{else:}}
-            <h4>Total do Orçamento: R$ {{=total}}</h4>
-        {{pass}}
-    </div>
+
+<div class="right">
+    {{if formOrcamentoComposicao.create_form or formOrcamentoComposicao.update_form:}}
+        {{=voltar1('orcamentocomposicao')}}
+    {{else:}}
+        <h4>Total do Orçamento: R$ {{=total}}</h4>
+        {{=voltar('orcamentos')}}
+    {{pass}}
 </div>
-<div class="panel panel-info">
-    <div class="panel-body">
-        <div class="right">
-            {{if formOrcamentoComposicao.create_form or formOrcamentoComposicao.update_form:}}
-                {{=voltar1('orcamentocomposicao')}}
-            {{else:}}
-                {{=voltar('orcamentos')}}
-            {{pass}}
-        </div>
-    </div>
-</div>
+
 <script type="text/javascript">
 jQuery(function($){
  {{if formOrcamentoComposicao.update_form:}}

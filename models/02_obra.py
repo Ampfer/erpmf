@@ -3,10 +3,10 @@ Tempo = ('Sol','Nublado','Chuva')
 from decimal import *
 
 Etapas = db.define_table('etapas',
-	Field('etapa','string',label='Descrição:',length=30),
+    Field('etapa','string',label='Descrição:',length=30),
     Field('item','string',label='Item:',length=02),
-	format='%(etapa)s'
-	)
+    format='%(etapa)s'
+    )
 def buscaEtapa(id):
     if not id:
         raise HTTP(404, 'ID Etapa não encontrado')
@@ -18,15 +18,17 @@ def buscaEtapa(id):
         raise HTTP(404, 'Etapa não encontrado')
     return etapa
 
-def valorComposicao(row):
-    insumos = db(Composicao_Insumos.composicao == row.composicao.id).select()
+def valorComposicao(id):
+    idComposicao = int(id)
+    insumos = db(Composicao_Insumos.composicao == idComposicao).select()
     valor_Composicao = 0
     for insumo in insumos:
         valor_Composicao += (insumo.quantidade * insumo.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
     return valor_Composicao
 
-def valorMaoObra(row):
-    insumos = db(Composicao_Insumos.composicao == row.composicao.id).select()
+def valorMaoObra(id):
+    idComposicao = int(id)
+    insumos = db(Composicao_Insumos.composicao == idComposicao).select()
     valorMO = 0
     for insumo in insumos:
         tipo = Insumo[insumo.insumo].tipo
@@ -37,14 +39,14 @@ def valorMaoObra(row):
 Composicao = db.define_table('composicao',
                              Field('descricao', 'string', label='Descrição:', length=100),
                              Field('unidade', 'string', label='Unidade:', length=04),
-                             Field('empreita', 'decimal(7,2)', label='Empreita:'),
-                             Field.Virtual('maodeobra',lambda row:valorMaoObra(row), label='M.O.'),
-                             Field.Virtual('valor',lambda row:valorComposicao(row), label='Valor'),
+                             #Field('empreita', 'decimal(7,2)', label='Empreita:'),
+                             Field.Virtual('maodeobra',lambda row:valorMaoObra(row.composicao.id), label='M.O.'),
+                             Field.Virtual('valor',lambda row:valorComposicao(row.composicao.id), label='Valor'),
                              format='%(descricao)s',
                              )
 Composicao.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
 Composicao.descricao.requires = IS_UPPER()
-Composicao.empreita.requires = IS_DECIMAL_IN_RANGE(dot=',')
+#Composicao.empreita.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 Composicao_Insumos = db.define_table('composicao_insumos',
                                      Field('composicao', 'reference composicao'),
@@ -59,12 +61,12 @@ Composicao_Insumos.composicao.readable = Composicao_Insumos.composicao.writable 
 Composicao_Insumos.quantidade.requires= [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 
 Obras = db.define_table('obras',
-	Field('nome','string',label='Descrição:',length=60),
-	Field('cliente','reference clientes'),
-	Field('endereco','reference enderecos',ondelete = "SET NULL"),
-	Field('tipo_contrato','string',label = "Tipo de Contrato:",length=30),
-	format='%(nome)s'
-	)
+    Field('nome','string',label='Descrição:',length=60),
+    Field('cliente','reference clientes'),
+    Field('endereco','reference enderecos',ondelete = "SET NULL"),
+    Field('tipo_contrato','string',label = "Tipo de Contrato:",length=30),
+    format='%(nome)s'
+    )
 Obras.cliente.requires = IS_IN_DB(db,"clientes.id",'%(nome)s')
 Obras.endereco.requires = IS_IN_DB(db,"enderecos.id",'%(endereco)s - %(bairro)s - %(cidade)s - %(estado)s ')
 Obras.tipo_contrato.requires = IS_IN_SET(TipoContrato,zero='Escolha um Tipo de Contrato')
@@ -99,6 +101,7 @@ Diario.equipamentos.requires = IS_IN_DB(db(db.insumos.tipo=='Equipamentos'),'ins
 Diario.tempo.requires = IS_IN_SET(Tempo,zero=None)
 Diario.dtdiario.requires = data
 
+
 def totalOrcamento(orcamento):
     try:
         rows = db(OrcamentoComposicao.orcamento==int(orcamento.orcamentos.id)).select()
@@ -125,20 +128,11 @@ Orcamentos = db.define_table('orcamentos',
                             Field('cliente','reference clientes',label='Cliente:'),
                             Field('observacao','text', label='Observação:'),
                             Field.Virtual('total',lambda row: totalOrcamento(row), label='Total'),
-                            #Field.Virtual('maodeobra',lambda row: totalMaodeObra(row), label='M.O.')
+                            Field.Virtual('maodeobra',lambda row: totalMaodeObra(row), label='M.Obra')
                             )
 
 Orcamentos.dtorcamento.requires = data
 
-def totalComposicao(row):
-    try:
-        insumos = db(OrcamentoInsumos.composicao == int(row.orcamentoComposicao.id)).select()
-    except:
-        insumos=[]
-    valor_Composicao = 0
-    for insumo in insumos:
-        valor_Composicao += (insumo.quantidade * insumo.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
-    return valor_Composicao
 
 OrcamentoComposicao = db.define_table('orcamentoComposicao',
                                       Field('orcamento','reference orcamentos', label='Orçamento:'),
@@ -147,16 +141,18 @@ OrcamentoComposicao = db.define_table('orcamentoComposicao',
                                       Field('item','string',label='Item:',length=10),
                                       Field('quantidade','decimal(7,2)', label='Quantidade:'),
                                       Field('unidade','string',label='UN:',length=04),
-                                      Field('empreita','decimal(7,2)',label='Empreita:'),
+                                      #Field('empreita','decimal(7,2)',label='Empreita:'),
                                       Field.Virtual('valor',
-                                                    lambda row:totalComposicao(row), label='Valor:'),
+                                                    lambda row:valorComposicao(row.orcamentoComposicao.composicao), label='Valor:'),
+                                      Field.Virtual('maodeobra',
+                                                    lambda row:valorMaoObra(row.orcamentoComposicao.composicao), label='M.Obra:'),                                      
                                       Field.Virtual('total', lambda row: (row.orcamentoComposicao.quantidade * row.orcamentoComposicao.valor).quantize(
                                                     Decimal('1.00'), rounding=ROUND_DOWN), label='Total:'),
-
+                                      Field.Virtual('totmaodeobra', lambda row: (row.orcamentoComposicao.quantidade * row.orcamentoComposicao.maodeobra).quantize(Decimal('1.00'), rounding=ROUND_DOWN), label='Total MO:')
                                       )
 OrcamentoComposicao.orcamento.readable = OrcamentoComposicao.orcamento.writable = False
 OrcamentoComposicao.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
-OrcamentoComposicao.empreita.requires = IS_DECIMAL_IN_RANGE(dot=',')
+#OrcamentoComposicao.empreita.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 OrcamentoInsumos = db.define_table('orcamentoInsumos',
                                      Field('composicao', 'reference orcamentoComposicao'),

@@ -104,28 +104,6 @@ auth.settings.reset_password_requires_verification = True
 ## after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
 
-def voltar(url):
-    return A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",_href=URL(url))
-
-def voltar1(target):
-    return A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                 _onClick="jQuery(%s).get(0).reload()" %(target))
-def voltar2():
-    return A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                 _onClick="history.back()")
-def excluir(url):
-    return A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _href=url)
-def novo(url):
-    return A(SPAN(_class="glyphicon glyphicon-plus"), ' Novo ', _class="btn btn-info",_href=URL(url))
-def pesquisar(controle,funcao,titulo):
-    return A(SPAN(_class="btn btn-default glyphicon glyphicon-search"),'',_type="button",_id='pesquisar',
-    _onclick="show_modal('%s','%s');" %(URL(controle,funcao,vars={'reload_div':'map'}),titulo))
-def email(idcompra):
-    return A(SPAN(_class="glyphicon glyphicon-file"),' Email',_class="btn btn-info",_id='email',
-    _onclick="show_modal('%s','%s');" %(URL('pagar','enviarEmail',vars=dict(reload_div='map',id_compra=idcompra)),'Enviar Email de Pedido de Compra'))
-def pdf(url,idpagar):
-    return A(SPAN(_class="glyphicon glyphicon-file"), ' PDF ', _class="btn btn-info",_href=URL(url,vars=dict(id_pagar=idpagar)),_target = "_blank" )
-
 def moeda(valor):
     from locale import setlocale, currency, LC_ALL
     try:
@@ -147,7 +125,8 @@ Relatorio = db.define_table('relatorio',
                             Field('etapa','string',label='Etapa',length=30),
                             Field('quantidade','decimal(9,4)',label='Quantidade'),
                             Field('valor','decimal(7,2)',label='Valor'),
-                            Field('total','decimal(7,2)',label='Total'),
+                            #Field('total','decimal(7,2)',label='Total'),
+                            Field('total', compute=lambda r: (r['valor'] * r['quantidade']).quantize(Decimal('1.00'), rounding=ROUND_DOWN)),
                             Field('porcentagem','decimal(7,2)',label='%'),
                             Field('acumulado','decimal(7,2)',label='Acumulado')
                             )

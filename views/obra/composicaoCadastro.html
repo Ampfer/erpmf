@@ -2,6 +2,7 @@
 <div class="container">
     <div class="panel panel-info">
         <div class="panel-heading"><h6>Cadastro de Composição</h6></div>
+        <h3 style="margin-top: 20px;margin-left: 20px;">{{=composicao}}</h3>
         <div class="panel-body">
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#home">Composição</a></li>
@@ -21,8 +22,8 @@
                                     {{=formComposicao.custom.widget.unidade}}
                                 </div>
                                 <div class="col-md-2">
-                                    {{=formComposicao.custom.label.empreita}}
-                                    {{=formComposicao.custom.widget.empreita}}
+                                    <label>Mão de Obra:</label>
+                                    <h4><strong>{{=valorMaodeObra}}</strong></h4>
                                 </div>
                                 <div class="col-md-2">
                                     <label>Valor:</label>

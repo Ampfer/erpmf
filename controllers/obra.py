@@ -1,27 +1,21 @@
 # -*- coding: utf-8 -*-
 
-@auth.requires_membership('admin')
 def etapas():
-
-    form_etapa = SQLFORM.grid(Etapas,
-            csv=False,user_signature=False,maxtextlength=50,details=False)
-
+    form_etapa = grid(Etapas,50)
     return locals()
 
-@auth.requires_membership('admin')
 def insumos():
 
     fields = [Insumo.id,Insumo.codigo,Insumo.descricao,Insumo.unidade,Insumo.tipo,Insumo.preco]
-    grid = SQLFORM.grid(Insumo,csv=False,details=False,maxtextlength=60,fields=fields,orderby=Insumo.descricao,paginate = 0)
+    formInsumos = grid(Insumo,60,fields=fields,orderby=Insumo.descricao)
 
-    if grid.create_form:
+    if formInsumos.create_form:
         redirect(URL('insumoCadastro'))
-    elif grid.update_form:
+    elif formInsumos.update_form:
         redirect(URL('insumoCadastro', args=request.args(-1)))
 
-    return locals()
+    return dict(grid=formInsumos)
 
-@auth.requires_membership('admin')
 def insumoCadastro():
 
     id_insumo = request.args(0) or "0"
@@ -70,7 +64,6 @@ def insumoCadastro():
 
     return locals()
 
-@auth.requires_membership('admin')
 def insumoFornecedor():
     id_insumo = int(request.args(0))
     Custo.fornecedor.readable = Custo.fornecedor.writable = True
@@ -95,7 +88,6 @@ def insumoFornecedor():
 
     return locals()
 
-@auth.requires_membership('admin')
 def insumoHistorico():
     id_insumo = int(request.args(0))
     query = (PagarInsumos.insumo==id_insumo)&(PagarInsumos.pagar==Pagar.id)
@@ -106,10 +98,10 @@ def insumoHistorico():
                              create=False,editable=False,deletable = False,searchable=False)
     return locals()
 
-@auth.requires_membership('admin')
 def composicao():
-    formComposicao = SQLFORM.grid(Composicao,csv=False,user_signature=False,details=False,maxtextlength=60,
-                                  orderby=Composicao.descricao)
+
+    fields = [Composicao.id, Composicao.descricao, Composicao.unidade, Composicao.maodeobra, Composicao.valor]
+    formComposicao = grid(Composicao,60,fields=fields,orderby=Composicao.descricao)
 
     if formComposicao.create_form:
         redirect(URL('composicaoCadastro'))
@@ -134,6 +126,8 @@ def composicaoCadastro():
         btnNovo = novo("composicaoCadastro")
 
         valorComposicao = ("{0:.2f}".format(round(Composicao[id_composicao].valor,2)))
+        valorMaodeObra = ("{0:.2f}".format(round(Composicao[id_composicao].maodeobra,2)))
+        composicao = Composicao[id_composicao].descricao
 
     btnVoltar = voltar("composicao")
 
@@ -448,8 +442,8 @@ def diarios():
 
 @auth.requires_membership('admin')
 def orcamentos():
-    gridOrcamentos = SQLFORM.grid(Orcamentos,
-                                  formname="orcamentos",csv=False,user_signature=False,details=False,maxtextlength=50 )
+    fields = [Orcamentos.dtorcamento,Orcamentos.descricao,Orcamentos.cliente,Orcamentos.total]
+    gridOrcamentos = grid(Orcamentos,50,8,'400px',fields=fields,formname="orcamentos",orderby =~Orcamentos.dtorcamento)
     if request.args(-2) == 'new':
        redirect(URL('orcamento'))
     elif request.args(-3) == 'edit':
@@ -489,24 +483,9 @@ def orcamento():
 
     return locals()
 
-def adiconaInsumo(form):
-    #OrcamentoComposicao[form.vars.id] =dict(empreita=Composicao[request.vars.composicao].empreita)
-    insumos = db(Composicao_Insumos.composicao==form.vars.composicao).select()
-    for insumo in insumos:
-        OrcamentoInsumos[0] = dict(composicao=form.vars.id,insumo=insumo.insumo,
-                                   quantidade = insumo.quantidade,preco=insumo.preco,
-                                   orcamento=form.vars.orcamento,unidade = insumo.unidade)
-
-def alteraInsumo(form):
-    redirect('#')
-    response.js = "$('#orcamentocomposicao').get(0).reload()"
-
 def composicaoTrigger():
     idcomposicao = request.vars.composicao[0]
-    #return "jQuery('#orcamentoComposicao_unidade').val('%s');"  % (Composicao[idcomposicao].unidade )
-
-    return "jQuery('#orcamentoComposicao_unidade').val('%s');jQuery('#orcamentoComposicao_empreita').val('%s');" \
-           % (Composicao[idcomposicao].unidade, Composicao[idcomposicao].empreita)
+    return "jQuery('#orcamentoComposicao_unidade').val('%s')" % (Composicao[idcomposicao].unidade)
 
 def etapaTrigger():
     idEtapa = request.vars.etapa[0]
@@ -522,15 +501,13 @@ def orcamentoComposicao():
     session.idOrcamento = idOrcamento
 
     OrcamentoComposicao.orcamento.default = idOrcamento
-    OrcamentoComposicao.empreita.default = 0
-
+    
     fields = [OrcamentoComposicao.item,OrcamentoComposicao.composicao,OrcamentoComposicao.etapa,OrcamentoComposicao.quantidade,
               OrcamentoComposicao.unidade,OrcamentoComposicao.valor, OrcamentoComposicao.total,]
 
-    formOrcamentoComposicao = SQLFORM.grid(OrcamentoComposicao.orcamento==idOrcamento,details=False,
-                                           csv=False, user_signature=False,maxtextlength=50,
-                                           searchable=True,args=[idOrcamento],oncreate=adiconaInsumo,
-                                           onupdate = alteraInsumo,fields=fields,orderby=OrcamentoComposicao.item)
+    formOrcamentoComposicao = grid(OrcamentoComposicao.orcamento==idOrcamento,
+                                           searchable=False,args=[idOrcamento],
+                                           fields=fields,orderby=OrcamentoComposicao.item)
 
     if formOrcamentoComposicao.create_form or formOrcamentoComposicao.update_form:
         formOrcamentoComposicao[1].element(_name='composicao')['_onchange'] = "ajax('%s',['composicao'],':eval');" % URL('obra', 'composicaoTrigger')
@@ -538,80 +515,36 @@ def orcamentoComposicao():
         formOrcamentoComposicao[1].element(_name='unidade')['_readonly'] = "readonly"
     total = Orcamentos[idOrcamento].total or 0
 
-    formInsumos = ''
-    if request.args(-3) == 'edit':
-        formInsumos = LOAD(c='obra', f='orcamentoInsumos', content='Aguarde, carregando...',
-                           target='orcamentoinsumos', ajax=True,
-                           vars=dict(idComposicao=request.args(-1),idOrcamento=request.args(0)))
+    return dict(formOrcamentoComposicao = formOrcamentoComposicao, total=total)
 
-    return locals()
 
 def insumoTrigger():
     return "jQuery('#orcamentoInsumos_preco').val('%s');jQuery('#orcamentoInsumos_unidade').val('%s');"\
            %(Insumo[request.vars.insumo].preco,Insumo[request.vars.insumo].unidade)
 
-@auth.requires_membership('admin')
-def orcamentoInsumos():
-
-    idComposicao = int(request.vars.idComposicao)
-    idOrcamento = int(request.vars.idOrcamento)
-
-    OrcamentoInsumos.composicao.default = idComposicao
-    OrcamentoInsumos.orcamento.default = idOrcamento
-    OrcamentoInsumos.composicao.readble = OrcamentoInsumos.composicao.writable = False
-    OrcamentoInsumos.orcamento.readble = OrcamentoInsumos.orcamento.writable = False
-
-    fields = [OrcamentoInsumos.codigo,OrcamentoInsumos.insumo,OrcamentoInsumos.unidade,
-              OrcamentoInsumos.quantidade,OrcamentoInsumos.preco,OrcamentoInsumos.total,]
-    formOrcamentoInsumos = SQLFORM.grid(OrcamentoInsumos.composicao==idComposicao,args=[idComposicao],
-                                        details=False, csv=False, user_signature=False, maxtextlength=50,
-                                        searchable=False,fields=fields)
-
-    if formOrcamentoInsumos.create_form or formOrcamentoInsumos.update_form:
-        formOrcamentoInsumos[1].element(_name='insumo')['_onchange'] = "ajax('%s', ['insumo'], ':eval');" % URL('obra', 'insumoTrigger')
-        formOrcamentoInsumos[1].element(_name='unidade')['_readonly'] = "readonly"
-    totalComposicao = OrcamentoComposicao[idComposicao].valor or 0
-
-    return locals()
-
-@auth.requires_membership('admin')
 def orcamentoMaodeObra():
+    
     idOrcamento = int(request.args(0))
 
-    def MOComposicao(row):
-        try:
-            insumos = db(OrcamentoInsumos.composicao == int(row.orcamentoComposicao.id)).select()
-        except:
-            insumos = []
-        valorMO = 0
-        for insumo in insumos:
-            tipo = Insumo[insumo.insumo].tipo
-            if tipo == 'MÃO DE OBRA':
-                valorMO += (insumo.quantidade * insumo.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
-        return valorMO
-
-    OrcamentoComposicao.maodeobra = Field.Virtual('maodeobra', lambda row: MOComposicao(row), label='M.O.:')
-    OrcamentoComposicao.totmaodeobra = Field.Virtual('totmaodeobra', lambda row: (row.orcamentoComposicao.quantidade * MOComposicao(row)).quantize(Decimal('1.00'), rounding=ROUND_DOWN), label='MO.:')
     OrcamentoComposicao.orcamento.default = idOrcamento
 
     fields = [OrcamentoComposicao.composicao,OrcamentoComposicao.etapa,OrcamentoComposicao.quantidade,
-              OrcamentoComposicao.unidade,OrcamentoComposicao.empreita,OrcamentoComposicao.maodeobra,
+              OrcamentoComposicao.unidade,OrcamentoComposicao.maodeobra,
               OrcamentoComposicao.totmaodeobra]
 
-    formOrcamentoMaodeObra = SQLFORM.grid(OrcamentoComposicao.orcamento==idOrcamento,details=False,editable=False,
-                                          csv=False, user_signature=False,maxtextlength=50,create=False,
-                                          searchable=False,args=[idOrcamento],fields=fields,deletable=False,
-                                          orderby = OrcamentoComposicao.etapa)
+    formOrcamentoMaodeObra = grid(OrcamentoComposicao.orcamento==idOrcamento,editable=False,create=False,searchable=False,
+                                  args=[idOrcamento],fields=fields,deletable=False,orderby = OrcamentoComposicao.etapa)
 
     if  formOrcamentoMaodeObra.update_form:
         formOrcamentoMaodeObra[1].element(_name='unidade')['_readonly'] = "readonly"
 
-    #totalMaodeObra = Orcamentos[idOrcamento].maodeobra or 0
+    totalMaodeObra = Orcamentos[idOrcamento].maodeobra or 0
 
-    return locals()
+    return dict(formOrcamentoMaodeObra=formOrcamentoMaodeObra, totalMaodeObra = totalMaodeObra)
 
-@auth.requires_membership('admin')
+
 def insumosOrcamento():
+
     idOrcamento = int(request.args(0))
 
     etapa = request.vars.etapa if request.vars.etapa else '0'
@@ -628,21 +561,112 @@ def insumosOrcamento():
         Field('etapa', default=etapa, requires=IS_IN_SET(etapaSet, zero=None)),
         Field('composicao', default=composicao, requires=IS_IN_SET(composicaoSet, zero=None)),
         table_name='pesquisar',
-        submit_button='Filtrar',
+        submit_button='Gerar',
     )
+
     if form_pesq.process().accepted:
         etapa = form_pesq.vars.etapa
         composicao = form_pesq.vars.composicao
     elif form_pesq.errors:
         response.flash = 'Erro no Formulário'
 
-    sum = (OrcamentoInsumos.quantidade*OrcamentoComposicao.quantidade).sum()
-    query = (OrcamentoInsumos.composicao == OrcamentoComposicao.id) & (OrcamentoComposicao.orcamento == idOrcamento) & (OrcamentoInsumos.insumo == Insumo.id)
+    query = (OrcamentoComposicao.orcamento == idOrcamento)
     query = query & (OrcamentoComposicao.etapa == etapa) if etapa != '0' else query
     query = query & (OrcamentoComposicao.composicao == composicao) if composicao != '0' else query
-    rows = db(query).select(OrcamentoInsumos.insumo,Insumo.descricao,sum,orderby=Insumo.descricao, groupby=OrcamentoInsumos.insumo)
+
+    Relatorio.truncate()
+        
+    rows1 = db(query).select()
+    for r1 in rows1:
+        qtComposicao = r1.quantidade
+        rows2 = db(Composicao_Insumos.composicao==r1.composicao).select()
+        for r2 in rows2:
+            qtde = r2.quantidade * qtComposicao
+            insumo = db(Insumo.id == r2.insumo).select().first()
+            sum1 = Relatorio.quantidade.sum()
+            qtAnt = db(Relatorio.codigo == insumo.codigo).select(sum1).first()[sum1] or 0
+
+            Relatorio.update_or_insert(Relatorio.codigo == insumo.codigo,
+                        codigo = insumo.codigo,
+                        descricao = insumo.descricao,
+                        unidade = insumo.unidade,
+                        quantidade = (qtAnt + qtde),
+                        valor=insumo.preco,
+                        #total = total,
+                        )
+            #db(db.relatorio.codigo == insumo.codigo).update(quantidade = db.relatorio.quantidade + qtde)
+
+    if query:
+        sum2 = Relatorio.total.sum()
+        totalInsumos = db(Relatorio.id > 0).select(sum2).first()[sum2]
+
+        orcamentoInsumos = db(Relatorio.id>0).select(Relatorio.codigo,
+                                            Relatorio.descricao,
+                                            Relatorio.unidade,
+                                            Relatorio.quantidade,
+                                            Relatorio.valor,
+                                            Relatorio.total,
+                                            orderby=Relatorio.descricao
+                                            )
+
+
+        insumos = SQLTABLE(orcamentoInsumos,_id='insumosOrcamento',
+                                        _class='display',
+                                        _cellspacing = "0",
+                                        _width = "100%",
+                                        headers='labels',
+                                        truncate = 100)
+    else:
+        insumos = ''
+        totalInsumos = 0
 
     return locals()
+
+'''
+    #sum = (OrcamentoComposicao.quantidade*Composicao_Insumos.quantidade).sum()
+    query = (Insumo.id == Composicao_Insumos.insumo) & (Composicao_Insumos.composicao == OrcamentoComposicao.composicao) & (OrcamentoComposicao.orcamento == idOrcamento)
+    query = query & (OrcamentoComposicao.etapa == etapa) if etapa != '0' else query
+    query = query & (OrcamentoComposicao.composicao == composicao) if composicao != '0' else query
+    rows = db(query).select(Insumo.id.with_alias('insumo'),
+                            Insumo.descricao.with_alias('descricao'),
+                            Insumo.unidade.with_alias('unidade'),
+                            Insumo.preco.with_alias('preco'),
+                            Insumo.codigo.with_alias('codigo'),
+                            OrcamentoComposicao.quantidade.with_alias('qtComposicao'),
+                            Composicao_Insumos.quantidade.with_alias('qtInsumos')
+                            )
+
+    Relatorio.truncate()
+
+    for r in rows:
+
+        qtde = r.qtComposicao*r.qtInsumos
+        
+        Relatorio.update_or_insert(Relatorio.codigo == r.codigo,
+                            codigo = r.codigo,
+                            descricao = r.descricao,
+                            unidade = r.unidade,
+                            quantidade =+ qtde,
+                            valor=r.preco,
+                            #total = total,
+                                                        
+                            )
+                                   
+        Relatorio[0] = dict(codigo = codigo,
+                            descricao = r.descricao,
+                            unidade = r.unidade,
+                            quantidade = quantidade + qtde,
+                            valor=r.preco,
+                            #total = total,
+                            
+                            #datarel = Pagar[r.pagar].emissao 
+                            )
+        '''
+
+
+
+
+
 
 @auth.requires_membership('admin')
 def quantitativos():
