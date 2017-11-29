@@ -581,7 +581,7 @@ def insumosOrcamento():
         qtComposicao = r1.quantidade
         rows2 = db(Composicao_Insumos.composicao==r1.composicao).select()
         for r2 in rows2:
-            qtde = r2.quantidade * qtComposicao
+            qtde = (r2.quantidade * qtComposicao).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
             insumo = db(Insumo.id == r2.insumo).select().first()
             sum1 = Relatorio.quantidade.sum()
             qtAnt = db(Relatorio.codigo == insumo.codigo).select(sum1).first()[sum1] or 0
@@ -594,7 +594,6 @@ def insumosOrcamento():
                         valor=insumo.preco,
                         #total = total,
                         )
-            #db(db.relatorio.codigo == insumo.codigo).update(quantidade = db.relatorio.quantidade + qtde)
 
     if query:
         sum2 = Relatorio.total.sum()
