@@ -116,7 +116,8 @@ def composicaoCadastro():
     if id_composicao == "0":
         formComposicao = SQLFORM(Composicao, field_id='id', _id='formComposicao')
         formInsumos = btnExcluir = btnNovo = ''
-        valorComposicao = 0
+        valorComposicao = valorMaodeObra = 0
+        composicao = 'Nova Composicão'
     else:
         formComposicao = SQLFORM(Composicao,id_composicao, field_id='id', _id='formComposicao')
 
@@ -581,7 +582,7 @@ def insumosOrcamento():
         qtComposicao = r1.quantidade
         rows2 = db(Composicao_Insumos.composicao==r1.composicao).select()
         for r2 in rows2:
-            qtde = (r2.quantidade * qtComposicao).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
+            qtde = (r2.quantidade * qtComposicao).quantize(Decimal('1.00'), rounding=ROUND_HALF_UP)
             insumo = db(Insumo.id == r2.insumo).select().first()
             sum1 = Relatorio.quantidade.sum()
             qtAnt = db(Relatorio.codigo == insumo.codigo).select(sum1).first()[sum1] or 0
