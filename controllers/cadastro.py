@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-@auth.requires_membership('admin')
+
+'''
+#@auth.requires_membership('admin')
 def cadastros():
     fields = (Cadastros.razao,Cadastros.tipo,Cadastros.cnpj_cpf)
     grid_cadastros = SQLFORM.grid(Cadastros,
@@ -13,7 +15,7 @@ def cadastros():
 
     return locals()
     
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def cadastro():
 
     id_cadastro = request.args(0) or "0"
@@ -47,7 +49,7 @@ def cadastro():
         response.flash = 'Erro no Formulário Principal!'
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def contatos():
     
     id_cadastro = int(request.args(0))
@@ -68,7 +70,7 @@ def contatos():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def enderecos():
     id_cadastro = int(request.args(0))
         
@@ -87,66 +89,103 @@ def enderecos():
         btnExcluir = ''
 
     return locals()
+'''
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def clientes():
-    fields = (Clientes.id,Clientes.nome,Clientes.cadastro)
-    form = SQLFORM.grid(Clientes,
-            formname="lista_clientes",fields=fields,csv=False,user_signature=False,details=False,maxtextlength=50)
+    fields = (Clientes.id,Clientes.nome)
+    form = grid(Clientes,formname="clientes",fields=fields)
             
     form = DIV(form, _class="well")
 
     if request.args(-2) == 'new':
        redirect(URL('cliente'))
     elif request.args(-3) == 'edit':
-       id_cliente = request.args(-1)
-       redirect(URL('cliente', args=id_cliente ))
+       idCliente = request.args(-1)
+       redirect(URL('cliente', args=idCliente ))
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def cliente():
-    id_cliente = request.args(0) or "0"
+    idCliente = request.args(0) or "0"
 
-    if id_cliente == "0":
-        form_cliente = SQLFORM(Clientes,field_id='id', _id='form_cliente')
+    if idCliente == "0":
+        formCliente = SQLFORM(Clientes,field_id='id', _id='form_cliente')
 
         btnNovo=btnExcluir=btnVoltar = ''
-        form_obra = "Primeiro Cadastre um Cliente"
+        formDemandas=formContatos=formEnderecos= "Primeiro Cadastre um Cliente"
     else:
-        form_cliente = SQLFORM(Clientes,id_cliente,_id='form_cliente',field_id='id')
+        formCliente = SQLFORM(Clientes,idCliente,_id='formCliente',field_id='id')
+        formEnderecos = LOAD(c='cadastro', f='clienteEnderecos', args=[idCliente],
+                          target='enderecos', ajax=True)
+        formContatos = LOAD(c='cadastro', f='clienteContatos', args=[idCliente],
+                          target='contatos', ajax=True)        
+        formDemandas = LOAD(c='cadastro', f='clienteDemandas', args=[idCliente],
+                          target='demandas', ajax=True)
+        btnExcluir = excluir("#")
+        btnNovo = novo("cliente")
 
-        form_obra = LOAD(c='cadastro', f='clienteObras', args=[id_cliente],
-                         content='Aguarde, carregando...', target='obras', ajax=True)
-        btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger",
-                       _title="Excluir...",
-                       _href="#")
-        btnNovo = A(SPAN(_class="glyphicon glyphicon-plus"), ' Novo ', _class="btn btn-primary",
-                    _title="Novo...", _href=URL("cliente"))
+    btnVoltar = voltar("clientes")
 
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                  _title="Voltar...",
-                  _href=URL("clientes"))
-
-    if form_cliente.process().accepted:
+    if formCliente.process().accepted:
         response.flash = 'Cliente Salvo com Sucesso!'
-        redirect(URL('cliente', args=form_cliente.vars.id))
+        redirect(URL('cliente', args=formCliente.vars.id))
 
-    elif form_cliente.errors:
+    elif formCliente.errors:
         response.flash = 'Erro no Formulário Principal!'
 
     return locals()
 
+def clienteContatos():  
+  idCliente = int(request.args(0))
+  Contatos.cliente.default = idCliente
+  Contatos.fornecedor.default = None
+  '''
+  formContatos = SQLFORM.grid((Contatos.cliente==idCliente),
+                 formname="contatos",searchable = False,details=False,
+                 args=[idCliente],csv=False,)
+  '''
+  formContatos = grid(Contatos.cliente==idCliente,formname="contatos",
+                 searchable = False,args=[idCliente],)
 
-@auth.requires_membership('admin')
-def clienteObras():
-    id_cliente = int(request.args(0))
+  btnVoltar = voltar1('contatos')
 
-    formClienteObras = SQLFORM.grid((Obras.cliente == id_cliente), details=False,create=False,deletable=False,editable=False,
-                                 formname="obras", searchable=False, args=[id_cliente], csv=False,maxtextlength=50)
+  if formContatos.update_form:
+      btnExcluir = excluir("#")
+  else:
+      btnExcluir = ''
+
+  return dict(formContatos=formContatos,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+
+def clienteEnderecos():
+  idCliente = int(request.args(0))
+        
+  Enderecos.cliente.default = idCliente
+  Enderecos.fornecedor.default = 0
+
+  formEnderecos = SQLFORM.grid((Enderecos.cliente==idCliente),details=False,
+          formname="enderecos",searchable = False,args=[idCliente],csv=False)
+
+  btnVoltar = voltar1('enderecos')
+
+  if formEnderecos.update_form:
+      btnExcluir = excluir("#")
+  else:
+      btnExcluir = ''
+
+  return dict(formEnderecos=formEnderecos,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+
+
+##@auth.requires_membership('admin')
+def clienteDemandas():
+    idCliente = int(request.args(0))
+
+    formClienteObras = SQLFORM.grid((Obras.cliente == idCliente), details=False,create=False,deletable=False,editable=False,
+                                 formname="obras", searchable=False, args=[idCliente], csv=False,maxtextlength=50)
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def fornecedores():
     fields = (Fornecedores.id,Fornecedores.nome,Fornecedores.cadastro)
     form = SQLFORM.grid(Fornecedores,
@@ -161,7 +200,7 @@ def fornecedores():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def fornecedor():
     id_fornecedor = request.args(0) or "0"
 
@@ -220,21 +259,21 @@ def custo():
     return locals()
 
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def condicao():
 
     formCondicao = SQLFORM.grid(Condicao,csv=False,user_signature=False,maxtextlength=50,details=False)
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def unidade():
 
     formUnidade = SQLFORM.grid(Unidade,csv=False,user_signature=False, maxtextlength=50,details=False)
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def tipoInsumo():
 
     formTpInsumo = SQLFORM.grid(TipoInsumo,csv=False,user_signature=False, maxtextlength=50,details=False)

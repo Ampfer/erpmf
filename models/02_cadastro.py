@@ -7,7 +7,7 @@ TipoContrato = ('Administração','Preço Fechado','Própria')
 Departamentos = ('Vendas','Compras','Financeiro')
 Estados = {'SP':'São Paulo','RJ':'Rio de Janeiro','MG':'Minas Gerais','RS':'Rio Grande do Sul','SC':'Santa Catarina','PR':'Paraná'}
 TipoInsumos = {'Material':'MT-Marerial','Mão de Obra':'MO-Mão de Obra','Equipamentos':'EQ-Equipamentos','Documentação':'DC-Documentação'}
-
+'''
 Cadastros = db.define_table('cadastros',
 	Field('tipo','string',label='Tipo de Pessoa:',length=30),
 	Field('cnpj_cpf','string',label='CNPJ/CPF:',length=20),
@@ -20,6 +20,35 @@ Cadastros.tipo.default = "Física"
 Cadastros.cnpj_cpf.requires=IS_EMPTY_OR(IS_CPF_OR_CNPJ())
 Cadastros.tipo.requires = IS_IN_SET(TipoPessoa,zero=None)
 #Cadastro.email.requires = IS_EMAIL(error_message='Digite um Email')
+'''
+
+Clientes = db.define_table('clientes',
+	Field('nome','string',label='Nome Fantasia:',length=60),
+	Field('razao','string',label='Razão Social:',length=60),
+	Field('tipo','string',label='Tipo de Pessoa:',length=30),
+	Field('cnpj_cpf','string',label='CNPJ/CPF:',length=20),
+	Field('ie_rg','string',label='I.E./RG:',length=20),	
+	format='%(nome)s'
+	)
+Clientes.id.label = 'Código'
+Clientes.nome.requires = notempty
+Clientes.tipo.default = "Física"
+Clientes.cnpj_cpf.requires=IS_EMPTY_OR(IS_CPF_OR_CNPJ())
+Clientes.tipo.requires = IS_IN_SET(TipoPessoa,zero=None)
+
+Fornecedores = db.define_table('fornecedores',
+	Field('nome','string',label='Nome Fantasia:',length=60),
+	Field('razao','string',label='Razão Social:',length=60),
+	Field('tipo','string',label='Tipo de Pessoa:',length=30),
+	Field('cnpj_cpf','string',label='CNPJ/CPF:',length=20),
+	Field('ie_rg','string',label='I.E./RG:',length=20),	
+	format='%(nome)s'
+	)
+Fornecedores.id.label = 'Código'
+Fornecedores.nome.requires = notempty
+Fornecedores.tipo.default = "Física"
+Fornecedores.cnpj_cpf.requires=IS_EMPTY_OR(IS_CPF_OR_CNPJ())
+Fornecedores.tipo.requires = IS_IN_SET(TipoPessoa,zero=None)
 
 Contatos = db.define_table('contatos',
 	Field('departamento','string',label='Departamento',length=30),
@@ -27,11 +56,14 @@ Contatos = db.define_table('contatos',
 	Field('fone','string',label='Fone:',length=60),
 	Field('celular','string',label='Celular:',length=60),
 	Field('email','string',label='Email:',length=60),
-	Field('cadastro','reference cadastros'),
+	Field('cliente','reference clientes'),
+	Field('fornecedor','reference fornecedores'),
 	format='%(nome)s'
 	) 
 Contatos.departamento.requires = IS_IN_SET(Departamentos,zero=None)
-Contatos.cadastro.readable = Contatos.cadastro.writable = False
+Contatos.cliente.readable = Contatos.cliente.writable = False
+Contatos.fornecedor.readable = Contatos.fornecedor.writable = False
+Contatos.email.requires = IS_EMPTY_OR(IS_EMAIL(error_message='Digite um Email'))
 
 Enderecos = db.define_table('enderecos',
 	Field('tipo','string',label='Tipo de Endereço:',length=30),
@@ -40,33 +72,15 @@ Enderecos = db.define_table('enderecos',
 	Field('cidade','string',label='Cidade:',length=40),
 	Field('estado','string',label='Estado:',length=2),
 	Field('cep','string',label='Cep:',length=9),
-	Field('cadastro','reference cadastros'),
+	Field('cliente','reference clientes'),
+	Field('fornecedor','reference fornecedores'),
 	format='%(endereco)s - %(bairro)s - %(cidade)s - %(estado)s'
 	)
 Enderecos.tipo.requires = IS_IN_SET(TipoEndereco,zero=None)
 Enderecos.estado.requires = IS_IN_SET(Estados,zero=None)
 Enderecos.estado.default = 'SP'
-Enderecos.cadastro.readable = Enderecos.cadastro.writable = False
-
-
-Clientes = db.define_table('clientes',
-	Field('nome','string',label='Nome Fantasia:',length=60),
-	Field('cadastro','reference cadastros',ondelete = "SET NULL",label='Razão Social'),
-	format='%(nome)s'
-	)
-Clientes.id.label = 'Código'
-Clientes.nome.requires = notempty
-#Clientes.cadastro.readable = Clientes.cadastro.writable = False
-#Clientes.cadastro.requires = [IS_IN_DB(db,Cadastros.id,Cadastros.razao)]
-
-Fornecedores = db.define_table('fornecedores',
-	Field('nome','string',label='Nome Fantasia:',length=60),
-	Field('cadastro','reference cadastros',ondelete = "SET NULL",label='Razão Social'),
-	format='%(nome)s'
-	)
-Fornecedores.id.label = 'Código'
-Fornecedores.nome.requires = notempty
-#Fornecedores.cadastro.readable = Fornecedores.cadastro.writable = False
+Enderecos.cliente.readable = Contatos.cliente.writable = False
+Enderecos.fornecedor.readable = Contatos.fornecedor.writable = False
 
 Condicao = db.define_table('condicao',
 	Field('descricao','string',label='Descrição:',length=30),

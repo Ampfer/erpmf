@@ -31,7 +31,6 @@ response.menu = [
 
 response.menu+=[
     (T('Arquivos'), False, URL(request.application,'default','index'), [
-    ('Cadastro', False, URL(r=request, c='cadastro', f='cadastros')),
     ('Cliente', False, URL(r=request, c='cadastro', f='clientes')),
     ('Fornecedor', False, URL(r=request, c='cadastro', f='fornecedores')),
     ('Condição de Pagamento', False, URL(r=request, c='cadastro', f='condicao')),
