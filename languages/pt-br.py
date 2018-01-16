@@ -59,6 +59,7 @@
 'Cache Keys': 'Chaves de cache',
 'Cadastro': 'Cadastro',
 'Cadastroid': 'Cadastroid',
+'Cadastros': 'Cadastros',
 'Campo Obrigatório': 'Campo Obrigatório',
 'Cannot be empty': 'Não pode ser vazio',
 'Celular:': 'Celular:',

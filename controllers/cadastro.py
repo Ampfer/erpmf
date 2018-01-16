@@ -135,17 +135,14 @@ def cliente():
     elif formCliente.errors:
         response.flash = 'Erro no Formulário Principal!'
 
-    return locals()
+    return dict(formCliente=formCliente,formEnderecos=formEnderecos,formContatos=formContatos,
+                btnVoltar=btnVoltar,btnExcluir=btnExcluir,btnNovo=btnNovo)
 
 def clienteContatos():  
   idCliente = int(request.args(0))
   Contatos.cliente.default = idCliente
   Contatos.fornecedor.default = None
-  '''
-  formContatos = SQLFORM.grid((Contatos.cliente==idCliente),
-                 formname="contatos",searchable = False,details=False,
-                 args=[idCliente],csv=False,)
-  '''
+
   formContatos = grid(Contatos.cliente==idCliente,formname="contatos",
                  searchable = False,args=[idCliente],)
 
@@ -164,8 +161,8 @@ def clienteEnderecos():
   Enderecos.cliente.default = idCliente
   Enderecos.fornecedor.default = 0
 
-  formEnderecos = SQLFORM.grid((Enderecos.cliente==idCliente),details=False,
-          formname="enderecos",searchable = False,args=[idCliente],csv=False)
+  formEnderecos = grid((Enderecos.cliente==idCliente),formname="enderecos",
+                        searchable = False,args=[idCliente])
 
   btnVoltar = voltar1('enderecos')
 
@@ -181,17 +178,15 @@ def clienteEnderecos():
 def clienteDemandas():
     idCliente = int(request.args(0))
 
-    formClienteObras = SQLFORM.grid((Obras.cliente == idCliente), details=False,create=False,deletable=False,editable=False,
-                                 formname="obras", searchable=False, args=[idCliente], csv=False,maxtextlength=50)
+    formClienteObras = grid((Obras.cliente == idCliente),create=False,deletable=False,editable=False,
+                                 formname="obras", searchable=False, args=[idCliente])
     return locals()
 
 #@auth.requires_membership('admin')
 def fornecedores():
-    fields = (Fornecedores.id,Fornecedores.nome,Fornecedores.cadastro)
-    form = SQLFORM.grid(Fornecedores,
-            formname="lista_fornecedores",fields=fields,csv=False,user_signature=False,details=False,maxtextlength=50)
-    form = DIV(form, _class="well")
-
+    fields = (Fornecedores.id,Fornecedores.nome)
+    form = grid(Fornecedores,formname="lista_fornecedores",fields=fields)
+    
     if request.args(-2) == 'new':
        redirect(URL('fornecedor'))
     elif request.args(-3) == 'edit':
@@ -202,61 +197,95 @@ def fornecedores():
 
 #@auth.requires_membership('admin')
 def fornecedor():
-    id_fornecedor = request.args(0) or "0"
+    idFornecedor = request.args(0) or "0"
 
-    if id_fornecedor == "0":
-        form_fornecedor = SQLFORM(Fornecedores,field_id='id',_id='form_fornecedor')
+    if idFornecedor == "0":
+        formFornecedor = SQLFORM(Fornecedores,field_id='id',_id='formFornecedor')
         formInsumo = "Primeiro Cadastre um Fornecedor"
         btnNovo = btnExcluir = btnVoltar = ''
     else:
-        form_fornecedor = SQLFORM(Fornecedores,id_fornecedor,_id='form_fornecedor',field_id='id')
-        formInsumo= LOAD(c='cadastro',f='custo',args=[id_fornecedor], target='custo', ajax=True,content='Aguarde, carregando...')
+        formFornecedor = SQLFORM(Fornecedores,idFornecedor,_id='formFornecedor',field_id='id')
+        formEnderecos = LOAD(c='cadastro', f='fornecedorEnderecos', args=[idFornecedor],
+                          target='enderecos', ajax=True)
+        formContatos = LOAD(c='cadastro', f='fornecedorContatos', args=[idFornecedor],
+                          target='contatos', ajax=True)        
+        formInsumo= LOAD(c='cadastro',f='custo',args=[idFornecedor], target='custo', ajax=True)
 
-        btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger",
-                       _title="Excluir...",
-                       _href="#")
-        btnNovo = A(SPAN(_class="glyphicon glyphicon-plus"), ' Novo ', _class="btn btn-primary",
-                    _title="Novo...", _href=URL("fornecedor"))
+        btnExcluir = excluir("#")
+        btnNovo = novo("fornecedor")
 
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                  _title="Voltar...",
-                  _href=URL("fornecedores"))
+    btnVoltar = voltar("fornecedores")
     
-    if form_fornecedor.process().accepted:
+    if formFornecedor.process().accepted:
         response.flash = 'Fornecedor Salvo com Sucesso!'
         redirect(URL('fornecedor', args=form_fornecedor.vars.id))
 
-    elif form_fornecedor.errors:
+    elif formFornecedor.errors:
         response.flash = 'Erro no Formulário Principal!'
 
-    return locals()
+    btnVoltar = voltar("clientes")
+
+    return dict(formFornecedor=formFornecedor,formEnderecos=formEnderecos,formContatos=formContatos,
+                formInsumo=formInsumo,btnVoltar=btnVoltar,btnExcluir=btnExcluir,btnNovo=btnNovo)
+
+def fornecedorContatos():  
+  idFornecedor = int(request.args(0))
+  Contatos.cliente.default = None
+  Contatos.fornecedor.default = idFornecedor
+
+  formContatos = grid(Contatos.fornecedor==idFornecedor,formname="contatos",
+                 searchable = False,args=[idFornecedor],)
+
+  btnVoltar = voltar1('contatos')
+
+  if formContatos.update_form:
+      btnExcluir = excluir("#")
+  else:
+      btnExcluir = ''
+
+  return dict(formContatos=formContatos,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+
+def fornecedorEnderecos():
+  idFornecedor = int(request.args(0))
+        
+  Enderecos.cliente.default = None
+  Enderecos.fornecedor.default = idFornecedor
+
+  formEnderecos = grid((Enderecos.fornecedor==idFornecedor),formname="enderecos",
+                        searchable = False,args=[idFornecedor])
+
+  btnVoltar = voltar1('enderecos')
+
+  if formEnderecos.update_form:
+      btnExcluir = excluir("#")
+  else:
+      btnExcluir = ''
+
+  return dict(formEnderecos=formEnderecos,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
 
 def custo():
-    id_fornecedor = int(request.args(0))
+    idFornecedor = int(request.args(0))
     Custo.insumo.readable = Custo.insumo.writable = True
-    Custo.fornecedor.default = id_fornecedor
+    Custo.fornecedor.default = idFornecedor
     Custo.embalagem.default = 1
 
-    def validarInsumo(form,fornecedor_id=id_fornecedor):
+    def validarInsumo(form,fornecedor_id=idFornecedor):
         insumo_id = form.vars.insumo
         if db((db.custos.insumo == insumo_id) & (db.custos.fornecedor==fornecedor_id)).count():
             if 'new' in request.args:
                 form.errors.insumo = 'Insumo já Cadastrado neste Fornecedor'
 
-    formCusto = SQLFORM.grid((Custo.fornecedor==id_fornecedor),csv=False,user_signature=False
-                             ,maxtextlength=50,details=False,args=[id_fornecedor],
-                             onvalidation=validarInsumo,)
+    formCusto = grid((Custo.fornecedor==idFornecedor),args=[idFornecedor],
+                    onvalidation=validarInsumo,)
 
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                 _onClick="jQuery('#custo').get(0).reload()")
+    btnVoltar = voltar1('custo')
 
     if formCusto.update_form:
-        btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",
-                   _href="#")
+        btnExcluir = excluir("#")
     else:
         btnExcluir = ''
 
-    return locals()
+    return dict(formCusto=formCusto,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
 
 
 #@auth.requires_membership('admin')
