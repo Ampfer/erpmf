@@ -36,6 +36,7 @@ response.menu+=[
     ('Condição de Pagamento', False, URL(r=request, c='cadastro', f='condicao')),
     ('Unidade', False, URL(r=request, c='cadastro', f='unidade')),
     ('Tipo de Insumo', False, URL(r=request, c='cadastro', f='tipoInsumo')),
+    ('Plano de Contas', False, URL(r=request, c='cadastro', f='planoContas')),
     ])]
 response.menu+=[
     (T('Contas a Receber'), False, URL(request.application,'default','index'), [

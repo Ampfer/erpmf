@@ -1,95 +1,15 @@
 # -*- coding: utf-8 -*-
 
-'''
-#@auth.requires_membership('admin')
-def cadastros():
-    fields = (Cadastros.razao,Cadastros.tipo,Cadastros.cnpj_cpf)
-    grid_cadastros = SQLFORM.grid(Cadastros,
-            formname="lista_cadastros",fields=fields,csv=False,user_signature=False,details=False,maxtextlength=50)
-
-    if request.args(-2) == 'new':
-       redirect(URL('cadastro'))
-    elif request.args(-3) == 'edit':
-       id_cadastro = request.args(-1)
-       redirect(URL('cadastro', args=id_cadastro ))
-
-    return locals()
-    
-#@auth.requires_membership('admin')
-def cadastro():
-
-    id_cadastro = request.args(0) or "0"
-
-    if id_cadastro == "0":
-        formCadastro = SQLFORM(Cadastros,field_id='id',_id='form_cadastro_editar')
-
-        formCadastroEnderecos = formCadastroContatos = " Primeiro Cadastre uma Empresa ou Pessoa"
-
-        btnExcluir = btnNovo = ''
-    else:
-        formCadastro = SQLFORM(Cadastros,id_cadastro,_id='form_cadastro_editar',field_id='id')
-
-        formCadastroContatos = LOAD(c='cadastro',f='contatos',args=[id_cadastro], target='contatos', ajax=True,content='Aguarde, carregando...')
-
-        formCadastroEnderecos = LOAD(c='cadastro',f='enderecos',args=[id_cadastro],target='enderecos',ajax=True, content='Aguarde, carregando...')
-
-        btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",
-                   _href="#")
-        btnNovo = A(SPAN(_class="glyphicon glyphicon-plus"), ' Novo ', _class="btn btn-primary",
-                _title="Novo...", _href=URL("cadastro"))
-
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning", _title="Voltar...",
-                  _href=URL("cadastros"))
-    
-    if formCadastro.process().accepted:
-        response.flash = 'Salvo com sucesso!'
-        redirect(URL('cadastro', args=formCadastro.vars.id))
-
-    elif formCadastro.errors:
-        response.flash = 'Erro no Formulário Principal!'
-    return locals()
-
-#@auth.requires_membership('admin')
-def contatos():
-    
-    id_cadastro = int(request.args(0))
-        
-    Contatos.cadastro.default = id_cadastro
-
-    formContatos = SQLFORM.grid((Contatos.cadastro==id_cadastro),
-                   formname="contatos",searchable = False,details=False, args=[id_cadastro],csv=False,)
-
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                 _onClick="jQuery('#contatos').get(0).reload()")
-
-    if formContatos.update_form:
-        btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",
-                   _href="#")
-    else:
-        btnExcluir = ''
-
-    return locals()
-
-#@auth.requires_membership('admin')
-def enderecos():
-    id_cadastro = int(request.args(0))
-        
-    Enderecos.cadastro.default = id_cadastro
-
-    formEnderecos = SQLFORM.grid((Enderecos.cadastro==id_cadastro),details=False,
-            formname="enderecos",searchable = False,args=[id_cadastro],csv=False)
-
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                 _onClick="jQuery('#enderecos').get(0).reload()")
-
-    if formEnderecos.update_form:
-        btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",
-                   _href="#")
-    else:
-        btnExcluir = ''
-
-    return locals()
-'''
+def teste():
+    rows = db(Cadastros.id > 0).select()
+    for r in rows:
+      Fornecedores[r.id] = dict(
+        razao=r.razao,
+        tipo=r.tipo,
+        cnpj_cpf=r.cnpj_cpf,
+        ie_rg=r.ie_rg,
+        ) 
+    return 'teste'
 
 #@auth.requires_membership('admin')
 def clientes():
@@ -136,7 +56,7 @@ def cliente():
         response.flash = 'Erro no Formulário Principal!'
 
     return dict(formCliente=formCliente,formEnderecos=formEnderecos,formContatos=formContatos,
-                btnVoltar=btnVoltar,btnExcluir=btnExcluir,btnNovo=btnNovo)
+                formDemandas=formDemandas,btnVoltar=btnVoltar,btnExcluir=btnExcluir,btnNovo=btnNovo)
 
 def clienteContatos():  
   idCliente = int(request.args(0))
@@ -223,7 +143,7 @@ def fornecedor():
     elif formFornecedor.errors:
         response.flash = 'Erro no Formulário Principal!'
 
-    btnVoltar = voltar("clientes")
+    btnVoltar = voltar("fornecedores")
 
     return dict(formFornecedor=formFornecedor,formEnderecos=formEnderecos,formContatos=formContatos,
                 formInsumo=formInsumo,btnVoltar=btnVoltar,btnExcluir=btnExcluir,btnNovo=btnNovo)
@@ -290,21 +210,26 @@ def custo():
 
 #@auth.requires_membership('admin')
 def condicao():
-
-    formCondicao = SQLFORM.grid(Condicao,csv=False,user_signature=False,maxtextlength=50,details=False)
-
-    return locals()
+    formCondicao = grid(Condicao)
+    return dict(formCondicao=formCondicao)
 
 #@auth.requires_membership('admin')
 def unidade():
-
-    formUnidade = SQLFORM.grid(Unidade,csv=False,user_signature=False, maxtextlength=50,details=False)
-
-    return locals()
+    formUnidade = grid(Unidade)
+    return dict(formUnidade=formUnidade)
 
 #@auth.requires_membership('admin')
 def tipoInsumo():
+    formTpInsumo = grid(TipoInsumo)
+    return dict(formTpInsumo=formTpInsumo)
 
-    formTpInsumo = SQLFORM.grid(TipoInsumo,csv=False,user_signature=False, maxtextlength=50,details=False)
+def planoContas():
+    formPc1 = grid(PlanoContas1)
+    formPc2 = LOAD(c='cadastro', f='planoContas2', 
+                          target='planocontas2', ajax=True)
+    return dict(formPc1=formPc1,formPc2=formPc2)
 
-    return locals()
+def planoContas2():
+    formPc2 = grid(PlanoContas2)
+    return dict(formPc2=formPc2)
+

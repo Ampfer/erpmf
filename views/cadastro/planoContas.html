@@ -1,0 +1,48 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Plano de Contas</h4></div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#home">Nível 1</a></li>
+                        <li><a data-toggle="tab" href="#menu1">Nível 2</a></li>
+                        <li><a data-toggle="tab" href="#menu2">Nível 3</a></li>
+                       
+                </ul>
+                <div class="tab-content">
+                    <div id="home" class="tab-pane fade in active">
+                        <div class="well">
+                            {{if formPc1.create_form or formPc1.update_form:}}
+                                {{=formPc1[1].custom.begin}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{=formPc1[1].custom.label.conta}}
+                                        {{=formPc1[1].custom.widget.conta}}
+                                    </div>  
+                                </div>
+                                
+                                <div class="right" style="margin-top: 30PX; ">
+                                    {{=formPc1[1].custom.submit}}
+                                    {{=voltar('planoContas')}}
+                                    {{if formPc1.update_form:}}
+                                        {{=novo('planoContas/new/planoContas')}}
+                                        {{=excluir('#')}}
+                                    {{pass}}
+                                </div>
+                                {{=formPc1[1].custom.end}}
+                            {{else:}}
+                                {{=formPc1}}
+                            {{pass}}
+                        </div>
+                    </div>
+                    <div id="menu1" class="tab-pane fade">
+                            {{=formPc2}}
+                    </div>
+                    <div id="menu2" class="tab-pane fade">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

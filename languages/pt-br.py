@@ -250,6 +250,8 @@
 'New Search': 'Nova Pesquisa',
 'next %s rows': 'next %s rows',
 'next 100 rows': 'próximas 100 linhas',
+'Nivel1': 'Nivel1',
+'Nivel2': 'Nivel2',
 'No databases in this application': 'Não há bancos de dados nesta aplicação',
 'No records found': 'No records found',
 'Nome': 'Nome',

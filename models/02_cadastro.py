@@ -7,20 +7,6 @@ TipoContrato = ('Administração','Preço Fechado','Própria')
 Departamentos = ('Vendas','Compras','Financeiro')
 Estados = {'SP':'São Paulo','RJ':'Rio de Janeiro','MG':'Minas Gerais','RS':'Rio Grande do Sul','SC':'Santa Catarina','PR':'Paraná'}
 TipoInsumos = {'Material':'MT-Marerial','Mão de Obra':'MO-Mão de Obra','Equipamentos':'EQ-Equipamentos','Documentação':'DC-Documentação'}
-'''
-Cadastros = db.define_table('cadastros',
-	Field('tipo','string',label='Tipo de Pessoa:',length=30),
-	Field('cnpj_cpf','string',label='CNPJ/CPF:',length=20),
-	Field('ie_rg','string',label='I.E./RG:',length=20),	
-	Field('razao','string',label='Razão Social:',length=60),
-	format='%(razao)s'
-	)
-Cadastros.id.label = 'Código'
-Cadastros.tipo.default = "Física"
-Cadastros.cnpj_cpf.requires=IS_EMPTY_OR(IS_CPF_OR_CNPJ())
-Cadastros.tipo.requires = IS_IN_SET(TipoPessoa,zero=None)
-#Cadastro.email.requires = IS_EMAIL(error_message='Digite um Email')
-'''
 
 Clientes = db.define_table('clientes',
 	Field('nome','string',label='Nome Fantasia:',length=60),
@@ -138,3 +124,15 @@ Custo.insumo.readable = Custo.insumo.writable = False
 Custo.unidade.requires = IS_IN_DB(db,'unidade.unidade',)
 Custo.custo.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
+PlanoContas1 = db.define_table('plano_contas1',
+						Field('conta','string',label='Descrição:', length=50)
+						)
+PlanoContas2 = db.define_table('plano_contas2',
+						Field('conta','string',label='Descrição:', length=50),
+						Field('nivel1','reference plano_contas1'),
+						)
+PlanoContas2 = db.define_table('plano_contas3',
+						Field('conta','string',label='Descrição:', length=50),
+						Field('nivel1','reference plano_contas1'),
+						Field('nivel2','reference plano_contas2'),
+						)
