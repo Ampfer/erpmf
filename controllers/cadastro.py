@@ -224,12 +224,19 @@ def tipoInsumo():
     return dict(formTpInsumo=formTpInsumo)
 
 def planoContas():
-    formPc1 = grid(PlanoContas1)
-    formPc2 = LOAD(c='cadastro', f='planoContas2', 
+    formPc1 = grid(PlanoContas1,formname='planocontas1')
+    loadPc2 = LOAD(c='cadastro', f='planoContas2', 
                           target='planocontas2', ajax=True)
-    return dict(formPc1=formPc1,formPc2=formPc2)
+    loadPc3 = LOAD(c='cadastro', f='planoContas3', 
+                          target='planocontas3', ajax=True)
+
+    return dict(formPc1=formPc1,loadPc2=loadPc2,loadPc3=loadPc3)
 
 def planoContas2():
-    formPc2 = grid(PlanoContas2)
+    formPc2 = grid(PlanoContas2,formname='planocontas2')
     return dict(formPc2=formPc2)
+
+def planoContas3():
+    formPc3 = grid(PlanoContas3,formname='planocontas3')
+    return dict(formPc3=formPc3)
 

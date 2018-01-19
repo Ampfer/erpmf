@@ -125,14 +125,22 @@ Custo.unidade.requires = IS_IN_DB(db,'unidade.unidade',)
 Custo.custo.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 PlanoContas1 = db.define_table('plano_contas1',
-						Field('conta','string',label='Descrição:', length=50)
+						Field('conta','string',label='Descrição:', length=50),
+						format='%(conta)s'
 						)
 PlanoContas2 = db.define_table('plano_contas2',
 						Field('conta','string',label='Descrição:', length=50),
-						Field('nivel1','reference plano_contas1'),
+						Field('nivel1','reference plano_contas1',label='Nível 1:'),
+						format='%(conta)s'
 						)
-PlanoContas2 = db.define_table('plano_contas3',
+PlanoContas2.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s')
+
+PlanoContas3 = db.define_table('plano_contas3',
 						Field('conta','string',label='Descrição:', length=50),
-						Field('nivel1','reference plano_contas1'),
-						Field('nivel2','reference plano_contas2'),
+						Field('nivel1','reference plano_contas1',label='Nível 1:'),
+						Field('nivel2','reference plano_contas2',label='Nível 2:'),
+						format='%(conta)s'
+
 						)
+PlanoContas3.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s',zero=None)
+PlanoContas3.nivel2.requires = IS_IN_DB(db,'plano_contas2','%(conta)s',zero=None)

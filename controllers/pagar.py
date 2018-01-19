@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def entrada_lista():
     
-    grid_pagar = SQLFORM.grid(Pagar,
-        formname="lista_pagar",csv=False,user_signature=False,details=False,orderby=~Pagar.emissao,maxtextlength=50)
-
-    grid_pagar = DIV(grid_pagar, _class="well")
+    grid_pagar = grid(Pagar,formname="lista_pagar",orderby=~Pagar.emissao)
 
     if request.args(-2) == 'new':
        redirect(URL('entrada'))
@@ -15,7 +12,7 @@ def entrada_lista():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pesquisarFornecedor():
     fields = [Fornecedores.id,Fornecedores.nome]
     links=[dict(header='Selecionar',
@@ -27,7 +24,7 @@ def pesquisarFornecedor():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def entrada():
     id_pagar = request.args(0) or "0"
 
@@ -65,7 +62,7 @@ def entrada():
         response.flash = 'Erro no Formulário Principal!'
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pesquisarInsumo():
     fields = [Insumo.codigo,Insumo.descricao,Insumo.unidade,Insumo.tipo,Insumo.preco]
     links=[dict(header='Selecionar',
@@ -93,7 +90,7 @@ def insumoTrigger():
            "jQuery('#pagarInsumos_quantidade').focus();" \
            % (preco,unidade)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagarInsumos():
     id_pagar = int(request.args(0))
     sum = (PagarInsumos.preco * PagarInsumos.quantidade - PagarInsumos.desconto).sum()
@@ -150,7 +147,7 @@ def pagarInsumos():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagar_parcelas():
     id_pagar = int(request.args(0))
 
@@ -207,10 +204,10 @@ def pagar_parcelas():
         return atualiza_parcela()
 
 
-    formParcelas = SQLFORM.grid((Pagar_parcelas.pagar==id_pagar),
-            formname="parcelas",searchable = False,args=[id_pagar],csv=False,onvalidation=validar,
+    formParcelas = grid((Pagar_parcelas.pagar==id_pagar),
+            formname="parcelas",searchable = False,args=[id_pagar],onvalidation=validar,
             ondelete = deletar_parcela,deletable=False,editargs= dict(deletable=True),
-            orderby=Pagar_parcelas.vencimento,details=False,)
+            orderby=Pagar_parcelas.vencimento,)
 
     btnVoltar = voltar1('parcelas')
 
@@ -246,7 +243,7 @@ def geraDespesas():
         pass
     response.js = "$('#despesas').get(0).reload()"
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagar_despesas():
 
     id_pagar = int(request.args(0))
@@ -295,12 +292,12 @@ def pagar_despesas():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagamento_modal(ids):
     response.js = "show_modal('%s','teste');" % URL('pagar','pagamentos.load',vars=dict(ids=ids))
-    return False
+    return Fals#e
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagar_lista():
     from datetime import timedelta,date
 
@@ -378,9 +375,9 @@ def buscadoc(loteId):
     doctos = []
     for x in dcto:
         doctos.append('(' + x.pagar.documento + '-' + x.pagar_parcelas.parcela + ') ')
-    return doctos
+    return doctos#
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def lotes():
     Lote.id.readable = True
     Lote.dtlote.readable = True
@@ -401,7 +398,7 @@ def lotes():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def lote_delete():
     url = request.vars.url
     if type(request.vars.ids) is list:
@@ -420,7 +417,7 @@ def lote_delete():
         Cheques[idCheque.id] = dict(lotpag=None)
     redirect(URL(url))
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagar():
 
     target = request.vars.target
@@ -461,7 +458,7 @@ def pagar():
 
     return locals()
     
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def mostrar_parcelas():
         
     query = db(Pagar_parcelas.id.belongs(session.ids))
@@ -473,7 +470,7 @@ def mostrar_parcelas():
         )
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagamentos_delete():
     id = request.args(0)
     valoranterior = 0 - db(Conta_corrente.id == id).select(Conta_corrente.vlpagamento).first()[Conta_corrente.vlpagamento]
@@ -491,7 +488,7 @@ def pagamentos_delete():
     #redirect(URL('pagar',vars=dict(ids=session.ids,id_lote=session.id_lote)))
     response.js = "$('#pagamentos_lista').get(0).reload()"
 
-@auth.requires_membership('admin')    
+#@auth.requires_membership('a#dmin')    
 def pagamentos_lista():
     
     query = db(Conta_corrente.lote == session.id_lote)
@@ -513,7 +510,7 @@ def pagamentos_lista():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagamentos():
 
     id_pagamento = request.args(0) or "0"
@@ -562,7 +559,7 @@ def pagamentos():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def atualizaPagamentos(idlote):
 
     query = db(Conta_corrente.lote == idlote)
@@ -595,7 +592,7 @@ def atualizaPagamentos(idlote):
         id_parcela = parcela[Pagar_parcelas.id]
         Pagar_parcelas[id_parcela] = dict(valorpago=float(parcela[Pagar_parcelas.valor]) + valor)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def atualizaPagamentos_old(valor,datapg):
     if valor > 0:
         parcelas = db(Pagar_parcelas.id.belongs(session.ids)).select(Pagar_parcelas.id,Pagar_parcelas.valor,Pagar_parcelas.valorpago,orderby=Pagar_parcelas.vencimento)
@@ -636,7 +633,7 @@ def excluirCheque():
     Cheques[idCheque] = dict(lotpag=None)
     response.js = "$('#pagamentosCheques').get(0).reload()"
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def pagamentosCheques():
 
     sum = Cheques.valor.sum()
@@ -661,7 +658,7 @@ def pagamentosCheques():
 
     return locals()
 
-@auth.requires_membership('admin')   
+#@auth.requires_membership('admin')   
 def fornecedor_ficha():
 
     #session.fornecedor = None
@@ -705,7 +702,7 @@ def fornecedor_ficha():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def fornecedorPagamentos():
     id_fornecedor = request.args(0)
     fields = [Conta_corrente.lote,Conta_corrente.descricao,Conta_corrente.conta,Conta_corrente.dtpagamento,Conta_corrente.vlpagamento]
@@ -714,7 +711,7 @@ def fornecedorPagamentos():
                                   csv=False,maxtextlength=50,fields=fields,user_signature=False)
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def compras():
     fields = [Compras.emissao,Compras.documento,Compras.fornecedor,Compras.obra, Compras.tipo,Compras.valor]
     gridCompras = SQLFORM.grid(Compras,
@@ -729,7 +726,7 @@ def compras():
 
     return dict(gridCompras=gridCompras)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def compra():
     id_compra = request.args(0) or "0"
 
@@ -783,7 +780,7 @@ def insumoTriggerCompra():
            "jQuery('#comprasInsumos_quantidade').focus();" \
            % (preco,unidade)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def compraInsumos():
     id_compra = int(request.args(0))
     id_fornecedor = Compras(id_compra).fornecedor
@@ -823,7 +820,7 @@ def compraInsumos():
 def emailTrigger():
     return "jQuery('#email_email').val('%s');" %(request.vars.para)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def enviarEmail():
     import os
     id_compra = request.vars.id_compra
