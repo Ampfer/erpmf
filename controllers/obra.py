@@ -141,7 +141,7 @@ def composicaoInsumoTrigger():
     return "jQuery('#preco').html('%s');jQuery('#composicao_insumos_unidade').val('%s');"\
            %(Insumo[request.vars.insumo].preco,Insumo[request.vars.insumo].unidade)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def composicao_insumo():
     id_composicao = int(request.args(0))
     Composicao_Insumos.composicao.default = id_composicao
@@ -169,279 +169,9 @@ def composicao_insumo():
 
     return locals()
 
-@auth.requires_membership('admin')
-def obras():
-    form_obras = SQLFORM.grid((Obras),
-                              formname="lista_obras",csv=False,user_signature=False, details=False,
-                              maxtextlength=50,deletable=False )
-
-    form_obras = DIV(form_obras, _class="well")
-
-    if request.args(-2) == 'new':
-       redirect(URL('obra'))
-    elif request.args(-3) == 'edit':
-       id_obra = request.args(-1)
-       redirect(URL('obra', args=id_obra ))
-
-    return locals()
-
-@auth.requires_membership('admin')
-def obra():
-    id_obra = request.args(0) or "0"
-    btnVoltar = voltar('obras')
-
-    if id_obra == "0":
-        form_obra = SQLFORM(Obras,field_id='id',_id='form_obra')
-        formDespesas = formFotos = formInsumos = ''
-        btnExcluir = btnNovo = ''
-    else:
-        form_obra = SQLFORM(Obras, id_obra,_id='form_obra',field_id='id')
-        formDespesas = LOAD(c='obra', f='obraDespesas', content='Aguarde, carregando...',
-                           target='obraDespesas', ajax=True, args=id_obra)
-        formInsumos = LOAD(c='obra', f='obraInsumos', content='Aguarde, carregando...',
-                           target='obraInsumos', ajax=True, args=id_obra)
-        formAbc = LOAD(c='obra', f='obraAbc', content='Aguarde, carregando...',
-                           target='obraAbc', ajax=True, args=id_obra)
-        formFotos = LOAD(c='obra', f='obraFotos', content='Aguarde, carregando...',
-                           target='obraFotos', ajax=True, args=id_obra)
-        btnExcluir = excluir("#")
-        btnNovo = novo("obra")
-
-    if form_obra.process().accepted:
-        response.flash = 'Obra Salva com Sucesso!'
-        redirect(URL('obra', args=form_obra.vars.id))
-
-    elif form_obra.errors:
-        response.flash = 'Erro no Formulário Principal!'
-
-    return locals()
-
-@auth.requires_membership('admin')
-def obraDespesas():
-
-    id_obra = int(request.args(0))
-
-    from datetime import datetime
-
-    today = db(Despesas.obra == id_obra).select(Despesas.dtdespesa, orderby = Despesas.dtdespesa).first()['dtdespesa']
-
-    inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial else today
-    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal else request.now
-
-    query = []
-
-    form_pesq = SQLFORM.factory(
-        Field('dtinicial','date',default=inicial,requires=data, label='Data Inicial'),
-        Field('dtfinal','date',default=final,requires=data,label='Data Final'),
-        table_name='insumopesquisar',
-        submit_button='Gerar')
-
-    if form_pesq.process().accepted:
-        inicial = form_pesq.vars.dtinicial
-        final = form_pesq.vars.dtfinal
-        query = (Relatorio.datarel>=inicial) & (Relatorio.datarel<=final)
-    elif form_pesq.errors:
-        response.flash = 'Erro no Formulário'
-
-    rows = db(Despesas.obra==id_obra).select(Despesas.dtdespesa.with_alias('dtdespesa'),
-                                             Despesas.descricao.with_alias('descricao'),
-                                             Despesas.etapa.with_alias('etapa'),
-                                             Despesas.valor.with_alias('valor'),
-                                             orderby=Despesas.dtdespesa)
-
-    Relatorio.truncate()
-    acumulado = 0
-    for r in rows:
-        acumulado += r.valor
-        Relatorio[0] = dict(datarel = r.dtdespesa,
-                            descricao = r.descricao,
-                            etapa = Etapas(r.etapa).etapa,
-                            valor=r.valor,
-                            total = acumulado)
-
-    if query:
-        obradespesas = db(query).select(Relatorio.datarel,
-                                                 Relatorio.descricao,
-                                                 Relatorio.etapa,
-                                                 Relatorio.valor,
-                                                 Relatorio.total,
-                                                 orderby=Relatorio.datarel)
 
 
-        despesas = SQLTABLE(obradespesas, _id='obradespesas',
-                           _class='display',
-                           _cellspacing="0",
-                           _width="100%",
-                           headers='labels',
-                           truncate=100)
-    else:
-        despesas = ''
-
-
-    return locals()
-
-@auth.requires_membership('admin')
-def obraInsumos():
-
-    id_obra = int(request.args(0))
-    q = (PagarInsumos.obra==id_obra) & (Pagar.id==PagarInsumos.pagar)
-    id_pagar = int(db(q).select(PagarInsumos.pagar, orderby=Pagar.emissao).first()['pagar'])
-
-    from datetime import datetime
-
-    today = Pagar[id_pagar].emissao
-
-    inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial else today
-    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal else request.now
-
-    query = []
-
-    form_pesq = SQLFORM.factory(
-        Field('dtinicial','date',default=inicial,requires=data, label='Data Inicial'),
-        Field('dtfinal','date',default=final,requires=data,label='Data Final'),
-        table_name='insumopesquisar',
-        submit_button='Gerar')
-
-    if form_pesq.process().accepted:
-        inicial = form_pesq.vars.dtinicial
-        final = form_pesq.vars.dtfinal
-        query = (Relatorio.datarel>=inicial) & (Relatorio.datarel<=final)
-    elif form_pesq.errors:
-        response.flash = 'Erro no Formulário'
-
-
-    rows = db(PagarInsumos.obra==id_obra).select(PagarInsumos.insumo.with_alias('insumo'),
-                                                 PagarInsumos.unidade.with_alias('un'),
-                                                 PagarInsumos.quantidade.with_alias('qtde'),
-                                                 PagarInsumos.preco.with_alias('preco'),
-                                                 PagarInsumos.desconto.with_alias('desconto'),
-                                                 PagarInsumos.pagar.with_alias('pagar'))
-
-    Relatorio.truncate()
-    for r in rows:
-        total = round(r.qtde*r.preco-r.desconto,2)
-
-        Relatorio[0] = dict(descricao = Insumo[r.insumo].descricao,
-                            quantidade = r.qtde,
-                            valor=r.preco,
-                            total = total,
-                            codigo = Insumo[r.insumo].codigo,
-                            unidade = r.un,
-                            datarel = Pagar[r.pagar].emissao )
-
-    if query:
-        obraInsumos = db(query).select(Relatorio.datarel,
-                                                Relatorio.codigo,
-                                                Relatorio.descricao,
-                                                Relatorio.unidade,
-                                                Relatorio.quantidade,
-                                                Relatorio.valor,
-                                                Relatorio.total,orderby=Relatorio.datarel)
-
-
-        insumos = SQLTABLE(obraInsumos,_id='obrainsumos',
-                                        _class='display',
-                                        _cellspacing = "0",
-                                        _width = "100%",
-                                        headers='labels',
-                                        truncate = 100)
-    else:
-        insumos = ''
-
-    return dict(insumos=insumos,form_pesq=form_pesq)
-
-@auth.requires_membership('admin')
-def obraAbc():
-    id_obra = int(request.args(0))
-    abc = request.vars.abc if request.vars.abc else ''
-    tipo = request.vars.tipo if request.vars.tipo else None
-    query = []
-
-    form_pesq = SQLFORM.factory(
-        Field('abc', default=abc, requires=IS_IN_SET(['INSUMO','ETAPA','FORNECEDOR'], zero=None),label='Curva ABC'),
-        Field('tipo',default=tipo, requires=IS_EMPTY_OR(IS_IN_DB(db,'tipoInsumo.descricao','%(descricao)s',zero='TODOS')),label='Tipo Insumo'),
-        table_name='pesquisar',
-        submit_button='Gerar',
-        )
-
-    if form_pesq.process().accepted:
-        abc = form_pesq.vars.abc
-        tipo = form_pesq.vars.tipo
-    elif form_pesq.errors:
-        response.flash = 'Erro no Formulário'
-
-    Relatorio.truncate()
-    if abc == 'INSUMO' or abc == 'ETAPA':
-        sum = PagarInsumos.quantidade.sum()
-        sum1 = (PagarInsumos.quantidade * PagarInsumos.preco - PagarInsumos.desconto).sum()
-        if abc == 'INSUMO':
-            groupby=PagarInsumos.insumo
-            query = (PagarInsumos.obra == id_obra) & (PagarInsumos.insumo == Insumo.id)
-            xdesc = 'Insumo[row.pagarInsumos.insumo].descricao'
-            if tipo != None:
-                query = query & (Insumo.tipo==tipo)
-        else:
-            groupby = PagarInsumos.etapa
-            query = (PagarInsumos.obra == id_obra)
-            xdesc = 'Etapas[row.pagarInsumos.etapa].etapa'
-    elif abc == 'FORNECEDOR':
-        sum = Despesas.valor.sum()
-        sum1 = Despesas.valor.sum()
-        query = (Despesas.obra == id_obra) & (Despesas.pagar == Pagar.id)
-        groupby = Pagar.fornecedor
-        xdesc = 'Fornecedores[row.pagar.fornecedor].nome'
-
-    if query:
-        total = db(query).select(sum1).first()[sum1] or 1
-        rows = db(query).select(groupby,
-                                sum.with_alias('Quantidade'),
-                                sum1.with_alias('Valor'),
-                                ((sum1/total)*100).with_alias('Porcentagem'),
-                                groupby=groupby,orderby=~sum1)
-        acumulado = 0
-        tot = 0
-        for row in rows:
-            acumulado += row.Porcentagem
-            tot += row.Valor
-            descricao = eval(xdesc)
-            Relatorio[0] = dict(descricao = descricao,
-                                quantidade = row.Quantidade,
-                                valor=row.Valor,
-                                total = tot,
-                                porcentagem = row.Porcentagem,
-                                acumulado = acumulado)
-
-        curvaabc = db(Relatorio.id>0).select()
-    else:
-        curvaabc = ''
-
-    return locals()
-
-@auth.requires_membership('admin')
-def obraFotos():
-    id_obra = int(request.args(0))
-    ObraFotos.obra.default = id_obra
-    formObraFoto = SQLFORM.grid(ObraFotos.obra==id_obra,args=[id_obra],
-                               details=False, csv=False, user_signature=False, maxtextlength=50,
-                               )
-    return locals()
-
-@auth.requires_membership('admin')
-def diarios():
-
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning", _title="Voltar...",
-                  _href=URL(c="obra", f="diarios"))
-    btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",
-                   _href="#")
-
-    Fields = [Diario.dtdiario,Diario.obra,Diario.servicos,Diario.tempo]
-    form_diario = SQLFORM.grid(Diario,
-                details=False,csv=False,user_signature=False,maxtextlength=50,fields=Fields,
-          )
-
-    return locals()
-
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def orcamentos():
     fields = [Orcamentos.dtorcamento,Orcamentos.descricao,Orcamentos.cliente,Orcamentos.total]
     gridOrcamentos = grid(Orcamentos,50,8,'400px',fields=fields,formname="orcamentos",orderby =~Orcamentos.dtorcamento)
@@ -452,7 +182,7 @@ def orcamentos():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def orcamento():
     idOrcamento = request.args(0) or "0"
 
@@ -498,7 +228,7 @@ def etapaTrigger():
     item = Etapas[idEtapa].item + '.' + '{:02d}'.format(cont+1)
     return "jQuery('#orcamentoComposicao_item').val('%s');"  % (item)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def orcamentoComposicao():
     idOrcamento = int(request.args(0))
     session.idOrcamento = idOrcamento
@@ -719,7 +449,7 @@ def insumosOrcamento():
 
 
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def quantitativos():
     gridQuantitativo = SQLFORM.grid(Quantitativos,
                                   formname="quantitativos",csv=False,user_signature=False,details=False,maxtextlength=50 )
@@ -729,7 +459,7 @@ def quantitativos():
        redirect(URL('quantitativo', args=request.args(-1) ))
 
     return locals()
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def quantitativo():
     idQuantitativo = request.args(0) or "0"
 
@@ -768,7 +498,7 @@ def adcionaResumo(form):
                                 )
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def quantitativoElementos():
     idQuantitativo = int(request.args(0))
 
@@ -780,7 +510,7 @@ def quantitativoElementos():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def quantitativoResumo():
     idQuantitativo = int(request.args(0))
 

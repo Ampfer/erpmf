@@ -2,6 +2,7 @@
 Pagar = db.define_table('pagar',
 	Field('fornecedor','reference fornecedores',label = 'Fornecedor:',ondelete = "SET NULL"),
 	Field('documento','string',label='Documento:',length=30 ),
+	Field('demanda', 'reference demandas',label='Demanda'),
 	Field('emissao','date', label='Data:'),
 	Field('valor','decimal(7,2)',label='Valor:'),
 	Field('condicao','reference condicao', label='Condição de Pagamento:',ondelete = "SET NULL")
@@ -10,13 +11,13 @@ Pagar.fornecedor.requires = IS_IN_DB(db,"fornecedores.id",'%(nome)s',zero='Escol
 Pagar.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Pagar.emissao.requires = data
 Pagar.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
+Pagar.demanda.requires = IS_IN_DB(db,"demandas.id",'%(descricao)s')
 
 Pagar_parcelas = db.define_table('pagar_parcelas',
 	Field('pagar','reference pagar'),
 	Field('parcela','string',label='Parcela:',length=7),
 	Field('vencimento','date',label = 'Vencimento:'),
 	Field('valor','decimal(7,2)',label='Valor'),
-	Field('portador','string',label='Portador:',length=30),
 	Field('valorpago','decimal(7,2)',label='Valor Pago'),
 	Field('dtpagamento','date',label='Data Pagamento'),
 	Field('lote','integer'),
@@ -33,9 +34,7 @@ Pagar_parcelas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Pagar_parcelas.valorpago.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Pagar_parcelas.valorpago.writable = False
 Pagar_parcelas.valorpago.default = 0
-Pagar_parcelas.portador.requires = IS_IN_SET(["M&F","Cliente"],zero=None)
 Pagar_parcelas.lote.readable = Pagar_parcelas.lote.writable = False
-Pagar_parcelas.portador.default = 'M&F'
 
 PagarInsumos = db.define_table('pagarInsumos',
 							    Field('pagar','reference pagar'),
@@ -44,9 +43,8 @@ PagarInsumos = db.define_table('pagarInsumos',
 							    Field('quantidade','decimal(9,4)',label='Quantidade'),
 							    Field('preco','decimal(7,2)',label='Preço'),
 								Field('desconto','decimal(7,2)',label='Desconto'),
+								Field('etapa', 'reference etapas',label='Etapa'),
 								Field.Virtual('total',lambda row: round((row.pagarInsumos.preco*row.pagarInsumos.quantidade)-row.pagarInsumos.desconto,2),label='Total'),
-							    Field('etapa', 'reference etapas',label='Etapa'),
-							    Field('obra', 'reference obras',label='Obra'),
 							   )
 PagarInsumos.id.readable = PagarInsumos.id.writable = False
 PagarInsumos.pagar.readable = PagarInsumos.pagar.writable = False
@@ -54,22 +52,19 @@ PagarInsumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 PagarInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 PagarInsumos.desconto.requires = IS_DECIMAL_IN_RANGE(dot=',')
 PagarInsumos.etapa.requires = IS_EMPTY_OR(IS_IN_DB(db,"etapas.id",'%(etapa)s'))
-PagarInsumos.obra.requires = IS_IN_DB(db,"obras.id",'%(nome)s')
 
 Despesas = db.define_table('despesas',
 	                        Field('pagar','reference pagar'),
 	                        Field('descricao','string',label='Descrição:',length=60),
 	                        Field('dtdespesa','date',label='Data da Despesa'),
 	                        Field('valor','decimal(7,2)',label='Valor:'),
-	                        Field('etapa','reference etapas',ondelete = "SET NULL"),
-	                        Field('obra','reference obras',ondelete = "SET NULL")
+	                        Field('demanda','reference demandas',ondelete = "SET NULL")
 	                      )
 Despesas.id.readable = Despesas.id.writable = False
 Despesas.pagar.readable = Despesas.pagar.writable = False
 Despesas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Despesas.dtdespesa.requires = data
-Despesas.etapa.requires = IS_EMPTY_OR(IS_IN_DB(db,"etapas.id",'%(etapa)s'))
-Despesas.obra.requires = IS_IN_DB(db,"obras.id",'%(nome)s')
+Despesas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(nome)s')
 
 def totalCompra(row):
 	try:
@@ -85,14 +80,14 @@ Compras = db.define_table('compras',
 	Field('fornecedor','reference fornecedores',label = 'Fornecedor:'),
 	Field('documento','string',label='Documento:',length=30 ),
 	Field('emissao','date', label='Data:'),
-	Field.Virtual('valor',lambda row: totalCompra(row), label='Valor:'),
 	Field('condicao','reference condicao', label='Condição de Pagamento:'),
-	Field('obra','reference obras', label='Obra:'),
+	Field('demanda','reference demandas', label='Demanda:'),
 	Field('tipo','string', label='Tipo:',length=30),
 	Field('obs','text', label='Observação:'),
+	Field.Virtual('valor',lambda row: totalCompra(row), label='Valor:'),
 	)
 Compras.fornecedor.requires = IS_IN_DB(db,"fornecedores.id",'%(nome)s',zero='Escolha um Fornecedor')
-Compras.obra.requires = IS_EMPTY_OR(IS_IN_DB(db,"obras.id",'%(nome)s',zero=None))
+Compras.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(nome)s',zero=None))
 Compras.emissao.requires = data
 Compras.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
 Compras.tipo.requires = IS_IN_SET(['Pedido','Orçamento'],zero=None)

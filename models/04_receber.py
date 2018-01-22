@@ -38,11 +38,11 @@ Receitas = db.define_table('receitas',
 	Field('dtreceita','date',label='Data da Receita'),
 	Field('valor','decimal(7,2)',label='Valor:'),
 	Field('tipo','string',label='Tipo de Receita',length=30),
-	Field('obra','reference obras',ondelete = "SET NULL")
+	Field('demanda','reference demandas',ondelete = "SET NULL")
 	)
 Receitas.id.readable = Receitas.id.writable = False
 Receitas.receber.readable = Receitas.receber.writable = False
 Receitas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Receitas.dtreceita.requires = data
 Receitas.tipo.requires = IS_IN_SET(['Receita','Reembolso'])
-Receitas.obra.requires = IS_IN_DB(db,"obras.id",'%(nome)s')
+Receitas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(nome)s')

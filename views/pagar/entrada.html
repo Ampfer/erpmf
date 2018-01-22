@@ -35,25 +35,28 @@
                         </div>
                         <div class="row">
                             <p></p>
-                            <div class="col-md-2">
-                                {{=form_pagar.custom.label.valor}}
-                                {{=form_pagar.custom.widget.valor}}
+                            <div class="col-md-6">
+                                {{=form_pagar.custom.label.demanda}}
+                                {{=form_pagar.custom.widget.demanda}}
                             </div>
+
                             <div class="col-md-3">
                                 {{=form_pagar.custom.label.condicao}}
                                 {{=form_pagar.custom.widget.condicao}}
                             </div>
-                        </div>
-                    </div>
-                    <div class="panel panel-info">
-                        <div class="panel-body">
-                            <div class="right">
-                                {{=form_pagar.custom.submit}}
-                                {{=btnNovo}}
-                                {{=btnExcluir}}
+                            <div class="col-md-3">
+                                {{=form_pagar.custom.label.valor}}
+                                {{=form_pagar.custom.widget.valor}}
                             </div>
                         </div>
                     </div>
+
+                    <div class="left" style="margin-top: 15px;margin-left: 10px">
+                        {{=form_pagar.custom.submit}}
+                        {{=btnNovo}}
+                        {{=btnExcluir}}
+                    </div>
+
                     {{=form_pagar.custom.end}}
                 </div>
                 <div id="menu1" class="tab-pane fade">

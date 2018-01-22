@@ -30,34 +30,28 @@
             </div>
         </div>
         <div class="row">
-            <p></p>
             <div class="col-md-3">
                 {{=formInsumos[1].custom.label.etapa}}
                 {{=formInsumos[1].custom.widget.etapa}}
             </div>
-            <div class="col-md-3">
-                {{=formInsumos[1].custom.label.obra}}
-                {{=formInsumos[1].custom.widget.obra}}
-            </div>
         </div>
     </div>
-    <div class="panel panel-info">
-        <div class="panel-body">
-            <div class="right">
-                {{=formInsumos[1].custom.submit}}
-                {{=btnVoltar}}
-                {{=btnExcluir}}
-            </div>
-        </div>
+
+    <div class="left" style="margin-top: 20px;margin-left: 15px">
+        {{=formInsumos[1].custom.submit}}
+        {{=btnVoltar}}
+        {{=btnExcluir}}
     </div>
+
     {{=formInsumos[1].custom.end}}
 {{else:}}
     <div class="well">
         {{=formInsumos}}
-        <div class="left">
-            <b> Total Insumos: {{=total_insumos}}</b>
-        </div>
     </div>
+    <div class="left" style="margin-top: 30px;margin-left: 10px; font-size: 16px">
+        <b> Total Insumos: {{=total_insumos}}</b>
+    </div>
+    
 {{pass}}
 
 <script type="text/javascript">

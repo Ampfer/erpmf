@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #@auth.requires_membership('admin')
 def entrada_lista():
-    
-    grid_pagar = grid(Pagar,formname="lista_pagar",orderby=~Pagar.emissao)
+    fields = (Pagar.documento,Pagar.fornecedor, Pagar.condicao, Pagar.valor)
+    grid_pagar = grid(Pagar,formname="lista_pagar",fields=fields,orderby=~Pagar.emissao)
 
     if request.args(-2) == 'new':
        redirect(URL('entrada'))
@@ -98,7 +98,7 @@ def pagarInsumos():
 
     def atualizaTabelas(form,idpagar=id_pagar):
         session.etapa = form.vars.etapa
-        session.obra = form.vars.obra
+        session.demanda = form.vars.demanda
         idFornecedor = Pagar[int(idpagar)].fornecedor
         #### Atualiza Tabela Custo #####
         query = (Custo.insumo == form.vars.insumo) & (Custo.fornecedor == idFornecedor)
@@ -121,16 +121,16 @@ def pagarInsumos():
     PagarInsumos.desconto.default = 0.00
     if session.etapa:
         PagarInsumos.etapa.default = session.etapa
-    if session.obra:
-        PagarInsumos.obra.default = session.obra
+    if session.demanda:
+        PagarInsumos.demanda.default = session.demanda
 
     fields=[PagarInsumos.insumo,PagarInsumos.unidade,PagarInsumos.quantidade,PagarInsumos.preco,PagarInsumos.desconto,
-            PagarInsumos.total,PagarInsumos.etapa,PagarInsumos.obra]
+            PagarInsumos.total,PagarInsumos.etapa]
 
-    formInsumos = SQLFORM.grid(PagarInsumos.pagar==id_pagar,
-                               user_signature=False,args=[id_pagar],formname = "pagarinsumos",
-                               searchable = False, csv = False, maxtextlength = 50,fields=fields,
-                               deletable=True,details=False,onvalidation=atualizaTabelas,
+    formInsumos = grid(PagarInsumos.pagar==id_pagar,alt='250px',
+                               args=[id_pagar],formname = "pagarinsumos",
+                               searchable = False, fields=fields,
+                               deletable=True,onvalidation=atualizaTabelas,
                                )
 
     if formInsumos.create_form or formInsumos.update_form:
@@ -204,7 +204,7 @@ def pagar_parcelas():
         return atualiza_parcela()
 
 
-    formParcelas = grid((Pagar_parcelas.pagar==id_pagar),
+    formParcelas = grid((Pagar_parcelas.pagar==id_pagar),alt='250px',
             formname="parcelas",searchable = False,args=[id_pagar],onvalidation=validar,
             ondelete = deletar_parcela,deletable=False,editargs= dict(deletable=True),
             orderby=Pagar_parcelas.vencimento,)
@@ -226,18 +226,18 @@ def geraDespesas():
     Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
     Despesas.dtdespesa.default = pagar.emissao
     try:
-        rr = db(PagarInsumos.pagar == id_pagar).select(orderby=[PagarInsumos.obra, PagarInsumos.etapa])
+        rr = db(PagarInsumos.pagar == id_pagar).select(orderby=[PagarInsumos.demanda, PagarInsumos.etapa])
         for r in rr:
-            query = (PagarInsumos.etapa == int(r.etapa)) & (PagarInsumos.obra == int(r.obra)) & (
+            query = (PagarInsumos.etapa == int(r.etapa)) & (PagarInsumos.demanda == int(r.demanda)) & (
             PagarInsumos.pagar == int(id_pagar))
             sum = (PagarInsumos.preco * PagarInsumos.quantidade - PagarInsumos.desconto).sum()
             valor = float(db(query).select(sum).first()[sum] or 0)
 
-            query1 = (Despesas.etapa == int(r.etapa)) & (Despesas.obra == int(r.obra)) & (Despesas.pagar == int(id_pagar))
+            query1 = (Despesas.etapa == int(r.etapa)) & (Despesas.demanda == int(r.demanda)) & (Despesas.pagar == int(id_pagar))
             Despesas.update_or_insert(query1,
                                       valor=valor,
                                       etapa=r.etapa,
-                                      obra=r.obra
+                                      demanda=r.demanda
                                       )
     except:
         pass
@@ -253,14 +253,14 @@ def pagar_despesas():
     Despesas.dtdespesa.default = pagar.emissao
     if session.etapa:
         Despesas.etapa.default = session.etapa
-    if session.obra:
-        Despesas.obra.default = session.obra
+    if session.demanda:
+        Despesas.demanda.default = session.demanda
     total_despesas = (db(Despesas.pagar==id_pagar).select(Despesas.valor.sum()).first())[Despesas.valor.sum()]
     Despesas.valor.default = float(pagar.valor) - float(total_despesas or 0)
 
     def validar(form,total_despesas=float(total_despesas or 0),pagar_valor=pagar.valor):
         session.etapa = form.vars.etapa
-        session.obra = form.vars.obra
+        session.demanda = form.vars.demanda
         if 'edit' in request.args:
             id_despesa = request.args(-1)
             old_valor = float(Despesas(id_despesa).valor)
@@ -713,7 +713,7 @@ def fornecedorPagamentos():
 
 #@auth.requires_membership('admin')
 def compras():
-    fields = [Compras.emissao,Compras.documento,Compras.fornecedor,Compras.obra, Compras.tipo,Compras.valor]
+    fields = [Compras.emissao,Compras.documento,Compras.fornecedor,Compras.demanda, Compras.tipo,Compras.valor]
     gridCompras = SQLFORM.grid(Compras,
                               formname="compras", csv=False, user_signature=False, details=False,
                               orderby=~Compras.emissao, maxtextlength=50,fields=fields)
@@ -883,12 +883,12 @@ def compraGeraPdf(id_compra):
 
     fornecedor = Compras[id_compra].fornecedor.nome
     condicao = '%s \n' %(Compras[id_compra].condicao.descricao)
-    endereco = '%s-%s-%s-%s' %(Compras[id_compra].obra.endereco.endereco,
-                               Compras[id_compra].obra.endereco.bairro,
-                               Compras[id_compra].obra.endereco.cidade,
-                               Compras[id_compra].obra.endereco.estado)
+    endereco = '%s-%s-%s-%s' %(Compras[id_compra].demanda.endereco.endereco,
+                               Compras[id_compra].demanda.endereco.bairro,
+                               Compras[id_compra].demanda.endereco.cidade,
+                               Compras[id_compra].demanda.endereco.estado)
 
-    obra = Compras[id_compra].obra.nome
+    demanda = Compras[id_compra].demanda.nome
     obs = Compras[id_compra].obs
     insumos = db(ComprasInsumos.id>0).select()
 
@@ -908,7 +908,7 @@ def compraGeraPdf(id_compra):
             pdf.texto(3,'Endereço de Entrega:',10,'Times',8,'B')
             pdf.texto(3,'Obra:\n',150,'Times',8,'B')
             pdf.texto(8,endereco,10,'Times',12,'')
-            pdf.texto(8, obra, 150, 'Times', 12, '')
+            pdf.texto(8, demanda, 150, 'Times', 12, '')
 
             pdf.set_font('Arial', 'B', 10)
             pdf.ln(9)
@@ -956,11 +956,3 @@ def compraGeraPdf(id_compra):
     else:
         pdf.output(name=nome, dest='F')
         return
-
-
-
-
-
-
-
-

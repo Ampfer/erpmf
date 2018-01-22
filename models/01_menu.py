@@ -33,6 +33,7 @@ response.menu+=[
     (T('Cadastros'), False, URL(request.application,'default','index'), [
     ('Cliente', False, URL(r=request, c='cadastro', f='clientes')),
     ('Fornecedor', False, URL(r=request, c='cadastro', f='fornecedores')),
+    ('demanda', False, URL(r=request, c='cadastro', f='demandas')),
     ('Condição de Pagamento', False, URL(r=request, c='cadastro', f='condicao')),
     ('Unidade', False, URL(r=request, c='cadastro', f='unidade')),
     ('Tipo de Insumo', False, URL(r=request, c='cadastro', f='tipoInsumo')),

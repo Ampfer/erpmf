@@ -1,50 +1,55 @@
 {{extend 'layout.html'}}
 <div class="container">
     <div class="panel panel-info">
-        <div class="panel-heading"><h4>Cadastro de Obras</h4></div>
+        <div class="panel-heading"><h4>Cadastro de Demandas</h4></div>
         <div class="panel-body">
             <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#home">Dados da Obra</a></li>
+                <li class="active"><a data-toggle="tab" href="#home">Dados da Demanda</a></li>
                 <li><a data-toggle="tab" href="#menu1">Despesas</a></li>
                 <li><a data-toggle="tab" href="#menu2">Insumos</a></li>
                 <li><a data-toggle="tab" href="#menu3">Curva ABC</a></li>
             </ul>
             <div class="tab-content">
                 <div id="home" class="tab-pane fade in active">
-                        {{=form_obra.custom.begin}}
+                        {{=formDemanda.custom.begin}}
                         <div class="well">
                             <div class="row">
-                                <div class="col-md-6">
-                                    {{=form_obra.custom.label.nome}}
-                                    {{=form_obra.custom.widget.nome}}
+                                <div class="col-md-3">
+                                    {{=formDemanda.custom.label.codigo}}
+                                    {{=formDemanda.custom.widget.codigo}}
+                                </div>
+                                <div class="col-md-3">
+                                    {{=formDemanda.custom.label.tipo}}
+                                    {{=formDemanda.custom.widget.tipo}}
                                 </div>
                                 <div class="col-md-6">
-                                    {{=form_obra.custom.label.cliente}}
-                                    {{=form_obra.custom.widget.cliente}}
+                                    {{=formDemanda.custom.label.descricao}}
+                                    {{=formDemanda.custom.widget.descricao}}
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-8">
-                                    {{=form_obra.custom.label.endereco}}
-                                    {{=form_obra.custom.widget.endereco}}
+                                <div class="col-md-6">
+                                    {{=formDemanda.custom.label.cliente}}
+                                    {{=formDemanda.custom.widget.cliente}}
                                 </div>
-                                <div class="col-md-4">
-                                    {{=form_obra.custom.label.tipo_contrato}}
-                                    {{=form_obra.custom.widget.tipo_contrato}}
+                                <div class="col-md-6">
+                                    {{=formDemanda.custom.label.endereco}}
+                                    {{=formDemanda.custom.widget.endereco}}
                                 </div>
+
                             </div>
                         </div>
                         <div class="panel panel-info">
                             <div class="panel-body">
                                 <div class="right">
-                                    {{=form_obra.custom.submit}}
+                                    {{=formDemanda.custom.submit}}
                                     {{=btnNovo}}
                                     {{=btnVoltar}}
                                     {{=btnExcluir}}
                                 </div>
                             </div>
                         </div>
-                        {{=form_obra.custom.end}}
+                        {{=formDemanda.custom.end}}
                 </div>
                 <div id="menu1" class="tab-pane fade">
                     {{=formDespesas}}

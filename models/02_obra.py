@@ -60,48 +60,6 @@ Composicao_Insumos = db.define_table('composicao_insumos',
 Composicao_Insumos.composicao.readable = Composicao_Insumos.composicao.writable = False
 Composicao_Insumos.quantidade.requires= [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 
-Obras = db.define_table('obras',
-    Field('nome','string',label='Descrição:',length=60),
-    Field('cliente','reference clientes'),
-    Field('endereco','reference enderecos',ondelete = "SET NULL"),
-    Field('tipo_contrato','string',label = "Tipo de Contrato:",length=30),
-    format='%(nome)s'
-    )
-Obras.cliente.requires = IS_IN_DB(db,"clientes.id",'%(nome)s')
-Obras.endereco.requires = IS_IN_DB(db,"enderecos.id",'%(endereco)s - %(bairro)s - %(cidade)s - %(estado)s ')
-Obras.tipo_contrato.requires = IS_IN_SET(TipoContrato,zero='Escolha um Tipo de Contrato')
-
-ObraFotos = db.define_table('obraFotos',
-                            Field('obra','reference obras'),
-                            Field('descricao','string',label='Descrição'),
-                            Field('dataFoto','date',label='Data'),
-                            Field('etapa','reference etapas',label='Etapa'),
-                            Field('foto','upload',label='Foto')
-                            )
-ObraFotos.obra.readable = ObraFotos.obra.writable = False
-ObraFotos.dataFoto.requires = data
-
-Diario = db.define_table('diario',
-                         Field('dtdiario', 'date', label='Data:'),
-                         Field('tempo','string',label='Tempo'),
-                         Field('obra', 'reference obras', label='Obra:'),
-                         Field('pedreiro','integer', label='Pedreiro:',default=0),
-                         Field('servente', 'integer', label='Servente:',default=0),
-                         Field('pintor','integer', label='Pintor:',default=0),
-                         Field('eletrecista','integer', label='Eletrecista:',default=0),
-                         Field('encanador','integer', label='Encanador:',default=0),
-                         Field('servicos','list:reference insumos', label='Serviços'),
-                         Field('equipamentos','list:reference insumos', label='Equipamentos'),
-                         Field('ocorrencia','text',label='Ocorrências:'),
-                         )
-
-Diario.obra.requires = IS_IN_DB(db,'obras.id','%(nome)s',zero='Escolha uma Obra')
-Diario.servicos.requires = IS_IN_DB(db(db.insumos.tipo=='Mão de Obra'),'insumos.id','%(descricao)s', multiple=True)
-Diario.equipamentos.requires = IS_IN_DB(db(db.insumos.tipo=='Equipamentos'),'insumos.id','%(descricao)s', multiple=True)
-Diario.tempo.requires = IS_IN_SET(Tempo,zero=None)
-Diario.dtdiario.requires = data
-
-
 def totalOrcamento(orcamento):
     try:
         rows = db(OrcamentoComposicao.orcamento==int(orcamento.orcamentos.id)).select()
@@ -167,43 +125,4 @@ OrcamentoInsumos = db.define_table('orcamentoInsumos',
 OrcamentoInsumos.composicao.readable = Composicao_Insumos.composicao.writable = False
 OrcamentoInsumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 OrcamentoInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
-
-Quantitativos = db.define_table('quantitativos',
-                               Field('descricao','string',label='Descrição', length=60),
-                              )
-
-QuantitativoElementos = db.define_table('quantitativoElementos',
-                                    Field('quantitativo','reference quantitativos'),
-                                    Field('descricao','string',label='Descrição', length=30),
-                                    Field('espessura', 'decimal(6,2)', label='Espessura'),
-                                    Field('largura', 'decimal(6,2)', label='Altura/largura'),
-                                    Field('comprimento', 'decimal(6,2)', label='Comprimento'),
-                                    Field('nucleo','string',label='Núcleo'),
-                                    Field('cima','list:string',label='Cima'),
-                                    Field('baixo', 'list:string', label='Baixo'),
-                                    Field('etapa','string', label='Etapa'),
-                                   )
-Nucleo = ['Cerâmico Estrutural','Tijolo Maciço','Bloco Concreto','Laje','Contrapiso']
-Revestimento = ['Cerâmico','Porcelanato','Revestimento','Reboco','Massa Fina','Gesso Parede','Gesso Forro',
-                'Regularização','Impermeabilizao',]
-Etapa = ['Fundação','Supraestrutura','Cobertura','Área Externa']
-
-QuantitativoElementos.quantitativo.readable = QuantitativoElementos.quantitativo.writable = False
-QuantitativoElementos.espessura.requires = IS_DECIMAL_IN_RANGE(dot=',')
-QuantitativoElementos.largura.requires = IS_DECIMAL_IN_RANGE(dot=',')
-QuantitativoElementos.comprimento.requires = IS_DECIMAL_IN_RANGE(dot=',')
-QuantitativoElementos.nucleo.requires = IS_IN_SET(Nucleo,zero=None,)
-QuantitativoElementos.cima.requires = IS_IN_SET(Revestimento,zero=None, multiple=True)
-QuantitativoElementos.baixo.requires = IS_IN_SET(Revestimento,zero=None, multiple=True)
-QuantitativoElementos.etapa.requires = IS_IN_SET(Etapa,zero=None,)
-
-QuantitativoResumo= db.define_table('quantitativoResumo',
-                                    Field('quantitativo','reference quantitativos'),
-                                    Field('etapa', 'string', label='Etapa',length=30),
-                                    Field('servico', 'string', label='Serviço', length=30),
-                                    Field('quantidade', 'decimal(7,2)', label='Quantidade'),
-                                    )
-QuantitativoResumo.quantitativo.readable = QuantitativoResumo.quantitativo.writable = False
-QuantitativoResumo.quantidade.requires = IS_DECIMAL_IN_RANGE(dot=',')
-
 
