@@ -131,7 +131,7 @@ PlanoContas1 = db.define_table('plano_contas1',
 PlanoContas2 = db.define_table('plano_contas2',
 						Field('conta','string',label='Descrição:', length=50),
 						Field('nivel1','reference plano_contas1',label='Nível 1:'),
-						format='%(conta)s'
+						format='%(nivel1)s - %(conta)s'
 						)
 PlanoContas2.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s')
 
@@ -139,7 +139,7 @@ PlanoContas3 = db.define_table('plano_contas3',
 						Field('conta','string',label='Descrição:', length=50),
 						Field('nivel1','reference plano_contas1',label='Nível 1:'),
 						Field('nivel2','reference plano_contas2',label='Nível 2:'),
-						format='%(conta)s'
+						format='%(nivel1)s - %(nivel2)s - %(conta)s'
 
 						)
 PlanoContas3.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s',zero=None)

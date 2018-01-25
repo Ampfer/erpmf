@@ -2,10 +2,16 @@
     {{=formDespesas[1].custom.begin}}
     <div class="well">
         <div class="row">
-            <div class="col-md-8">
-                {{=formDespesas[1].custom.label.descricao}}
-                {{=formDespesas[1].custom.widget.descricao}}
+            <div class="col-md-4">
+                {{=formDespesas[1].custom.label.despesa}}
+                {{=formDespesas[1].custom.widget.despesa}}
             </div>
+
+            <div class="col-md-4">
+                {{=formDespesas[1].custom.label.demanda}}
+                {{=formDespesas[1].custom.widget.demanda}}
+            </div>
+
             <div class="col-md-2">
                 {{=formDespesas[1].custom.label.dtdespesa}}
                 {{=formDespesas[1].custom.widget.dtdespesa}}
@@ -13,17 +19,6 @@
             <div class="col-md-2">
                 {{=formDespesas[1].custom.label.valor}}
                 {{=formDespesas[1].custom.widget.valor}}
-            </div>
-        </div>
-        <div class="row">
-            <p></p>
-            <div class="col-md-3">
-                {{=formDespesas[1].custom.label.etapa}}
-                {{=formDespesas[1].custom.widget.etapa}}
-            </div>
-            <div class="col-md-3">
-                {{=formDespesas[1].custom.label.obra}}
-                {{=formDespesas[1].custom.widget.obra}}
             </div>
         </div>
     </div>

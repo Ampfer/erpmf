@@ -112,6 +112,7 @@
 'Código:': 'Código:',
 'd': 'd',
 'Data': 'Data',
+'Data da Despesa': 'Data da Despesa',
 'Data do Pagamento:': 'Data do Pagamento:',
 'Data Pagamento': 'Data Pagamento',
 'data uploaded': 'dados enviados',

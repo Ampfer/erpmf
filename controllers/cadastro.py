@@ -233,11 +233,16 @@ def planoContas():
     return dict(formPc1=formPc1,loadPc2=loadPc2,loadPc3=loadPc3)
 
 def planoContas2():
-    formPc2 = grid(PlanoContas2,formname='planocontas2')
+    fields = (PlanoContas2.id, PlanoContas2.nivel1, PlanoContas2.conta)
+    formPc2 = grid(PlanoContas2,formname='planocontas2', fields=fields,
+      orderby = PlanoContas2.nivel1|PlanoContas2.conta)
     return dict(formPc2=formPc2)
 
 def planoContas3():
-    formPc3 = grid(PlanoContas3,formname='planocontas3')
+    fields = (PlanoContas3.id, PlanoContas3.nivel1,PlanoContas3.nivel2, PlanoContas3.conta)
+    formPc3 = grid(PlanoContas3,formname='planocontas3',fields=fields,
+              orderby = PlanoContas3.nivel1|PlanoContas3.nivel2|PlanoContas3.conta
+              )
     return dict(formPc3=formPc3)
 
 #@auth.requires_membership('admin')def demandas():

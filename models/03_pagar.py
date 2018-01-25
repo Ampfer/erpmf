@@ -58,13 +58,14 @@ Despesas = db.define_table('despesas',
 	                        Field('descricao','string',label='Descrição:',length=60),
 	                        Field('dtdespesa','date',label='Data da Despesa'),
 	                        Field('valor','decimal(7,2)',label='Valor:'),
-	                        Field('demanda','reference demandas',ondelete = "SET NULL")
+	                        Field('demanda','reference demandas',ondelete = "SET NULL"),
+	                        Field('despesa','reference plano_contas3',ondelete = "SET NULL"),
 	                      )
 Despesas.id.readable = Despesas.id.writable = False
 Despesas.pagar.readable = Despesas.pagar.writable = False
 Despesas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Despesas.dtdespesa.requires = data
-Despesas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(nome)s')
+Despesas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(descricao)s')
 
 def totalCompra(row):
 	try:

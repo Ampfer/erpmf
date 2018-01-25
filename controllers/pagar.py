@@ -223,7 +223,7 @@ def geraDespesas():
     id_pagar = int(request.args(0))
     pagar = Pagar(id_pagar)
     Despesas.pagar.default = id_pagar
-    Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
+    #Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
     Despesas.dtdespesa.default = pagar.emissao
     try:
         rr = db(PagarInsumos.pagar == id_pagar).select(orderby=[PagarInsumos.demanda, PagarInsumos.etapa])
@@ -246,20 +246,21 @@ def geraDespesas():
 #@auth.requires_membership('admin')
 def pagar_despesas():
 
-    id_pagar = int(request.args(0))
-    pagar = Pagar(id_pagar)
-    Despesas.pagar.default = id_pagar
-    Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
+    idPagar = int(request.args(0))
+    pagar = Pagar(idPagar)
+    Despesas.pagar.default = idPagar
+    #Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
     Despesas.dtdespesa.default = pagar.emissao
-    if session.etapa:
-        Despesas.etapa.default = session.etapa
+
     if session.demanda:
         Despesas.demanda.default = session.demanda
-    total_despesas = (db(Despesas.pagar==id_pagar).select(Despesas.valor.sum()).first())[Despesas.valor.sum()]
+    
+    total_despesas = (db(Despesas.pagar==idPagar).select(Despesas.valor.sum()).first())[Despesas.valor.sum()]
     Despesas.valor.default = float(pagar.valor) - float(total_despesas or 0)
 
+   
     def validar(form,total_despesas=float(total_despesas or 0),pagar_valor=pagar.valor):
-        session.etapa = form.vars.etapa
+        
         session.demanda = form.vars.demanda
         if 'edit' in request.args:
             id_despesa = request.args(-1)
@@ -271,15 +272,13 @@ def pagar_despesas():
         elif round((total_despesas + float(form.vars.valor) - old_valor),2) < round(pagar_valor,2):
             session.flash = 'Valor do Ducumento: %s Soma das Despesas: %s ' %(pagar_valor,total_despesas) 
 
-    #if float(total_despesas or 0) == 0:
-    #    geraDespesas()
+    fields = (Despesas.despesa, Despesas.demanda,Despesas.dtdespesa, Despesas.valor)
+    formDespesas = grid(Despesas.pagar==idPagar,
+        formname="despesas",searchable = False,args=[idPagar],fields=fields,onvalidation=validar)
 
-    formDespesas = SQLFORM.grid((Despesas.pagar==id_pagar),
-            formname="despesas",searchable = False,args=[id_pagar],csv=False,onvalidation=validar,
-            details=False,maxtextlength=50)
 
     btnGerar = A(SPAN(_class="glyphicon glyphicon-cog"), ' Gerar ', _class="btn btn-default",_id='gerar',
-             _onclick="if (confirm('Deseja Gerar Despesas ?')) ajax('%s', [], 'despesas');" %URL('pagar', 'geraDespesas', args=[id_pagar,request.args(-1)]))
+             _onclick="if (confirm('Deseja Gerar Despesas ?')) ajax('%s', [], 'despesas');" %URL('pagar', 'geraDespesas', args=[idPagar,request.args(-1)]))
 
     formDespesas[0].insert(-1, btnGerar)
 
@@ -295,7 +294,7 @@ def pagar_despesas():
 #@auth.requires_membership('admin')
 def pagamento_modal(ids):
     response.js = "show_modal('%s','teste');" % URL('pagar','pagamentos.load',vars=dict(ids=ids))
-    return Fals#e
+    return False
 
 #@auth.requires_membership('admin')
 def pagar_lista():
