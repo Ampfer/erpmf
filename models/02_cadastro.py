@@ -80,13 +80,6 @@ Unidade = db.define_table('unidade',
 	)
 Unidade.unidade.requires = [IS_NOT_EMPTY(),IS_LENGTH(4),IS_NOT_IN_DB(db,'unidade.unidade')]
 
-TipoInsumo = db.define_table('tipoInsumo',
-                             Field('descricao','string',label='Descrição', length = 30,unique=True),
-                             Field('sigla','string',label='Sigla', length = 02,unique=True),
-                             )
-TipoInsumo.descricao.requires = notempty
-TipoInsumo.sigla.requires = notempty
-
 Insumo = db.define_table('insumos',
                          Field('descricao', 'string', label='Descrição:', length=100),
                          Field('codigo', 'string', label='Código:', length=07),
@@ -131,7 +124,7 @@ PlanoContas1 = db.define_table('plano_contas1',
 PlanoContas2 = db.define_table('plano_contas2',
 						Field('conta','string',label='Descrição:', length=50),
 						Field('nivel1','reference plano_contas1',label='Nível 1:'),
-						format='%(nivel1)s - %(conta)s'
+						format = lambda r: PlanoContas1(r.nivel1).conta + ' - ' + r.conta
 						)
 PlanoContas2.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s')
 
@@ -142,8 +135,8 @@ PlanoContas3 = db.define_table('plano_contas3',
 						Field('despesa', 'boolean', label= 'É Despesa ?'),
 						format = lambda r: PlanoContas1(r.nivel1).conta + ' - ' + PlanoContas2(r.nivel2).conta + ' - ' + r.conta
 						)
-PlanoContas3.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s',zero=None)
-PlanoContas3.nivel2.requires = IS_IN_DB(db,'plano_contas2','%(conta)s',zero=None)
+#PlanoContas3.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s',zero=None)
+#PlanoContas3.nivel2.requires = IS_IN_DB(db,'plano_contas2','%(conta)s',zero=None)
 
 Demandas = db.define_table('demandas',
 	Field('codigo','string',label = "Código:",length=9),
@@ -156,3 +149,11 @@ Demandas = db.define_table('demandas',
 Demandas.cliente.requires = IS_IN_DB(db,"clientes.id",'%(nome)s')
 Demandas.endereco.requires = IS_EMPTY_OR(IS_IN_DB(db,"enderecos.id",'%(endereco)s - %(bairro)s - %(cidade)s - %(estado)s '))
 Demandas.tipo.requires = IS_IN_SET(TipoDemanda,zero=None)
+
+TipoInsumo = db.define_table('tipoInsumo',
+                             Field('descricao','string',label='Descrição', length = 30,unique=True),
+                             Field('sigla','string',label='Sigla', length = 02,unique=True),
+                             Field('conta','reference plano_contas3',ondelete = "NO ACTION"),
+                             )
+TipoInsumo.descricao.requires = [IS_UPPER(),notempty]
+TipoInsumo.sigla.requires = [IS_UPPER(),notempty]
