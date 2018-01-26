@@ -65,7 +65,9 @@ Despesas.id.readable = Despesas.id.writable = False
 Despesas.pagar.readable = Despesas.pagar.writable = False
 Despesas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Despesas.dtdespesa.requires = data
-Despesas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(descricao)s')
+Despesas.demanda.readable = Despesas.demanda.writable = False
+#Despesas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(descricao)s')
+#Despesas.despesa.requires = IS_IN_DB(db(PlanoContas3.despesa == 'T'),"plano_contas3.id",'%(nivel2)s - %(conta)s')
 
 def totalCompra(row):
 	try:

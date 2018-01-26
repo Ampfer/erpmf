@@ -98,7 +98,6 @@ def pagarInsumos():
 
     def atualizaTabelas(form,idpagar=id_pagar):
         session.etapa = form.vars.etapa
-        session.demanda = form.vars.demanda
         idFornecedor = Pagar[int(idpagar)].fornecedor
         #### Atualiza Tabela Custo #####
         query = (Custo.insumo == form.vars.insumo) & (Custo.fornecedor == idFornecedor)
@@ -121,8 +120,6 @@ def pagarInsumos():
     PagarInsumos.desconto.default = 0.00
     if session.etapa:
         PagarInsumos.etapa.default = session.etapa
-    if session.demanda:
-        PagarInsumos.demanda.default = session.demanda
 
     fields=[PagarInsumos.insumo,PagarInsumos.unidade,PagarInsumos.quantidade,PagarInsumos.preco,PagarInsumos.desconto,
             PagarInsumos.total,PagarInsumos.etapa]
@@ -223,7 +220,7 @@ def geraDespesas():
     id_pagar = int(request.args(0))
     pagar = Pagar(id_pagar)
     Despesas.pagar.default = id_pagar
-    #Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
+    Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
     Despesas.dtdespesa.default = pagar.emissao
     try:
         rr = db(PagarInsumos.pagar == id_pagar).select(orderby=[PagarInsumos.demanda, PagarInsumos.etapa])
@@ -249,13 +246,14 @@ def pagar_despesas():
     idPagar = int(request.args(0))
     pagar = Pagar(idPagar)
     Despesas.pagar.default = idPagar
-    #Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
+    Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
     Despesas.dtdespesa.default = pagar.emissao
+    Despesas.demanda.default = pagar.demanda
 
     if session.demanda:
         Despesas.demanda.default = session.demanda
     
-    total_despesas = (db(Despesas.pagar==idPagar).select(Despesas.valor.sum()).first())[Despesas.valor.sum()]
+    total_despesas = (db(Despesas.pagar==idPagar).select(Despesas.valor.sum()).first())[Despesas.valor.sum()] or 0
     Despesas.valor.default = float(pagar.valor) - float(total_despesas or 0)
 
    
@@ -272,7 +270,7 @@ def pagar_despesas():
         elif round((total_despesas + float(form.vars.valor) - old_valor),2) < round(pagar_valor,2):
             session.flash = 'Valor do Ducumento: %s Soma das Despesas: %s ' %(pagar_valor,total_despesas) 
 
-    fields = (Despesas.despesa, Despesas.demanda,Despesas.dtdespesa, Despesas.valor)
+    fields = (Despesas.despesa,Despesas.dtdespesa, Despesas.valor)
     formDespesas = grid(Despesas.pagar==idPagar,
         formname="despesas",searchable = False,args=[idPagar],fields=fields,onvalidation=validar)
 

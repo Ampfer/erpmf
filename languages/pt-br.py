@@ -420,4 +420,5 @@
 'You are successfully running web2py.': 'Você está executando o web2py com sucesso.',
 'You can modify this application and adapt it to your needs': 'Você pode modificar esta aplicação e adaptá-la às suas necessidades',
 'You visited the url %s': 'Você acessou a url %s',
+'É Despesa ?': 'É Despesa ?',
 }

@@ -17,7 +17,7 @@ Clientes = db.define_table('clientes',
 	format='%(nome)s'
 	)
 Clientes.id.label = 'Código'
-Clientes.nome.requires = notempty
+Clientes.nome.requires = [IS_UPPER(),IS_NOT_EMPTY()]
 Clientes.tipo.default = "Física"
 Clientes.cnpj_cpf.requires=IS_EMPTY_OR(IS_CPF_OR_CNPJ())
 Clientes.tipo.requires = IS_IN_SET(TipoPessoa,zero=None)
@@ -139,8 +139,8 @@ PlanoContas3 = db.define_table('plano_contas3',
 						Field('conta','string',label='Descrição:', length=50),
 						Field('nivel1','reference plano_contas1',label='Nível 1:'),
 						Field('nivel2','reference plano_contas2',label='Nível 2:'),
-						format='%(nivel1)s - %(nivel2)s - %(conta)s'
-
+						Field('despesa', 'boolean', label= 'É Despesa ?'),
+						format = lambda r: PlanoContas1(r.nivel1).conta + ' - ' + PlanoContas2(r.nivel2).conta + ' - ' + r.conta
 						)
 PlanoContas3.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s',zero=None)
 PlanoContas3.nivel2.requires = IS_IN_DB(db,'plano_contas2','%(conta)s',zero=None)
