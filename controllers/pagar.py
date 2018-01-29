@@ -217,24 +217,28 @@ def pagar_parcelas():
 
 def geraDespesas():
 
-    id_pagar = int(request.args(0))
-    pagar = Pagar(id_pagar)
-    Despesas.pagar.default = id_pagar
-    Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
-    Despesas.dtdespesa.default = pagar.emissao
+    idPagar = int(request.args(0))
+    pagar = Pagar(idPagar)
+    
     try:
-        rr = db(PagarInsumos.pagar == id_pagar).select(orderby=[PagarInsumos.demanda, PagarInsumos.etapa])
+        rr = db(PagarInsumos.pagar == idPagar).select(orderby = PagarInsumos.insumo)
+        idInsumo = 0
+        valorDespesa = 0
         for r in rr:
-            query = (PagarInsumos.etapa == int(r.etapa)) & (PagarInsumos.demanda == int(r.demanda)) & (
-            PagarInsumos.pagar == int(id_pagar))
-            sum = (PagarInsumos.preco * PagarInsumos.quantidade - PagarInsumos.desconto).sum()
-            valor = float(db(query).select(sum).first()[sum] or 0)
-
-            query1 = (Despesas.etapa == int(r.etapa)) & (Despesas.demanda == int(r.demanda)) & (Despesas.pagar == int(id_pagar))
-            Despesas.update_or_insert(query1,
-                                      valor=valor,
-                                      etapa=r.etapa,
-                                      demanda=r.demanda
+            if r.insumo != idInsumo:
+                valorDespesa = 0
+            valorDespesa += round(float(r.quantidade)*float(r.preco),2) - float(r.desconto)
+            print valorDespesa
+            tipoInsumo = Insumo(int(r.insumo)).tipo
+            conta = db(TipoInsumo.descricao == tipoInsumo).select().first()['conta']
+            query = (Despesas.despesa == int(conta)) & (Despesas.demanda == int(pagar.demanda)) & (Despesas.pagar == int(idPagar))
+            
+            Despesas.update_or_insert(query,
+                                      pagar = idPagar,
+                                      dtdespesa = pagar.emissao,                                  
+                                      demanda=pagar.demanda,
+                                      despesa=conta,
+                                      valor = valorDespesa
                                       )
     except:
         pass
@@ -246,7 +250,6 @@ def pagar_despesas():
     idPagar = int(request.args(0))
     pagar = Pagar(idPagar)
     Despesas.pagar.default = idPagar
-    Despesas.descricao.default = pagar.fornecedor.nome + ' - ' + pagar.documento
     Despesas.dtdespesa.default = pagar.emissao
     Despesas.demanda.default = pagar.demanda
 

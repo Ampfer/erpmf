@@ -54,8 +54,7 @@ PagarInsumos.desconto.requires = IS_DECIMAL_IN_RANGE(dot=',')
 PagarInsumos.etapa.requires = IS_EMPTY_OR(IS_IN_DB(db,"etapas.id",'%(etapa)s'))
 
 Despesas = db.define_table('despesas',
-	                        Field('pagar','reference pagar'),
-	                        Field('descricao','string',label='Descrição:',length=60),
+	                        Field('pagar','reference pagar'),	          
 	                        Field('dtdespesa','date',label='Data da Despesa'),
 	                        Field('valor','decimal(7,2)',label='Valor:'),
 	                        Field('demanda','reference demandas',ondelete = "SET NULL"),
