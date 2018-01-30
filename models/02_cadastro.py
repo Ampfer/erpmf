@@ -31,7 +31,8 @@ Fornecedores = db.define_table('fornecedores',
 	format='%(nome)s'
 	)
 Fornecedores.id.label = 'Código'
-Fornecedores.nome.requires = notempty
+Fornecedores.nome.requires = [notempty,IS_UPPER()]
+Fornecedores.razao.requires = IS_UPPER()
 Fornecedores.tipo.default = "Física"
 Fornecedores.cnpj_cpf.requires=IS_EMPTY_OR(IS_CPF_OR_CNPJ())
 Fornecedores.tipo.requires = IS_IN_SET(TipoPessoa,zero=None)

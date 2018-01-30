@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #@auth.requires_membership('admin')
 def entrada_lista():
-    fields = (Pagar.documento,Pagar.fornecedor, Pagar.condicao, Pagar.valor)
+    fields = (Pagar.emissao ,Pagar.documento,Pagar.fornecedor, Pagar.condicao, Pagar.valor)
     grid_pagar = grid(Pagar,formname="lista_pagar",fields=fields,orderby=~Pagar.emissao)
 
     if request.args(-2) == 'new':

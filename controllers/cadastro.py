@@ -121,7 +121,7 @@ def fornecedor():
 
     if idFornecedor == "0":
         formFornecedor = SQLFORM(Fornecedores,field_id='id',_id='formFornecedor')
-        formInsumo = "Primeiro Cadastre um Fornecedor"
+        formInsumo = formEnderecos = formContatos = "Primeiro Cadastre um Fornecedor"
         btnNovo = btnExcluir = btnVoltar = ''
     else:
         formFornecedor = SQLFORM(Fornecedores,idFornecedor,_id='formFornecedor',field_id='id')
@@ -138,7 +138,7 @@ def fornecedor():
     
     if formFornecedor.process().accepted:
         response.flash = 'Fornecedor Salvo com Sucesso!'
-        redirect(URL('fornecedor', args=form_fornecedor.vars.id))
+        redirect(URL('fornecedor', args=formFornecedor.vars.id))
 
     elif formFornecedor.errors:
         response.flash = 'Erro no Formulário Principal!'
@@ -270,15 +270,16 @@ def demanda():
         btnExcluir = btnNovo = ''
     else:
         formDemanda = SQLFORM(Demandas, idDemanda,_id='formDemanda',field_id='id')
-        '''
+
         formDespesas = LOAD(c='cadastro', f='demandaDespesas', content='Aguarde, carregando...',
                            target='demandaDespesas', ajax=True, args=idDemanda)
+        '''
         formInsumos = LOAD(c='cadastro', f='demandaInsumos', content='Aguarde, carregando...',
                            target='demandaInsumos', ajax=True, args=idDemanda)
         formAbc = LOAD(c='cadastro', f='demandaAbc', content='Aguarde, carregando...',
                            target='demandaAbc', ajax=True, args=idDemanda)
         '''           
-        formDespesas = formInsumos = formAbc = ''                 
+        formInsumos = formAbc = ''                 
         btnExcluir = excluir("#")
         btnNovo = novo("demanda")
 
@@ -319,8 +320,8 @@ def demandaDespesas():
         response.flash = 'Erro no Formulário'
 
     rows = db(Despesas.demanda==idDemanda).select(Despesas.dtdespesa.with_alias('dtdespesa'),
-                                             Despesas.descricao.with_alias('descricao'),
-                                             Despesas.etapa.with_alias('etapa'),
+                                             Despesas.pagar.with_alias('pagar'),
+                                             Despesas.despesa.with_alias('despesa'),
                                              Despesas.valor.with_alias('valor'),
                                              orderby=Despesas.dtdespesa)
 
@@ -329,15 +330,15 @@ def demandaDespesas():
     for r in rows:
         acumulado += r.valor
         Relatorio[0] = dict(datarel = r.dtdespesa,
-                            descricao = r.descricao,
-                            etapa = Etapas(r.etapa).etapa,
+                            descricao = Fornecedores(Pagar(r.pagar).fornecedor).nome,
+                            conta = PlanoContas3(r.despesa).conta,
                             valor=r.valor,
                             total = acumulado)
 
     if query:
         demandadespesas = db(query).select(Relatorio.datarel,
                                                  Relatorio.descricao,
-                                                 Relatorio.etapa,
+                                                 Relatorio.conta,
                                                  Relatorio.valor,
                                                  Relatorio.total,
                                                  orderby=Relatorio.datarel)
