@@ -1,33 +1,73 @@
 {{extend 'layout.html'}}
-<head>
-  <script src="{{=URL('static', 'js/Mascaras.js')}}" type="text/javascript"></script>
-</head>
 <div class="container">
-  <h3>Conta a Receber</h3>
-  {{=voltar}}
-  {{=novo}}
-  <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
-    <li><a data-toggle="tab" href="#menu1">Parcelas</a></li>
-    <li><a data-toggle="tab" href="#menu2">Receitas</a></li>
-  </ul>
-  <div class="tab-content">
-    <div id="home" class="tab-pane fade in active">
-      {{=form_receber}}
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Entrada de Contas a Receber</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
+                <li><a data-toggle="tab" href="#menu1">Parcelas</a></li>
+                <li><a data-toggle="tab" href="#menu2">Receitas</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=form_receber.custom.begin}}
+                    <div class="well">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {{=form_receber.custom.label.cliente}}
+                                {{=form_receber.custom.widget.cliente}}
+                                
+                            </div>
+                            <div class="col-md-2">
+                                {{=form_receber.custom.label.documento}}
+                                {{=form_receber.custom.widget.documento}}
+                            </div>
+                            <div class="col-md-2">
+                                {{=form_receber.custom.label.emissao}}
+                                {{=form_receber.custom.widget.emissao}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p></p>
+                            <div class="col-md-6">
+                                {{=form_receber.custom.label.demanda}}
+                                {{=form_receber.custom.widget.demanda}}
+                            </div>
+
+                            <div class="col-md-3">
+                                {{=form_receber.custom.label.condicao}}
+                                {{=form_receber.custom.widget.condicao}}
+                            </div>
+                            <div class="col-md-3">
+                                {{=form_receber.custom.label.valor}}
+                                {{=form_receber.custom.widget.valor}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="left" style="margin-top: 15px;margin-left: 10px">
+                        {{=form_receber.custom.submit}}
+                        {{=btnNovo}}
+                        {{=btnExcluir}}
+                    </div>
+
+                    {{=form_receber.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=form_parcelas}}
+                </div>
+                <div id="menu2" class="tab-pane fade">
+                    {{=form_receitas}}  
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-body">
+                    <div class="right">
+                        {{=btnVoltar}}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="menu1" class="tab-pane fade">
-        {{=form_parcelas}}
-    </div>         
-    <div id="menu2" class="tab-pane fade">
-        {{=form_receitas}}  
-    </div>
-  </div>
 </div>
 
-<script type="text/javascript">
-jQuery(function($){
-   $("#receber_cliente").css('width', '550'); 
-   $("#receber_documento").css('width', '250px');
-   $("#receber_condicao").css('width', '250px');
-});  
-</script>

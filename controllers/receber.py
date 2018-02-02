@@ -1,58 +1,42 @@
 # -*- coding: utf-8 -*-
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def entrada_lista():
-    
-    grid_receber = SQLFORM.grid(Receber,
-        showbuttontext=False,formname="lista_receber",csv=False,user_signature=False)
 
-    grid_receber = DIV(grid_receber, _class="well")
+    fields=(Receber.emissao, Receber.documento,Receber.cliente,Receber.condicao,Receber.valor)
+    grid_receber = grid(Receber,formname="lista_receber",fields=fields)
 
     if request.args(-2) == 'new':
        redirect(URL('entrada'))
     elif request.args(-3) == 'edit':
-       idd = request.args(-1)
-       redirect(URL('entrada', args=idd ))
+       idReceber = request.args(-1)
+       redirect(URL('entrada', args=idReceber ))
 
-    return locals()
+    return dict(grid_receber=grid_receber)
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def entrada():
     
-    idd = request.args(0) or "0"
-    voltar = A(SPAN(_class="icon leftarrow icon-arrow-left"),' Voltar', _class="button btn",_title="Voltar...", _href=URL(c="receber",f="entrada_lista"))
-    novo = A(SPAN(_class="icon leftarrow icon-arrow-left"),' Novo', _class="button btn",_title="Novo...", _href=URL(c="receber",f="entrada"))
+    idReceber = request.args(0) or "0"
+
+    btnVoltar = voltar("entrada_lista")
     
-    if idd == "0":
+    if idReceber == "0":
         Receber.emissao.default= request.now.date()
-        form_receber = SQLFORM(Receber,
-                              submit_button='Incluir',
-                              field_id='id',
-                              _id='form_receber')
-        
+        form_receber = SQLFORM(Receber,field_id='id',_id='form_receber')        
         form_parcelas = form_receitas = " Primeiro Cadastre um Contas a Receber"
+        btnExcluir = btnNovo = ''
         
     else:
-        form_receber = SQLFORM(Receber,idd,
-                                      submit_button='Alterar',
-                                      _id='form_receber' ,
-                                      field_id='id',
+        form_receber = SQLFORM(Receber,idReceber,_id='form_receber',field_id='id',
                                       )
+        form_parcelas = LOAD(c='receber',f='receber_parcelas',args=[idReceber],
+                     content='Aguarde, carregando...',target='parcelas',ajax=True)
 
-        form_parcelas = LOAD(c='receber',
-                     f='receber_parcelas',
-                     args=[idd],
-                     content='Aguarde, carregando...',
-                     target='parcelas',
-                     ajax=True
-                     )
+        form_receitas = LOAD(c='receber',f='receber_receitas',args=[idReceber],
+                     content='Aguarde, carregando...',target='receitas',ajax=True)
 
-        form_receitas = LOAD(c='receber',
-                     f='receber_receitas',
-                     args=[idd],
-                     content='Aguarde, carregando...',
-                     target='receitas',
-                     ajax=True
-                     )
+        btnNovo = novo("entrada")
+        btnExcluir = excluir('#')
 
     if form_receber.process().accepted:
         response.flash = 'Salvo com sucesso!'
@@ -62,10 +46,11 @@ def entrada():
 
     elif form_receber.errors:
         response.flash = 'Erro no Formulário Principal!'
-    return locals()
+    
+    return dict(form_receber=form_receber,form_parcelas=form_parcelas,form_receitas=form_receitas,
+                btnNovo=btnNovo,btnExcluir=btnExcluir,btnVoltar=btnVoltar)
 
-
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def receber_parcelas():
     id_receber = int(request.args(0))
 
@@ -84,7 +69,7 @@ def receber_parcelas():
             id_parc = int(row[Receber_parcelas.id])
             parc = (str(index+1) + '/' + str(len(rows)))
             Receber_parcelas[int(id_parc)] = dict(parcela=parc)
-                    
+                  
     def gera_parcela(id_receber,receber_valor,receber_condicao,receber_emissao):
         from datetime import timedelta
         condicao = db(Condicao.id ==  receber_condicao ).select(Condicao.dias).first()[Condicao.dias]
@@ -100,7 +85,7 @@ def receber_parcelas():
     Receber_parcelas.receber.default = id_receber
     Receber_parcelas.valor.default = receber_valor - total_parcela
     Receber_parcelas.valorpago.default = 0
-    Receber_parcelas.parcela.writable = False
+    #Receber_parcelas.parcela.writable = False
            
     atualiza_parcela()
 
@@ -118,24 +103,30 @@ def receber_parcelas():
     def deletar_parcela(table,id):
         return atualiza_parcela()
 
-    form = SQLFORM.grid((Receber_parcelas.receber==id_receber),
-            formname="parcelas",searchable = False,showbuttontext=False, 
-            _class='web2py_grid',args=[id_receber],csv=False,onvalidation=validar,
+    formParcelas = grid((Receber_parcelas.receber==id_receber),alt='250px',
+            formname="parcelas",searchable = False,args=[id_receber],onvalidation=validar,
             ondelete = deletar_parcela,deletable=False, editargs= dict(deletable=True),
             orderby=Receber_parcelas.vencimento
             )
+
+    btnVoltar = voltar1('parcelas')
+
+    if formParcelas.update_form:
+        btnExcluir = excluir("#")
+    else:
+        btnExcluir = ''
  
+    return dict(formParcelas=formParcelas,btnVoltar=btnVoltar,btnExcluir=btnExcluir,total_parcela=total_parcela)
 
-    return dict(form=form)
-
-@auth.requires_membership('admin')
 def receber_receitas():
-    id_receber = int(request.args(0))
-    receber = Receber(id_receber)
-    Receitas.receber.default = id_receber
-    Receitas.descricao.default = receber.cliente.nome + ' - ' + receber.documento
+
+    idReceber = int(request.args(0))
+    receber = Receber(idReceber)
+    Receitas.receber.default = idReceber
     Receitas.dtreceita.default = receber.emissao
-    total_receitas = (db(Receitas.receber==id_receber).select(Receitas.valor.sum()).first())[Receitas.valor.sum()]
+    Receitas.demanda.default = receber.demanda
+
+    total_receitas = (db(Receitas.receber==idReceber).select(Receitas.valor.sum()).first())[Receitas.valor.sum()] or 0
     Receitas.valor.default = float(receber.valor) - float(total_receitas or 0)
     
     def validar(form,total_receitas=float(total_receitas or 0),receber_valor=receber.valor):
@@ -148,18 +139,21 @@ def receber_receitas():
             form.errors.valor = "Soma das Receitas é Maior que o Valor do Documento" 
         elif (total_receitas + float(form.vars.valor) - old_valor) < receber_valor:
             session.flash = 'Valor do Documento: %s Soma das Receitas: %s ' %(Receber_valor,total_receitas) 
-        
-    form = SQLFORM.grid((Receitas.receber==id_receber),
-            formname="receitas",searchable = False,showbuttontext=False, 
-            _class='web2py_grid',args=[id_receber],csv=False,
-            onvalidation=validar,
-            )
 
-    form = DIV(form, _class="well")
+    fields= (Receitas.receita, Receitas.dtreceita,Receitas.valor)
+    btnVoltar = voltar1('receitas')
 
-    return dict(form=form)
+    formReceitas = grid(Receitas.receber==idReceber,
+        formname="receitas",searchable = False,args=[idReceber],fields=fields,onvalidation=validar)
 
-@auth.requires_membership('admin')   
+    if formReceitas.update_form:
+        btnExcluir = excluir("#")
+    else:
+        btnExcluir = ''
+
+    return dict(formReceitas=formReceitas,total_receitas=total_receitas,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+
+#@auth.requires_membership('admin')   
 def cliente_ficha():
     cliente = 0
     if request.vars.cliente:
@@ -202,12 +196,12 @@ def cliente_ficha():
 
     return locals()
 
-@auth.requires_membership('admin')   
+#@auth.requires_membership('admin')   
 def pesquisar_cliente():
     pesq=request.vars.pesq
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def receber_lista():
     from datetime import timedelta,date
 
@@ -272,7 +266,7 @@ def receber_lista():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def lotes():
     Lote.id.readable = True
     Lote.dtlote.readable = True
@@ -302,7 +296,7 @@ def lotes():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def lote_delete():
     if type(request.vars.ids) is list:
         session.ids = request.vars.ids
@@ -317,7 +311,7 @@ def lote_delete():
     atualizaRecebimentos(total,datapg)
     redirect(URL('receber_lista'))
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def atualizaRecebimentos(valor,datapg):
     if valor > 0:
         parcelas = db(Receber_parcelas.id.belongs(session.ids)).select(Receber_parcelas.id,Receber_parcelas.valor,Receber_parcelas.valorpago,orderby=Receber_parcelas.vencimento)

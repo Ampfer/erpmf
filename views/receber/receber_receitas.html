@@ -1,16 +1,44 @@
-<head>
-  <script src="{{=URL('static', 'js/Mascaras.js')}}" type="text/javascript"></script>
-</head>
-<div class="container">
-	<h3>Detalhes das Receitas</h3>
-	{{=form}}
-</div>
+{{if formReceitas.create_form or formReceitas.update_form:}}
+    {{=formReceitas[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-6">
+                {{=formReceitas[1].custom.label.receita}}
+                {{=formReceitas[1].custom.widget.receita}}
+            </div>
+
+            <div class="col-md-3">
+                {{=formReceitas[1].custom.label.dtreceita}}
+                {{=formReceitas[1].custom.widget.dtreceita}}
+            </div>
+            <div class="col-md-3">
+                {{=formReceitas[1].custom.label.valor}}
+                {{=formReceitas[1].custom.widget.valor}}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="right">
+                {{=formReceitas[1].custom.submit}}
+                {{=btnVoltar}}
+                {{=btnExcluir}}
+            </div>
+        </div>
+    </div>
+    {{=formReceitas[1].custom.end}}
+{{else:}}
+    <div class="well">
+        {{=formReceitas}}
+        <div class="left" style="margin-left: 10px; margin-top: 60px">
+            <b> Total Despesas: {{=total_receitas}}</b>
+        </div>
+    </div>
+{{pass}}
+
 <script type="text/javascript">
-jQuery(function($){
-   $("#receitas_descricao").css('width', '500px');
-   $("#receber_dtdespesa").css('width', '150px').mask('99/99/9999'); 
-   $("#receitas_tipo").css('width', '250px'); 
-   $("#receitas_obra").css('width', '250px');
-});  
+    jQuery(function($){
+       $("#receber_dtdespesa").mask('99/99/9999');
+    });
 </script>
 

@@ -1,6 +1,7 @@
 Receber = db.define_table('receber',
 	Field('cliente','reference clientes',label = 'Cliente:',ondelete = "SET NULL"),
 	Field('documento','string',label='Documento:',length=30),
+	Field('demanda', 'reference demandas',label='Demanda'),
 	Field('emissao','date', label='Data:'),
 	Field('valor','decimal(7,2)',label='Valor:'),
 	Field('condicao','reference condicao', label='Condição de Pagamento:',ondelete = "SET NULL")
@@ -34,15 +35,12 @@ Receber_parcelas.lote.readable = Receber_parcelas.lote.writable = False
 
 Receitas = db.define_table('receitas',
 	Field('receber','reference receber'),
-	Field('descricao','string',label='Descrição:',length=60),
 	Field('dtreceita','date',label='Data da Receita'),
 	Field('valor','decimal(7,2)',label='Valor:'),
-	Field('tipo','string',label='Tipo de Receita',length=30),
-	Field('demanda','reference demandas',ondelete = "SET NULL")
+	Field('demanda','reference demandas',ondelete = "SET NULL"),
+	Field('receita','reference plano_contas3',label='Receita',ondelete = "SET NULL"),
 	)
 Receitas.id.readable = Receitas.id.writable = False
 Receitas.receber.readable = Receitas.receber.writable = False
 Receitas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Receitas.dtreceita.requires = data
-Receitas.tipo.requires = IS_IN_SET(['Receita','Reembolso'])
-Receitas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(nome)s')
