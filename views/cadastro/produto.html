@@ -1,0 +1,51 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h6>Cadastro de Produtos</h6></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Produtos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+
+                        {{=formProduto.custom.begin}}
+                        <div class="well">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{=formProduto.custom.label.descricao}}
+                                    {{=formProduto.custom.widget.descricao}}
+                                </div>
+                                <div class="col-md-3">
+                                    {{=formProduto.custom.label.unidade}}
+                                    {{=formProduto.custom.widget.unidade}}
+                                </div>
+                                <div class="col-md-3">
+                                    {{=formProduto.custom.label.preco}}
+                                    {{=formProduto.custom.widget.preco}}
+                                </div>
+                            </div>
+                            <p></p>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {{=formProduto.custom.label.obs}}
+                                    {{=formProduto.custom.widget.obs}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-info">
+                            <div class="panel-body">
+                                <div class="right">
+                                    {{=formProduto.custom.submit}}
+                                    {{=btnNovo}}
+                                    {{=btnExcluir}}
+                                    {{=btnVoltar}}
+                                </div>
+                            </div>
+                        </div>
+                        {{=formProduto.custom.end}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

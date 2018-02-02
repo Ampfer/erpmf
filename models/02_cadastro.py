@@ -158,3 +158,14 @@ TipoInsumo = db.define_table('tipoInsumo',
                              )
 TipoInsumo.descricao.requires = [IS_UPPER(),notempty]
 TipoInsumo.sigla.requires = [IS_UPPER(),notempty]
+
+Produtos = db.define_table('produtos',
+                         Field('descricao', 'string', label='Descrição:', length=100),
+                         Field('unidade', 'string', label='Unidade:', length=04),
+                         Field('preco','decimal(7,2)',label='Preço'),
+                         Field('obs','string',label='Observação'),
+                         format='%(descricao)s',
+                         )
+Produtos.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
+Produtos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
+Produtos.descricao.requires = IS_UPPER()

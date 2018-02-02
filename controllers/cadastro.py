@@ -299,7 +299,10 @@ def demandaDespesas():
 
     from datetime import datetime
 
-    today = db(Despesas.demanda == idDemanda).select(Despesas.dtdespesa, orderby = Despesas.dtdespesa).first()['dtdespesa']
+    try:
+      today = db(Despesas.demanda == idDemanda).select(Despesas.dtdespesa, orderby = Despesas.dtdespesa).first()['dtdespesa'] 
+    except:
+      today = request.now
 
     inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial else today
     final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal else request.now
@@ -492,3 +495,44 @@ def demandaAbc():
         curvaabc = ''
 
     return locals()
+
+def produtos():
+
+    fields = [Produtos.id,Produtos.descricao,Produtos.unidade,Produtos.preco]
+    formProdutos = grid(Produtos,60,fields=fields,orderby=Produtos.descricao)
+
+    if formProdutos.create_form:
+        redirect(URL('produto'))
+    elif formProdutos.update_form:
+        redirect(URL('produto', args=request.args(-1)))
+
+    return dict(formProdutos=formProdutos)
+
+def produto():
+
+    idProduto = request.args(0) or "0"
+
+    btnVoltar = voltar('produtos')
+
+    if session.unidade:
+        Produtos.unidade.default = session.unidade
+
+    if idProduto == "0":
+        formProduto = SQLFORM(Produtos, field_id='id', _id='produto')
+        btnExcluir = btnNovo = ''
+    else:
+        formProduto = SQLFORM(Produtos, idProduto, _id='produtos', field_id='id')
+        btnExcluir = excluir("#")
+        btnNovo = novo("produto")
+
+    if formProduto.process().accepted :
+        response.flash = 'Produto Salvo com Sucesso!'
+  
+        session.unidade = formProduto.vars.unidade
+
+        redirect(URL('produto', args=formProduto.vars.id))
+
+    elif formProduto.errors:
+        response.flash = 'Erro no Formulário Principal!'
+
+    return dict(formProduto=formProduto, btnNovo=btnNovo,btnExcluir=btnExcluir,btnVoltar=btnVoltar)
