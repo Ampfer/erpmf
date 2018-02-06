@@ -1,0 +1,45 @@
+{{include 'modal.html'}}
+{{if gridProdutos.create_form or gridProdutos.update_form:}}
+    {{=gridProdutos[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-5">
+                {{=gridProdutos[1].custom.label.produto}}
+                {{=gridProdutos[1].custom.widget.produto}}
+            </div>
+            <div class="col-md-1">
+                {{=gridProdutos[1].custom.label.unidade}}
+                {{=gridProdutos[1].custom.widget.unidade}}
+            </div>
+            <div class="col-md-2">
+                {{=gridProdutos[1].custom.label.quantidade}}
+                {{=gridProdutos[1].custom.widget.quantidade}}
+            </div>
+            <div class="col-md-2">
+                {{=gridProdutos[1].custom.label.preco}}
+                {{=gridProdutos[1].custom.widget.preco}}
+            </div>
+            <div class="col-md-2">
+                {{=gridProdutos[1].custom.label.desconto}}
+                {{=gridProdutos[1].custom.widget.desconto}}
+            </div>
+        </div>
+    </div>
+
+    <div class="left" style="margin-top: 20px;margin-left: 15px">
+        {{=gridProdutos[1].custom.submit}}
+        {{=btnVoltar}}
+        {{=btnExcluir}}
+    </div>
+
+    {{=gridProdutos[1].custom.end}}
+{{else:}}
+    <div class="well">
+        {{=gridProdutos}}
+    </div>
+    <div class="left" style="margin-top: 30px;margin-left: 10px; font-size: 16px">
+        <b> Total Produtos: {{=total_produtos}}</b>
+    </div>
+    
+{{pass}}
+

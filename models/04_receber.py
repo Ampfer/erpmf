@@ -11,6 +11,21 @@ Receber.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Receber.emissao.requires = data
 Receber.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
 
+ReceberProdutos = db.define_table('receber_produtos',
+							    Field('receber','reference receber'),
+							    Field('produto','reference produtos',label='Produto'),
+							    Field('unidade','string',length=4,label='Unidade'),
+							    Field('quantidade','decimal(9,4)',label='Quantidade'),
+							    Field('preco','decimal(7,2)',label='Preço'),
+								Field('desconto','decimal(7,2)',label='Desconto'),
+								Field.Virtual('total',lambda row: round((row.receber_produtos.preco*row.receber_produtos.quantidade)-row.receber_produtos.desconto,2),label='Total'),
+							   )
+ReceberProdutos.id.readable = ReceberProdutos.id.writable = False
+ReceberProdutos.receber.readable = ReceberProdutos.receber.writable = False
+ReceberProdutos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
+ReceberProdutos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
+ReceberProdutos.desconto.requires = IS_DECIMAL_IN_RANGE(dot=',')
+
 Receber_parcelas = db.define_table('receber_parcelas',
 	Field('receber','reference receber'),
 	Field('parcela','string',label='Parcela:',length=7),

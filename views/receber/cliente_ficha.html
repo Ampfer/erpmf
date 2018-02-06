@@ -1,54 +1,75 @@
 {{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
 {{include 'modal.html'}}
-
 <div class="container">
-  {{=form_pesq.custom.begin}}
-  <div class="row">
-    <div class="col-lg-6">
-      <h1></h1>
-      cliente
-      <div class="input-group">
-        {{=form_pesq.custom.widget.cliente}}       
-        <span class="input-group-btn">
-          {{=form_pesq.custom.submit}}
-          <button class="glyphicon glyphicon-search" type="button" id='pesquisar'></button>
-          
-        </span>
-      </div><!-- /input-group -->
-    </div><!-- /.col-lg-6 --> 
-  </div><!-- /.row -->
-  {{=form_pesq.custom.end}}
-  <h1></h1>
-  <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#home">Ficha Cliente</a></li>
-    <li><a data-toggle="tab" href="#menu1">Pagamentos</a></li>
-  </ul>
-  <div class="tab-content">
-    <div id="home" class="tab-pane fade in active">
-      {{=form_parcelas}}
-      <pre>Total: <b>{{=total}}</b>    Total Pago : <b>{{=total_pago}}</b>     Total Pendente : <b>{{=total_pendente}}</b></pre>
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Ficha do Cliente</h4></div>
+        <div class="panel-body">
+            {{=form_pesq.custom.begin}}
+            <div class="well">
+                <div class="row">
+                    <div class="col-md-6">
+                      <div class="input-group">
+                          {{=form_pesq.custom.widget.cliente}}
+                          <span class="input-group-btn">
+                            {{=form_pesq.custom.submit}}
+                            {{=btnPesquisar}}
+                          </span>
+                      </div><!-- /input-group -->
+                    </div><!-- /.col-md-6 -->
+                </div><!-- /.row -->
+            </div><!-- /.well -->
+            {{=form_pesq.custom.end}}
+
+            {{if session.cliente:}}
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Ficha Cliente</a></li>
+                <li><a data-toggle="tab" href="#menu1">Recebimentos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=form_parcelas}}
+                    <p></p>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p>Total:</p>
+                                    <h5><b>{{=total}}</b></h5>
+                                </div>
+                                <div class="col-md-4">
+                                    <p>Total Pago:</p>
+                                    <h5><b>{{=total_pago}}</b></h5>
+                                </div>
+                                <div class="col-md-4">
+                                    <p>Total Pendente:</p>
+                                    <h5><b>{{=total_pendente}}</b></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=formRecebimentos}}
+                </div>
+            </div>
+            {{pass}}
+        </div>
     </div>
-    <div id="menu1" class="tab-pane fade">
-      {{=form_pagamentos}}
-    </div>         
-  </div>
 </div>
 
 <script type="text/javascript">
 jQuery(function($){
+   $("input[value='Salvar']").attr('value','Receber Parcelas');
    $("input[value =Selecionar]").hide();
    $("#pesquisar_cliente").change(function() {
-     $("input[value =Selecionar]").click();
+     $("input[value =Selecionar]").click().reload();
    });
 });
-</script>
+    function selecionar(id){
+        $('#pesquisar_cliente').val(id);
+        $("input[value =Selecionar]").click().reload();
+        hide_modal();
+    };
 
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#pesquisar").click(function(e) {
-       show_modal("{{=URL("pagar","pesquisar_fornecedor",vars={'reload_div':'map'})}}","Pesquisar Fornecedor");
-    });
-  }); 
 </script>
-

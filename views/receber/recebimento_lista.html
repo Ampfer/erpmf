@@ -1,0 +1,9 @@
+{{=form}}
+<pre>Total Selecionado : <b>{{=session.total_receber}}</b>    Total de Recebimentos : <b>{{=session.total_recebimentos}}</b></pre>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#novo").click(function(e) {
+       show_modal("{{=URL("receber","recebimentos",vars={'reload_div':'map'})}}","Recebimentos");
+    });
+  }); 
+</script>

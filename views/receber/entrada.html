@@ -5,8 +5,9 @@
         <div class="panel-body">
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
-                <li><a data-toggle="tab" href="#menu1">Parcelas</a></li>
-                <li><a data-toggle="tab" href="#menu2">Receitas</a></li>
+                <li><a data-toggle="tab" href="#menu1">Produtos</a></li>
+                <li><a data-toggle="tab" href="#menu2">Parcelas</a></li>
+                <li><a data-toggle="tab" href="#menu3">Receitas</a></li>
             </ul>
             <div class="tab-content">
                 <div id="home" class="tab-pane fade in active">
@@ -54,9 +55,12 @@
                     {{=form_receber.custom.end}}
                 </div>
                 <div id="menu1" class="tab-pane fade">
-                    {{=form_parcelas}}
+                    {{=form_produtos}}
                 </div>
                 <div id="menu2" class="tab-pane fade">
+                    {{=form_parcelas}}
+                </div>
+                <div id="menu3" class="tab-pane fade">
                     {{=form_receitas}}  
                 </div>
             </div>
