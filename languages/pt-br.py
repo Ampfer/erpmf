@@ -126,6 +126,7 @@
 'Delete': 'Excluir',
 'Delete:': 'Apagar:',
 'Demanda': 'Demanda',
+'Demanda:': 'Demanda:',
 'Demo': 'Demo',
 'Deployment Recipes': 'Receitas de deploy',
 'Des:': 'Des:',

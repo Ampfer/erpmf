@@ -347,13 +347,10 @@ def pagar_lista():
     #selectable = (lambda ids: redirect(URL('pagar',vars=dict(ids=ids)))) if status != "Pendente" else None
     selectable = None if status != "Pendente" else (lambda ids: redirect(URL('pagar',vars=dict(ids=ids,url="pagar_lista"))))
 
-    grid_pagar = SQLFORM.grid(db(query),
-        showbuttontext=False,formname="lista_pagar",field_id = Pagar_parcelas.id,
-        fields=fields,orderby=Pagar_parcelas.vencimento,
-        selectable= selectable, 
-        deletable = False,editable = False,details=False,create=False,
-        csv=False,user_signature=False,) 
-
+    grid_pagar = grid(db(query),
+        formname="lista_pagar",field_id = Pagar_parcelas.id,
+        fields=fields,orderby=Pagar_parcelas.vencimento,selectable= selectable, 
+        deletable = False,editable = False,create=False) 
 
     heading = grid_pagar.elements('th')
     if heading and status == "Pendente":
@@ -439,13 +436,14 @@ def pagar():
                _href=URL(url))
 
     #,_onClick="jQuery('#pagarLotes').get(0).reload()"
-    if request.vars.ids == None:
-        if session.id_lote ==0:
+    #if 
+    if session.id_lote ==0:
+        if request.vars.ids == None:
             session.flash = 'Selecione pelo menos uma Parcela'
             redirect(URL(c="pagar",f="pagar_lista"))
-        else:
-            session.ids = db(Pagar_parcelas.lote == session.id_lote).select(db.pagar.id,
-                            left=db.pagar_parcelas.on(db.pagar.id == db.pagar_parcelas.pagar))
+    else:
+        session.ids = db(Pagar_parcelas.lote == session.id_lote).select(db.pagar.id,
+                        left=db.pagar_parcelas.on(db.pagar.id == db.pagar_parcelas.pagar))
 
     form_parcelas = LOAD(c='pagar',f='mostrar_parcelas',
         content='Aguarde, carregando...',target='mostrar_parcelas',ajax=True,)
@@ -564,7 +562,7 @@ def atualizaPagamentos(idlote):
 
     query = db(Conta_corrente.lote == idlote)
     sum = Conta_corrente.vlpagamento.sum()
-    valor = float(query.select(sum).first()[sum]) or 0
+    valor = round(float(query.select(sum).first()[sum]),2) or 0
     datapg = query.select(Conta_corrente.dtpagamento,orderby=~Conta_corrente.dtpagamento).first() or None
 
     parcelas = db(Pagar_parcelas.id.belongs(session.ids)).select(Pagar_parcelas.id, Pagar_parcelas.valor,
@@ -689,12 +687,12 @@ def fornecedor_ficha():
     
     if session.fornecedor:
 
-        form_parcelas = SQLFORM.grid(query,
+        links = [lambda row: A(SPAN(_class="glyphicon glyphicon-share-alt"),' Pagar', _class="btn btn-default",_id='pagar',_title="Pagar Parcelas",
+                                        _href=URL('pagar',vars=dict(id_lote = row.pagar_parcelas.lote,ids=row.pagar_parcelas.id,url="fornecedor_ficha")))]
+
+        form_parcelas = grid(query,
             formname="fornecedor_parcelas",field_id = Pagar_parcelas.id,orderby=Pagar_parcelas.vencimento,fields=fields,
-            links = [lambda row: A(SPAN(_class="glyphicon glyphicon-share-alt"),' Pagar', _class="btn btn-default",_id='pagar',_title="Pagar Parcelas",
-                                        _href=URL('pagar',vars=dict(id_lote = row.pagar_parcelas.lote,ids = row.pagar_parcelas.id,url="fornecedor_ficha")))
-            ],deletable = False,editable = False,details=False,create=False,searchable=False,
-            csv=False,user_signature=False,)
+            links = links,deletable = False,editable = False,create=False,searchable=False)
 
     formPagamentos = LOAD(c='pagar',f='fornecedorPagamentos',target='fornecedorPagamentos',ajax=True,args=session.fornecedor)
 
@@ -707,9 +705,9 @@ def fornecedorPagamentos():
     id_fornecedor = request.args(0)
     fields = [Conta_corrente.lote,Conta_corrente.descricao,Conta_corrente.conta,Conta_corrente.dtpagamento,Conta_corrente.vlpagamento]
     query = (Conta_corrente.lote == Pagar_parcelas.lote) & (Pagar_parcelas.pagar == Pagar.id) & (Pagar.fornecedor == id_fornecedor)
-    qridPagamentos = SQLFORM.grid(query,searchable=False,create=False,details=False,deletable=False,editable=False,
-                                  csv=False,maxtextlength=50,fields=fields,user_signature=False)
-    return locals()
+    qridPagamentos = grid(query,searchable=False,create=False,deletable=False,
+        editable=False,fields=fields,groupby = Conta_corrente.lote)
+    return dict(qridPagamentos=qridPagamentos)
 
 #@auth.requires_membership('admin')
 def compras():
