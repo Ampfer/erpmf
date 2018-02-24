@@ -445,78 +445,17 @@ def insumosOrcamento():
         '''
 
 
-
-
-
-
 #@auth.requires_membership('admin')
-def quantitativos():
-    gridQuantitativo = SQLFORM.grid(Quantitativos,
-                                  formname="quantitativos",csv=False,user_signature=False,details=False,maxtextlength=50 )
-    if request.args(-2) == 'new':
-       redirect(URL('quantitativo'))
-    elif request.args(-3) == 'edit':
-       redirect(URL('quantitativo', args=request.args(-1) ))
+def atividades():
 
+    formEtapa = SQLFORM.factory(
+        Field('etapa', requires=IS_IN_DB(db,'etapas.etapa', zero=None)),
+        table_name='etapa',
+        submit_button='Adicionar',
+    )
+
+    if formEtapa.process().accepted:
+        etapa = form_pesq.vars.etapa
+    elif formEtapa.errors:
+        response.flash = 'Erro no Formulário'
     return locals()
-#@auth.requires_membership('admin')
-def quantitativo():
-    idQuantitativo = request.args(0) or "0"
-
-    btnVoltar = voltar('quantitativos')
-
-    if idQuantitativo == "0":
-        formQuantitativo = SQLFORM(Quantitativos,field_id='id',_id='quantitativo')
-        formElementos = formResumo = ''
-        btnExcluir = btnNovo = ''
-    else:
-        formQuantitativo = SQLFORM(Quantitativos, idQuantitativo,_id='quantitativo',field_id='id')
-
-        formElementos = LOAD(c='obra', f='quantitativoElementos', content='Aguarde, carregando...',
-                           target='quantitativoelementos', ajax=True, args=idQuantitativo)
-        formResumo = LOAD(c='obra', f='quantitativoResumo', content='Aguarde, carregando...',
-                           target='quantitativoresumo', ajax=True, args=idQuantitativo)
-
-        btnExcluir = excluir('#')
-        btnNovo = novo("quantitativo")
-
-    if formQuantitativo.process().accepted:
-        response.flash = 'Orçamento Salvo com Sucesso!'
-        redirect(URL('quantitativo', args=formQuantitativo.vars.id))
-
-    elif formQuantitativo.errors:
-        response.flash = 'Erro no Formulário Principal!'
-
-    return locals()
-
-def adcionaResumo(form):
-
-    QuantitativoResumo[0] = dict(quantitativo = int(form.vars.id),
-                                 etapa = form.vars.etapa,
-                                 servico = form.vars.nucleo,
-                                 quantidade = round(float(form.vars.largura)*float(form.vars.comprimento),2)
-                                )
-    return locals()
-
-#@auth.requires_membership('admin')
-def quantitativoElementos():
-    idQuantitativo = int(request.args(0))
-
-    QuantitativoElementos.quantitativo.default = idQuantitativo
-
-    formQ = SQLFORM.grid(QuantitativoElementos.quantitativo==idQuantitativo,details=False,
-                                           csv=False, user_signature=False,maxtextlength=50,
-                                           searchable=False,args=[idQuantitativo],)
-
-    return locals()
-
-#@auth.requires_membership('admin')
-def quantitativoResumo():
-    idQuantitativo = int(request.args(0))
-
-    QuantitativoResumo.quantitativo.default = idQuantitativo
-
-    formR = SQLFORM.grid(QuantitativoResumo.quantitativo==idQuantitativo,details=False,csv=False,
-                        user_signature=False,maxtextlength=50,searchable=False,args=[idQuantitativo],
-                        create=False,editable=False)
-    locals()

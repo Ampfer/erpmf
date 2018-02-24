@@ -35,6 +35,7 @@
 'Add record to database': 'Add record to database',
 'Add this to the search as an AND term': 'Add this to the search as an AND term',
 'Add this to the search as an OR term': 'Add this to the search as an OR term',
+'Adicionar': 'Adicionar',
 'admin': 'admin',
 'Administrative interface': 'Interface administrativa',
 'Administrative Interface': 'Interface Administrativa',

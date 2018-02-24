@@ -126,3 +126,9 @@ OrcamentoInsumos.composicao.readable = Composicao_Insumos.composicao.writable = 
 OrcamentoInsumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 OrcamentoInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
+Atividades = db.define_table('atividades',
+    Field('tipo','string',length=20),
+    Field('descricao','string',label='Descrição:',length=100),
+    Field('quantidade','decimal(7,2)',label='Quantidade:'),
+    )
+Atividades.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]

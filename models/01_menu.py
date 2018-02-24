@@ -68,7 +68,7 @@ response.menu+=[
     ('Obras', False, URL(r=request, c='obra', f='obras')),
     ('Diário de Obras', False, URL(r=request, c='obra', f='diarios')),
     ('Orçamentos', False, URL(r=request, c='obra', f='orcamentos')),
-    ('Quantitativo', False, URL(r=request, c='obra', f='quantitativos')),
+    ('Atividades', False, URL(r=request, c='obra', f='atividades')),
     ])]
 
 DEVELOPMENT_MENU = True
