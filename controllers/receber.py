@@ -165,7 +165,7 @@ def receber_parcelas():
 def receber_receitas():
 
     idReceber = int(request.args(0))
-    receber = Receber(idReceber)
+    receber = Receber[idReceber]
     Receitas.receber.default = idReceber
     Receitas.dtreceita.default = receber.emissao
     Receitas.demanda.default = receber.demanda

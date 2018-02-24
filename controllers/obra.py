@@ -199,8 +199,6 @@ def orcamento():
                            target='orcamentocomposicao', ajax=True, args=idOrcamento)
         formMaodeObra = LOAD(c='obra', f='orcamentoMaodeObra', content='Aguarde, carregando...',
                            target='orcamentomaodeobra', ajax=True, args=idOrcamento)
-        formOutras = LOAD(c='obra', f='orcamentoOutras', content='Aguarde, carregando...',
-                           target='orcamentooutras', ajax=True, args=idOrcamento)
         formInsumoRelacao = LOAD(c='obra', f='insumosOrcamento', content='Aguarde, carregando...',
                            target='insumosorcamento', ajax=True, args=idOrcamento)
 
@@ -271,59 +269,6 @@ def orcamentoMaodeObra():
     totalMaodeObra = Orcamentos[idOrcamento].maodeobra or 0
 
     return dict(formOrcamentoMaodeObra=formOrcamentoMaodeObra, totalMaodeObra = totalMaodeObra)
-
-def orcamentoOutras():
-      
-    idOrcamento = int(request.args(0))
-
-    query = (OrcamentoComposicao.orcamento == idOrcamento)
-    
-    Relatorio.truncate()
-        
-    rows1 = db(query).select()
-    for r1 in rows1:
-        qtComposicao = r1.quantidade
-        rows2 = db(Composicao_Insumos.composicao==r1.composicao).select()
-        for r2 in rows2:
-            qtde = (r2.quantidade * qtComposicao).quantize(Decimal('1.00'), rounding=ROUND_HALF_UP)
-            insumo = db(Insumo.id == r2.insumo).select().first()
-            sum1 = Relatorio.quantidade.sum()
-            qtAnt = db(Relatorio.codigo == insumo.codigo).select(sum1).first()[sum1] or 0
-
-            Relatorio.update_or_insert(Relatorio.codigo == insumo.codigo,
-                        codigo = insumo.codigo,
-                        descricao = insumo.descricao,
-                        unidade = insumo.unidade,
-                        quantidade = (qtAnt + qtde),
-                        valor=insumo.preco,
-                        #total = total,
-                        )
-
-    if query:
-        sum2 = Relatorio.total.sum()
-        totalInsumos = db(Relatorio.id > 0).select(sum2).first()[sum2]
-
-        orcamentoInsumos = db(Relatorio.id>0).select(Relatorio.codigo,
-                                            Relatorio.descricao,
-                                            Relatorio.unidade,
-                                            Relatorio.quantidade,
-                                            Relatorio.valor,
-                                            Relatorio.total,
-                                            orderby=Relatorio.descricao
-                                            )
-
-
-        insumos = SQLTABLE(orcamentoInsumos,_id='insumosOrcamento',
-                                        _class='display',
-                                        _cellspacing = "0",
-                                        _width = "100%",
-                                        headers='labels',
-                                        truncate = 100)
-    else:
-        insumos = ''
-        totalInsumos = 0
-
-    return locals()
 
 def insumosOrcamento():
 
