@@ -1,0 +1,51 @@
+{{extend 'layout.html'}}
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-heading"><h4>Obra</h4></div>
+        <div class="panel-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#home">Dados</a></li>
+                <li><a data-toggle="tab" href="#menu1">Itens</a></li>
+                <li><a data-toggle="tab" href="#menu2">Orçamentos</a></li>
+                <li><a data-toggle="tab" href="#menu3">Insumos</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    {{=formObra.custom.begin}}
+                    <div class="well">
+                        <div class="row">
+                            <div class="col-md-2">
+                                {{=formObra.custom.label.demanda}}
+                                {{=formObra.custom.widget.demanda}}
+                            </div>                            
+                            <div class="col-md-10">
+                                {{=formObra.custom.label.descricao}}
+                                {{=formObra.custom.widget.descricao}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="right">
+                                {{=formObra.custom.submit}}
+                                {{=btnNovo}}
+                                {{=btnVoltar}}
+                                {{=btnExcluir}}
+                            </div>
+                        </div>
+                    </div>
+                    {{=formObra.custom.end}}
+                </div>
+                <div id="menu1" class="tab-pane fade">
+                    {{=loadAtividade}}
+                </div>
+                <div id="menu2" class="tab-pane fade">
+                    
+                </div>
+                <div id="menu3" class="tab-pane fade">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

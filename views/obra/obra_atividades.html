@@ -1,0 +1,60 @@
+
+<div class="well">
+    {{=formAtividade.custom.begin}}
+    <div class="row">
+        <div class="col-md-4">
+            {{=formAtividade.custom.label.etapa}}
+            {{=formAtividade.custom.widget.etapa}}
+        </div>
+        <div class="col-md-4">
+            {{=formAtividade.custom.label.atividade}}
+            {{=formAtividade.custom.widget.atividade}}
+        </div>
+        <div class="col-md-2">
+            {{=formAtividade.custom.label.quantidade}}
+            {{=formAtividade.custom.widget.quantidade}}
+        </div>
+        <div class="col-md-2">
+            <div style="margin-top: 25px">{{=formAtividade.custom.submit}}</div>
+        </div>
+    </div>
+    {{=formAtividade.custom.end}}
+
+    <div class="container">   
+        <div class="row">  
+            <div class="well" style="width:1000px; padding: 8px 0;">
+                <div style="overflow-y: scroll; overflow-x: hidden; height: 300px;">
+                    {{for etapa in result:}}
+                    <ul class="nav nav-list">
+                        <li><label class="tree-toggler nav-header">{{=Etapas[int(etapa['etapa'])].etapa}}</label>
+                            <ul class="nav nav-list tree">
+                                {{for atividade in etapa['atividade']:}}
+                                <li><label class="tree-toggler nav-header" style="margin-left: 10px;">{{=Atividades[int(atividade['id'])].atividade}}</label>
+                                    {{for item in atividade['itens']:}}
+                                    <ul class="nav nav-list tree">
+                                        <li style="margin-left: 10px;"><a href="#">{{=item['item']}}</a></li>
+                                    </ul>
+                                    {{pass}}
+                                </li>
+                                {{pass}}
+                            </ul>
+                        </li>
+                        <li class="divider"></li>
+                    </ul>
+                    {{pass}}
+                </div>
+            </div>  
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function () {
+    $('label.tree-toggler').click(function () {
+        $(this).parent().children('ul.tree').toggle(300);
+    });
+});
+</script>
+
+
+
+

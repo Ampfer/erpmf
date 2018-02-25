@@ -1,0 +1,41 @@
+    {{if gridItens.create_form or gridItens.update_form:}}
+    {{=gridItens[1].custom.begin}}
+        <div class="well">
+            <div class="row">
+                 <div class="col-md-6">
+                     {{=gridItens[1].custom.label.composicao}}
+                     {{=gridItens[1].custom.widget.composicao}}
+                 </div>
+                 <div class="col-md-6">
+                     {{=gridItens[1].custom.label.insumo}}
+                     {{=gridItens[1].custom.widget.insumo}}
+                 </div>
+                 <div class="col-md-2">
+                    {{=gridItens[1].custom.label.quantidade}}
+                    {{=gridItens[1].custom.widget.quantidade}}
+                    </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-body">
+                <div class="right">
+                    {{=gridItens[1].custom.submit}}
+                    {{=voltar1('atividades_itens')}}
+                    {{if gridItens.update_form:}}
+                        {{=excluir('#')}}
+                    {{pass}}
+                </div>
+            </div>
+        </div>
+        {{=gridItens[1].custom.end}}
+    {{else:}}
+            <p></p>
+            {{=gridItens}}
+            <p></p>
+            <div class="panel panel-info">
+                <div class="panel-body">
+                    <div class="right">{{=voltar2()}}</div>
+                </div>
+            </div>
+
+    {{pass}}

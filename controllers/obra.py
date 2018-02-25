@@ -190,7 +190,7 @@ def orcamento():
 
     if idOrcamento == "0":
         formOrcamento = SQLFORM(Orcamentos,field_id='id',_id='orcamento')
-        formComposicao = formOutras = formInsumos = formMaodeObra = formInsumoRelacao = ''
+        formComposicao = formInsumos = formMaodeObra = formInsumoRelacao = ''
         btnExcluir = btnNovo = ''
     else:
         formOrcamento = SQLFORM(Orcamentos, idOrcamento,_id='orcamento',field_id='id')
@@ -348,59 +348,180 @@ def insumosOrcamento():
 
     return locals()
 
-'''
-    #sum = (OrcamentoComposicao.quantidade*Composicao_Insumos.quantidade).sum()
-    query = (Insumo.id == Composicao_Insumos.insumo) & (Composicao_Insumos.composicao == OrcamentoComposicao.composicao) & (OrcamentoComposicao.orcamento == idOrcamento)
-    query = query & (OrcamentoComposicao.etapa == etapa) if etapa != '0' else query
-    query = query & (OrcamentoComposicao.composicao == composicao) if composicao != '0' else query
-    rows = db(query).select(Insumo.id.with_alias('insumo'),
-                            Insumo.descricao.with_alias('descricao'),
-                            Insumo.unidade.with_alias('unidade'),
-                            Insumo.preco.with_alias('preco'),
-                            Insumo.codigo.with_alias('codigo'),
-                            OrcamentoComposicao.quantidade.with_alias('qtComposicao'),
-                            Composicao_Insumos.quantidade.with_alias('qtInsumos')
-                            )
-
-    Relatorio.truncate()
-
-    for r in rows:
-
-        qtde = r.qtComposicao*r.qtInsumos
-        
-        Relatorio.update_or_insert(Relatorio.codigo == r.codigo,
-                            codigo = r.codigo,
-                            descricao = r.descricao,
-                            unidade = r.unidade,
-                            quantidade =+ qtde,
-                            valor=r.preco,
-                            #total = total,
-                                                        
-                            )
-                                   
-        Relatorio[0] = dict(codigo = codigo,
-                            descricao = r.descricao,
-                            unidade = r.unidade,
-                            quantidade = quantidade + qtde,
-                            valor=r.preco,
-                            #total = total,
-                            
-                            #datarel = Pagar[r.pagar].emissao 
-                            )
-        '''
-
-
 #@auth.requires_membership('admin')
 def atividades():
 
-    formEtapa = SQLFORM.factory(
-        Field('etapa', requires=IS_IN_DB(db,'etapas.etapa', zero=None)),
-        table_name='etapa',
-        submit_button='Adicionar',
-    )
+    gridAtividades = grid(Atividades,60,orderby=Atividades.atividade)
 
-    if formEtapa.process().accepted:
-        etapa = form_pesq.vars.etapa
-    elif formEtapa.errors:
-        response.flash = 'Erro no Formulário'
+    if gridAtividades.create_form:
+        redirect(URL('atividade'))
+    elif gridAtividades.update_form:
+        redirect(URL('atividade', args=request.args(-1)))
+
+    return dict(gridAtividades=gridAtividades)
+
+#@auth.requires_membership('admin')
+def atividade():
+    idAtividade = request.args(-1) or "0"
+
+    if idAtividade == "0":
+        formAtividade = SQLFORM(Atividades, field_id='id', _id='atividade')
+        loadItens = btnExcluir = btnNovo = ''
+    else:
+        formAtividade = SQLFORM(Atividades,idAtividade, field_id='id', _id='atividade')
+
+        loadItens = LOAD(c='obra', f='atividade_itens', content='Aguarde, carregando...',
+                        target='atividadesitens', ajax=True, args=idAtividade)
+        btnExcluir = excluir("#")
+        btnNovo = novo("atividade")
+
+    btnVoltar = voltar("atividades")
+
+    if formAtividade.process().accepted:
+        redirect(URL('atividade',args=formAtividade.vars.id))
+
+    return dict(formAtividade=formAtividade,loadItens=loadItens, btnNovo=btnNovo,btnExcluir=btnExcluir,btnVoltar=btnVoltar)
+
+#@auth.requires_membership('admin')
+def atividade_itens():
+
+    idAtividade = int(request.args(0))
+    Atividades_Itens.atividade.default = idAtividade
+
+    def completar_item(form):
+        if form.vars.composicao:
+            item = Composicao[int(form.vars.composicao)].descricao
+            tipo = 'Composição'
+        else:
+            item = Insumo[int(form.vars.insumo)].descricao
+            tipo = 'Insumo'
+
+        Atividades_Itens[int(form.vars.id)] = dict(item = item, tipo=tipo)
+
+    def validarItem(form):
+        if form.vars.insumo and form.vars.composicao:
+            form.errors.insumo = 'Cadastre Composição ou Insumo'
+        if not form.vars.insumo and not form.vars.composicao:
+            form.errors.insumo = 'Cadastre pelo menos uma Composição ou Insumo'
+
+
+    fields = [Atividades_Itens.tipo,Atividades_Itens.item,Atividades_Itens.quantidade]
+    gridItens = grid((Atividades_Itens.atividade==idAtividade),args=[idAtividade],searchable=False,onvalidation=validarItem,
+        oncreate = completar_item, onupdate = completar_item,fields=fields)
+
+    return dict(gridItens=gridItens)
+
+#@auth.requires_membership('admin')
+def obras():
+    gridObras = grid(Obras,50,8,'400px',formname="obras",orderby =~Obras.id)
+    if request.args(-2) == 'new':
+       redirect(URL('obra'))
+    elif request.args(-3) == 'edit':
+       redirect(URL('obra', args=request.args(-1) ))
+
     return locals()
+
+
+
+def demandaTrigger():
+    return "$('#obras_descricao').val('%s')" %(Demandas[int(request.vars.demanda)].descricao)
+
+#@auth.requires_membership('admin')
+def obra():
+    idObras = request.args(0) or "0"
+
+    btnVoltar = voltar('obras')
+
+    if idObras == "0":
+        formObra = SQLFORM(Obras,field_id='id',_id='obra')
+        loadAtividade = ''
+        btnExcluir = btnNovo = ''
+    else:
+        formObra = SQLFORM(Obras, idObras,_id='obra',field_id='id')
+
+        loadAtividade = LOAD(c='obra', f='obra_atividades', content='Aguarde, carregando...',
+                           target='obraatividades', ajax=True, args=idObras)
+
+        btnExcluir = excluir('#')
+        btnNovo = novo("obra")
+
+    formObra.element(_name='demanda')['_onchange'] = "ajax('%s',['demanda'],':eval');" % URL('obra','demandaTrigger')
+
+    if formObra.process().accepted:
+        response.flash = 'Orçamento Salvo com Sucesso!'
+        redirect(URL('obra', args=formObra.vars.id))
+
+    elif formObra.errors:
+        response.flash = 'Erro no Formulário Principal!'
+
+    return locals()
+
+def buscar_atividade():
+    import json
+
+    rows  = db(Atividades.etapa == request.vars.etapa).select() 
+    
+    atividades = []
+    for row in rows:
+        atividades.append(dict(atividade = row.atividade, id = row.id))
+    atividadeJson = json.dumps(atividades)
+
+    jquery = "$('#atividade_atividade').find('option').remove();$.each(%s, function (i, d) {$('<option>').val(d.id).text(d.atividade).appendTo($('#atividade_atividade'));});" %(atividadeJson)
+    return  jquery
+
+#@auth.requires_membership('admin')
+def obra_atividades():
+    idObra = int(request.args(0)) 
+
+    formAtividade = SQLFORM.factory(
+        Field('etapa','integer',label='Etapa:',requires=IS_EMPTY_OR(IS_IN_DB(db,'etapas.id','%(etapa)s'))),
+        Field('atividade','integer',label='Item:',requires=IS_IN_DB(db,'atividades.id','%(atividade)s')),
+        Field('quantidade','Decimal',label='Quantidade:',requires=[IS_DECIMAL_IN_RANGE(dot=','),notempty]),
+        table_name='atividade',
+        submit_button='Adicionar',
+        )
+    formAtividade.element(_name='etapa')['_onchange'] = "ajax('%s',['etapa'],':eval');" % URL('obra', 'buscar_atividade')
+    
+    if formAtividade.process().accepted:
+        
+        itens = db(Atividades_Itens.atividade == formAtividade.vars.atividade).select()
+        etapa = Atividades[int(formAtividade.vars.atividade)]['etapa']
+        
+        for item in itens:
+            print item
+            Obras_Itens[0] = dict(obra=idObra,
+                               atividade = (formAtividade.vars.atividade),
+                               etapa = (etapa), 
+                               composicao = (item.composicao), 
+                               insumo=item.insumo,
+                               quantidade = formAtividade.vars.quantidade
+                               )
+        response.flash = 'Item Adicionado'
+    elif formAtividade.errors:
+        response.flash = 'Erro no Formulário'
+
+    etapas = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,distinct=True, orderby=Obras_Itens.etapa)
+    
+    result = []
+    for etapa in etapas:         
+        q = (Obras_Itens.obra == idObra) & (Obras_Itens.etapa==etapa.etapa)
+        atividades = db(q).select()
+        xatividades = []
+        for atividade in atividades:
+            q1 = (Obras_Itens.obra == idObra) & (Obras_Itens.etapa==etapa.etapa) & (Obras_Itens.atividade==atividade.atividade)
+            itens =  db(q).select()
+            xitens = []
+            for row in itens:
+                if row.composicao:
+                    item = Composicao[int(row.composicao)].descricao
+                else:
+                    item = Insumo[int(row.insumo)].descricao
+                xitens.append(dict(item=item))
+
+            xatividades.append(dict(id=atividade.atividade, itens = xitens))
+        
+        result.append(dict(etapa=etapa.etapa,atividade=xatividades))
+
+    print result
+
+    return dict(formAtividade=formAtividade, result=result)

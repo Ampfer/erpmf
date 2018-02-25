@@ -37,28 +37,28 @@ def valorMaoObra(id):
     return valorMO
 
 Composicao = db.define_table('composicao',
-                             Field('descricao', 'string', label='Descrição:', length=100),
-                             Field('unidade', 'string', label='Unidade:', length=04),
-                             #Field('empreita', 'decimal(7,2)', label='Empreita:'),
-                             Field.Virtual('maodeobra',lambda row:valorMaoObra(row.composicao.id), label='M.O.'),
-                             Field.Virtual('valor',lambda row:valorComposicao(row.composicao.id), label='Valor'),
-                             format='%(descricao)s',
-                             )
+     Field('descricao', 'string', label='Descrição:', length=100),
+     Field('unidade', 'string', label='Unidade:', length=04),
+     #Field('empreita', 'decimal(7,2)', label='Empreita:'),
+     Field.Virtual('maodeobra',lambda row:valorMaoObra(row.composicao.id), label='M.O.'),
+     Field.Virtual('valor',lambda row:valorComposicao(row.composicao.id), label='Valor'),
+     format='%(descricao)s',
+     )
 Composicao.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
 Composicao.descricao.requires = IS_UPPER()
 #Composicao.empreita.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 Composicao_Insumos = db.define_table('composicao_insumos',
-                                     Field('composicao', 'reference composicao'),
-                                     Field('insumo','reference insumos', label='Insumo',),
-                                     Field('quantidade','decimal(9,4)', label='Quantidade'),
-                                     Field('unidade','string',label='Unidade',length=04),
-                                     Field.Virtual('preco',lambda row:buscaInsumo(int(row.composicao_insumos.insumo))['preco'], label='Preço'),
-                                     Field.Virtual('total',lambda row:(row.composicao_insumos.quantidade * row.composicao_insumos.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN) ,label='Total'),
-                                     Field.Virtual('codigoInsumo',lambda row: db.insumos[row.composicao_insumos.insumo].codigo ,label='Código')
-                                     )
+     Field('composicao', 'reference composicao'),
+     Field('insumo','reference insumos', label='Insumo',),
+     Field('quantidade','decimal(9,4)', label='Quantidade'),
+     Field('unidade','string',label='Unidade',length=04),
+     Field.Virtual('preco',lambda row:buscaInsumo(int(row.composicao_insumos.insumo))['preco'], label='Preço'),
+     Field.Virtual('total',lambda row:(row.composicao_insumos.quantidade * row.composicao_insumos.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN) ,label='Total'),
+     Field.Virtual('codigoInsumo',lambda row: db.insumos[row.composicao_insumos.insumo].codigo ,label='Código')
+     )
 Composicao_Insumos.composicao.readable = Composicao_Insumos.composicao.writable = False
-Composicao_Insumos.quantidade.requires= [IS_DECIMAL_IN_RANGE(dot=','),notempty]
+Composicao_Insumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 
 def totalOrcamento(orcamento):
     try:
@@ -81,54 +81,85 @@ def totalMaodeObra(orcamento):
     return totalmo
 
 Orcamentos = db.define_table('orcamentos',
-                            Field('dtorcamento','date',label='Data:'),
-                            Field('descricao', 'string', label='Descrição:'),
-                            Field('cliente','reference clientes',label='Cliente:'),
-                            Field('observacao','text', label='Observação:'),
-                            Field.Virtual('total',lambda row: totalOrcamento(row), label='Total'),
-                            Field.Virtual('maodeobra',lambda row: totalMaodeObra(row), label='M.Obra')
-                            )
+    Field('dtorcamento','date',label='Data:'),
+    Field('descricao', 'string', label='Descrição:'),
+    Field('cliente','reference clientes',label='Cliente:'),
+    Field('observacao','text', label='Observação:'),
+    Field.Virtual('total',lambda row: totalOrcamento(row), label='Total'),
+    Field.Virtual('maodeobra',lambda row: totalMaodeObra(row), label='M.Obra')
+    )
 
 Orcamentos.dtorcamento.requires = data
 
 
 OrcamentoComposicao = db.define_table('orcamentoComposicao',
-                                      Field('orcamento','reference orcamentos', label='Orçamento:'),
-                                      Field('etapa', 'reference etapas', label='Etapas:'),
-                                      Field('composicao','reference composicao', label='Composição:'),
-                                      Field('item','string',label='Item:',length=10),
-                                      Field('quantidade','decimal(7,2)', label='Quantidade:'),
-                                      Field('unidade','string',label='UN:',length=04),
-                                      #Field('empreita','decimal(7,2)',label='Empreita:'),
-                                      Field.Virtual('valor',
-                                                    lambda row:valorComposicao(row.orcamentoComposicao.composicao), label='Valor:'),
-                                      Field.Virtual('maodeobra',
-                                                    lambda row:valorMaoObra(row.orcamentoComposicao.composicao), label='M.Obra:'),                                      
-                                      Field.Virtual('total', lambda row: (row.orcamentoComposicao.quantidade * row.orcamentoComposicao.valor).quantize(
-                                                    Decimal('1.00'), rounding=ROUND_DOWN), label='Total:'),
-                                      Field.Virtual('totmaodeobra', lambda row: (row.orcamentoComposicao.quantidade * row.orcamentoComposicao.maodeobra).quantize(Decimal('1.00'), rounding=ROUND_DOWN), label='Total MO:')
-                                      )
+    Field('orcamento','reference orcamentos', label='Orçamento:'),
+    Field('etapa', 'reference etapas', label='Etapas:'),
+    Field('composicao','reference composicao', label='Composição:'),
+    Field('item','string',label='Item:',length=10),
+    Field('quantidade','decimal(7,2)', label='Quantidade:'),
+    Field('unidade','string',label='UN:',length=04),
+    #Field('empreita','decimal(7,2)',label='Empreita:'),
+    Field.Virtual('valor',
+            lambda row:valorComposicao(row.orcamentoComposicao.composicao), label='Valor:'),
+    Field.Virtual('maodeobra',
+            lambda row:valorMaoObra(row.orcamentoComposicao.composicao), label='M.Obra:'),                                      
+    Field.Virtual('total', lambda row: (row.orcamentoComposicao.quantidade * row.orcamentoComposicao.valor).quantize(
+            Decimal('1.00'), rounding=ROUND_DOWN), label='Total:'),
+    Field.Virtual('totmaodeobra', lambda row: (row.orcamentoComposicao.quantidade * row.orcamentoComposicao.maodeobra).quantize(Decimal('1.00'), rounding=ROUND_DOWN), label='Total MO:')
+    )
 OrcamentoComposicao.orcamento.readable = OrcamentoComposicao.orcamento.writable = False
 OrcamentoComposicao.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 #OrcamentoComposicao.empreita.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 OrcamentoInsumos = db.define_table('orcamentoInsumos',
-                                     Field('composicao', 'reference orcamentoComposicao'),
-                                     Field('orcamento','integer'),
-                                     Field('insumo','reference insumos', label='Insumo'),
-                                     Field('quantidade','decimal(9,4)', label='Quantidade'),
-                                     Field('unidade','string',label='Unidade', length=04),
-                                     Field('preco','decimal(7,2)', label='Preço'),
-                                     Field.Virtual('total',lambda row:(row.orcamentoInsumos.quantidade * row.orcamentoInsumos.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN) ,label='Total'),
-                                     Field.Virtual('codigo',lambda row: Insumo[row.orcamentoInsumos.insumo].codigo ,label='Código')
-                                     )
+     Field('composicao', 'reference orcamentoComposicao'),
+     Field('orcamento','integer'),
+     Field('insumo','reference insumos', label='Insumo'),
+     Field('quantidade','decimal(9,4)', label='Quantidade'),
+     Field('unidade','string',label='Unidade', length=04),
+     Field('preco','decimal(7,2)', label='Preço'),
+     Field.Virtual('total',lambda row:(row.orcamentoInsumos.quantidade * row.orcamentoInsumos.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN) ,label='Total'),
+     Field.Virtual('codigo',lambda row: Insumo[row.orcamentoInsumos.insumo].codigo ,label='Código')
+     )
 OrcamentoInsumos.composicao.readable = Composicao_Insumos.composicao.writable = False
 OrcamentoInsumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 OrcamentoInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 Atividades = db.define_table('atividades',
-    Field('tipo','string',length=20),
-    Field('descricao','string',label='Descrição:',length=100),
-    Field('quantidade','decimal(7,2)',label='Quantidade:'),
+    Field('atividade','string',label='Descrição:',length=100),
+    Field('etapa','reference etapas', label='Etapa:'),
+    Field('unidade', 'string', label='Unidade:', length=04),
     )
-Atividades.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
+Atividades.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
+Atividades.atividade.requires = IS_UPPER()
+
+Atividades_Itens = db.define_table('atividades_itens',
+    Field('atividade','reference atividades',label='Atividade'),
+    Field('tipo','string',label='Tipo:'),
+    Field('item','string',label='Item:'),
+    Field('composicao','integer', label='Composição'),
+    Field('insumo','integer',label='Insumos:'),
+    Field('quantidade', 'decimal(7,2)',label='Quantidade:')
+    )
+Atividades_Itens.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
+Atividades_Itens.atividade.readable = Atividades_Itens.atividade.writable = False
+Atividades_Itens.composicao.requires = IS_EMPTY_OR(IS_IN_DB(db,"composicao.id",'%(descricao)s'))
+Atividades_Itens.insumo.requires = IS_EMPTY_OR(IS_IN_DB(db,"insumos.id",'%(descricao)s'))
+
+Obras = db.define_table('obras',
+    Field('demanda','integer',label='Demanda:'),
+    Field('descricao', 'string', label='Descrição:'),
+    )
+Obras.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(codigo)s'))
+
+Obras_Itens = db.define_table('obras_itens',
+    Field('obra','reference obras', label='Obra:'),
+    Field('atividade','integer',label='Atividade:'),
+    Field('etapa', 'integer', label='Etapas:'),
+    Field('composicao','integer', label='Composição:'),
+    Field('insumo','integer', label='Insumo:'),
+    Field('quantidade','decimal(7,2)', label='Quantidade:'),
+    )
+Obras_Itens.obra.readable = Obras_Itens.obra.writable = False
+Obras_Itens.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
