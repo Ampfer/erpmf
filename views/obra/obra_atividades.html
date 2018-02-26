@@ -1,4 +1,6 @@
 
+
+
 <div class="well">
     {{=formAtividade.custom.begin}}
     <div class="row">
@@ -19,6 +21,30 @@
         </div>
     </div>
     {{=formAtividade.custom.end}}
+
+
+
+    <table class="table tree-2 table-bordered table-striped table-condensed">
+    {{c=0}}
+    {{p=0}}
+    {{for etapa in result:}}
+    {{c=c+1}}
+    {{p=p+1}}
+    <tr class="treegrid-{{=c}}">
+        <td>{{=Etapas[int(etapa['etapa'])].etapa}}</td><td>Additional info</td>
+    </tr>
+    {{for atividade in etapa['atividade']:}}
+    {{c=c+1}}
+    <tr class="treegrid-{{=c}} treegrid-parent-{{=p}}">
+        <td>{{=Atividades[int(atividade['id'])].atividade}}</td><td>Additional info</td>
+    </tr>
+   
+    {{pass}}
+    {{pass}}
+    </table>
+
+
+
 
     <div class="container">   
         <div class="row">  
@@ -53,6 +79,16 @@ $(document).ready(function () {
         $(this).parent().children('ul.tree').toggle(300);
     });
 });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.tree-2').treegrid({
+                    expanderExpandedClass: 'glyphicon glyphicon-minus',
+                    expanderCollapsedClass: 'glyphicon glyphicon-plus'
+                });
+    });
 </script>
 
 
