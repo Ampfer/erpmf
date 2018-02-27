@@ -63,12 +63,11 @@ response.menu+=[
 response.menu+=[
     (T('Obra'), False, URL(request.application,'default','index'), [
     ('Etapas', False, URL(r=request, c='obra', f='etapas')),
-    ('Insumo', False, URL(r=request, c='obra', f='insumos')),
-    ('Composição', False, URL(r=request, c='obra', f='composicao')),
-    ('Obras', False, URL(r=request, c='obra', f='obras')),
-    ('Diário de Obras', False, URL(r=request, c='obra', f='diarios')),
-    ('Orçamentos', False, URL(r=request, c='obra', f='orcamentos')),
     ('Atividades', False, URL(r=request, c='obra', f='atividades')),
+    ('Composição', False, URL(r=request, c='obra', f='composicao')),
+    ('Insumo', False, URL(r=request, c='obra', f='insumos')),
+    ('Obras', False, URL(r=request, c='obra', f='obras')),
+    ('Orçamentos', False, URL(r=request, c='obra', f='orcamentos')),    
     ])]
 
 DEVELOPMENT_MENU = True

@@ -154,7 +154,7 @@ def composicao_insumo():
 
     Composicao_Insumos.insumo.requires = IS_IN_DB(db,'insumos.id','%(descricao)s')
 
-    fields=[Composicao_Insumos.codigoInsumo,Composicao_Insumos.insumo,Composicao_Insumos.unidade,
+    fields=[Composicao_Insumos.insumo,Composicao_Insumos.unidade,
             Composicao_Insumos.quantidade,Composicao_Insumos.preco,Composicao_Insumos.total]
 
     formComposicaoInsumos = SQLFORM.grid((Composicao_Insumos.composicao==id_composicao),
@@ -405,7 +405,7 @@ def atividade_itens():
             form.errors.insumo = 'Cadastre pelo menos uma Composição ou Insumo'
 
 
-    fields = [Atividades_Itens.tipo,Atividades_Itens.item,Atividades_Itens.quantidade]
+    fields = [Atividades_Itens.tipo,Atividades_Itens.item,Atividades_Itens.quantidade,Atividades_Itens.valor]
     gridItens = grid((Atividades_Itens.atividade==idAtividade),args=[idAtividade],searchable=False,onvalidation=validarItem,
         oncreate = completar_item, onupdate = completar_item,fields=fields)
 

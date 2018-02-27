@@ -39,7 +39,6 @@ def valorMaoObra(id):
 Composicao = db.define_table('composicao',
      Field('descricao', 'string', label='Descrição:', length=100),
      Field('unidade', 'string', label='Unidade:', length=04),
-     #Field('empreita', 'decimal(7,2)', label='Empreita:'),
      Field.Virtual('maodeobra',lambda row:valorMaoObra(row.composicao.id), label='M.O.'),
      Field.Virtual('valor',lambda row:valorComposicao(row.composicao.id), label='Valor'),
      format='%(descricao)s',
@@ -55,7 +54,6 @@ Composicao_Insumos = db.define_table('composicao_insumos',
      Field('unidade','string',label='Unidade',length=04),
      Field.Virtual('preco',lambda row:buscaInsumo(int(row.composicao_insumos.insumo))['preco'], label='Preço'),
      Field.Virtual('total',lambda row:(row.composicao_insumos.quantidade * row.composicao_insumos.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN) ,label='Total'),
-     Field.Virtual('codigoInsumo',lambda row: db.insumos[row.composicao_insumos.insumo].codigo ,label='Código')
      )
 Composicao_Insumos.composicao.readable = Composicao_Insumos.composicao.writable = False
 Composicao_Insumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
@@ -126,12 +124,27 @@ OrcamentoInsumos.composicao.readable = Composicao_Insumos.composicao.writable = 
 OrcamentoInsumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 OrcamentoInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
+def valor_item(idItem):
+    item = Atividades_Itens[int(idItem)]
+    if item.composicao:
+        valor = round(valorComposicao(int(item.composicao))* float(item.quantidade),2)
+    elif item.insumo:
+        valor = round(Insumo[int(item.insumo)].preco * float(item.quantidade),2)
+    return valor.quantize(Decimal('1.00'), rounding=ROUND_DOWN)    
+
+def valor_atividade(idAtividade):
+    itens = db(Atividades_Itens.atividade==idAtividade).select()
+    valor = 0
+    for item in itens:
+        valor += valor_item(item(item.atividade))
+    return valor.quantize(Decimal('1.00'), rounding=ROUND_DOWN)
+
 Atividades = db.define_table('atividades',
     Field('atividade','string',label='Descrição:',length=100),
     Field('etapa','reference etapas', label='Etapa:'),
     Field('unidade', 'string', label='Unidade:', length=04),
     )
-Atividades.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
+Atividades.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s')
 Atividades.atividade.requires = IS_UPPER()
 
 Atividades_Itens = db.define_table('atividades_itens',
@@ -140,7 +153,7 @@ Atividades_Itens = db.define_table('atividades_itens',
     Field('item','string',label='Item:'),
     Field('composicao','integer', label='Composição'),
     Field('insumo','integer',label='Insumos:'),
-    Field('quantidade', 'decimal(7,2)',label='Quantidade:')
+    Field('quantidade', 'decimal(7,2)',label='Quantidade:'),
     )
 Atividades_Itens.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 Atividades_Itens.atividade.readable = Atividades_Itens.atividade.writable = False
