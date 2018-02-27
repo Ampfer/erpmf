@@ -475,7 +475,7 @@ def obra_atividades():
 
     formAtividade = SQLFORM.factory(
         Field('etapa','integer',label='Etapa:',requires=IS_EMPTY_OR(IS_IN_DB(db,'etapas.id','%(etapa)s'))),
-        Field('atividade','integer',label='Item:',requires=IS_IN_DB(db,'atividades.id','%(atividade)s')),
+        Field('atividade','integer',label='Item:',requires=IS_IN_DB(db,'atividades.id','%(atividade)s (%(unidade)s)')),
         Field('quantidade','Decimal',label='Quantidade:',requires=[IS_DECIMAL_IN_RANGE(dot=','),notempty]),
         table_name='atividade',
         submit_button='Adicionar',
@@ -503,7 +503,7 @@ def obra_atividades():
     etapas = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,distinct=True, orderby=Obras_Itens.etapa)
     
     result = []
-    for etapa in etapas:         
+    for etapa in etapas:
         q = (Obras_Itens.obra == idObra) & (Obras_Itens.etapa==etapa.etapa)
         atividades = db(q).select()
         xatividades = []
@@ -521,7 +521,20 @@ def obra_atividades():
             xatividades.append(dict(id=atividade.atividade, itens = xitens))
         
         result.append(dict(etapa=etapa.etapa,atividade=xatividades))
+  
+    c = 0
+    linhas = []
+    for etapa in result:
+        c = c + 1
+        linhas.append(dict(item = Etapas[int(etapa['etapa'])].etapa, c=c, p=0))
+        p = c    
+        for atividade in etapa['atividade']:
+            c = c+1
+            linhas.append(dict(item=Atividades[int(atividade['id'])].atividade,c=c, p=p))
+            pp = c
+            for item in atividade['itens']:
+                c = c+1
+                linhas.append(dict(item = item['item'],c=c,p=pp))
 
-    print result
 
-    return dict(formAtividade=formAtividade, result=result)
+    return dict(formAtividade=formAtividade, result=result, linhas=linhas)

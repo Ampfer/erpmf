@@ -1,6 +1,4 @@
 
-
-
 <div class="well">
     {{=formAtividade.custom.begin}}
     <div class="row">
@@ -21,65 +19,30 @@
         </div>
     </div>
     {{=formAtividade.custom.end}}
-
-
-
+    <div class="well">
     <table class="table tree-2 table-bordered table-striped table-condensed">
-    {{c=0}}
-    {{p=0}}
-    {{for etapa in result:}}
-    {{c=c+1}}
-    {{p=p+1}}
-    <tr class="treegrid-{{=c}}">
-        <td>{{=Etapas[int(etapa['etapa'])].etapa}}</td><td>Additional info</td>
-    </tr>
-    {{for atividade in etapa['atividade']:}}
-    {{c=c+1}}
-    <tr class="treegrid-{{=c}} treegrid-parent-{{=p}}">
-        <td>{{=Atividades[int(atividade['id'])].atividade}}</td><td>Additional info</td>
-    </tr>
-   
+    {{for linha in linhas:}}
+        {{if linha['p'] == 0:}}   
+            <tr class="treegrid-{{=linha['c']}} treegrid-expanded">
+                <td>{{=linha['item']}}</td>
+                <td>{{=linha['p']}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {{else:}}
+            <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
+            <td>{{=linha['item']}}</td>
+            <td>{{=linha['p']}}</td>
+               <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {{pass}}
     {{pass}}
-    {{pass}}
-    </table>
-
-
-
-
-    <div class="container">   
-        <div class="row">  
-            <div class="well" style="width:1000px; padding: 8px 0;">
-                <div style="overflow-y: scroll; overflow-x: hidden; height: 300px;">
-                    {{for etapa in result:}}
-                    <ul class="nav nav-list">
-                        <li><label class="tree-toggler nav-header">{{=Etapas[int(etapa['etapa'])].etapa}}</label>
-                            <ul class="nav nav-list tree">
-                                {{for atividade in etapa['atividade']:}}
-                                <li><label class="tree-toggler nav-header" style="margin-left: 10px;">{{=Atividades[int(atividade['id'])].atividade}}</label>
-                                    {{for item in atividade['itens']:}}
-                                    <ul class="nav nav-list tree">
-                                        <li style="margin-left: 10px;"><a href="#">{{=item['item']}}</a></li>
-                                    </ul>
-                                    {{pass}}
-                                </li>
-                                {{pass}}
-                            </ul>
-                        </li>
-                        <li class="divider"></li>
-                    </ul>
-                    {{pass}}
-                </div>
-            </div>  
-        </div>
+    </table> 
     </div>
 </div>
-<script>
-$(document).ready(function () {
-    $('label.tree-toggler').click(function () {
-        $(this).parent().children('ul.tree').toggle(300);
-    });
-});
-</script>
 
 
 <script type="text/javascript">
@@ -87,8 +50,8 @@ $(document).ready(function () {
         $('.tree-2').treegrid({
                     expanderExpandedClass: 'glyphicon glyphicon-minus',
                     expanderCollapsedClass: 'glyphicon glyphicon-plus'
-                });
-    });
+                    });
+        });
 </script>
 
 
