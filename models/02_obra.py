@@ -173,6 +173,8 @@ Obras_Itens = db.define_table('obras_itens',
     Field('composicao','integer', label='Composição:'),
     Field('insumo','integer', label='Insumo:'),
     Field('quantidade','decimal(7,2)', label='Quantidade:'),
+    Field('indice', 'decimal(7,2)',label='Indice:'),
     )
 Obras_Itens.obra.readable = Obras_Itens.obra.writable = False
 Obras_Itens.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
+Obras_Itens.indice.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]

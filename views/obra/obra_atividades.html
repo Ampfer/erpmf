@@ -25,18 +25,11 @@
         {{if linha['p'] == 0:}}   
             <tr class="treegrid-{{=linha['c']}} treegrid-expanded">
                 <td>{{=linha['item']}}</td>
-                <td>{{=linha['p']}}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
+          </tr>
         {{else:}}
             <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
             <td>{{=linha['item']}}</td>
-            <td>{{=linha['p']}}</td>
-               <td></td>
-                <td></td>
-                <td></td>
+            <td>{{=linha['qtde']}}</td>
             </tr>
         {{pass}}
     {{pass}}

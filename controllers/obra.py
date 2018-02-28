@@ -488,13 +488,14 @@ def obra_atividades():
         etapa = Atividades[int(formAtividade.vars.atividade)]['etapa']
         
         for item in itens:
-            print item
-            Obras_Itens[0] = dict(obra=idObra,
+            Obras_Itens.update_or_insert((Obras_Itens.obra==idObra)&(Obras_Itens.etapa==etapa)&(Obras_Itens.atividade==formAtividade.vars.atividade),
+                               obra=idObra,
                                atividade = (formAtividade.vars.atividade),
                                etapa = (etapa), 
                                composicao = (item.composicao), 
                                insumo=item.insumo,
-                               quantidade = formAtividade.vars.quantidade
+                               quantidade = formAtividade.vars.quantidade,
+                               indice = item.quantidade
                                )
         response.flash = 'Item Adicionado'
     elif formAtividade.errors:
@@ -518,7 +519,7 @@ def obra_atividades():
                     item = Insumo[int(row.insumo)].descricao
                 xitens.append(dict(item=item))
 
-            xatividades.append(dict(id=atividade.atividade, itens = xitens))
+            xatividades.append(dict(id=atividade.atividade, itens = xitens, qtde = atividade.quantidade))
         
         result.append(dict(etapa=etapa.etapa,atividade=xatividades))
   
@@ -530,11 +531,11 @@ def obra_atividades():
         p = c    
         for atividade in etapa['atividade']:
             c = c+1
-            linhas.append(dict(item=Atividades[int(atividade['id'])].atividade,c=c, p=p))
+            linhas.append(dict(item=Atividades[int(atividade['id'])].atividade,qtde = atividade['qtde'],c=c, p=p))
             pp = c
             for item in atividade['itens']:
                 c = c+1
-                linhas.append(dict(item = item['item'],c=c,p=pp))
+                linhas.append(dict(item = item['item'],qtde = atividade['qtde'],c=c,p=pp))
 
 
     return dict(formAtividade=formAtividade, result=result, linhas=linhas)
