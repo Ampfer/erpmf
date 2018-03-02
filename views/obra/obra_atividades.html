@@ -21,18 +21,27 @@
     {{=formAtividade.custom.end}}
     <div class="well">
     <table class="table tree-2 table-bordered table-striped table-condensed">
+    <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantidade</th>
+        </tr>
+    </thead>
+    <body>
     {{for linha in linhas:}}
         {{if linha['p'] == 0:}}   
-            <tr class="treegrid-{{=linha['c']}} treegrid-expanded">
+            <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
                 <td>{{=linha['item']}}</td>
+                <td></td>
           </tr>
         {{else:}}
             <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
             <td>{{=linha['item']}}</td>
-            <td>{{=linha['qtde']}}</td>
+            <td class="editavel" id="{{=linha['id']}}">{{=linha['qtde']}}</td>
             </tr>
         {{pass}}
     {{pass}}
+    </body>
     </table> 
     </div>
 </div>
@@ -45,8 +54,43 @@
                     expanderCollapsedClass: 'glyphicon glyphicon-plus'
                     });
         });
+
+
+$(document).ready(function() {
+  $('td.editavel').dblclick(function() {
+      if ($('td > input').length > 0) {
+        return;
+      }
+      var conteudoOriginal = $(this).text();
+      var novoElemento = $('<input/>', {
+        type: 'text',
+        value: conteudoOriginal
+      });
+      $(this).html(novoElemento.bind('blur keydown', function(e) {
+        var keyCode = e.which;
+        var conteudoNovo = $(this).val();
+        if (keyCode == 13 && conteudoNovo != '' && conteudoNovo != conteudoOriginal) {
+          var objeto = $(this);
+          $.ajax({
+            type: "POST",
+            url: "{{=URL('obra','alterar_item')}}",
+            data: {
+              id: $(this).parent().attr('id'),
+              valor: conteudoNovo
+            }, 
+            success: function(result) {
+              objeto.parent().html(conteudoNovo);
+            }
+          })
+        } else if (keyCode == 27 || e.type == 'blur'){
+          $(this).parent().html(conteudoOriginal);
+          }
+      }));
+      $(this).children().select();
+    
+    });
+
+  })
+
 </script>
-
-
-
 

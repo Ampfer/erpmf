@@ -405,7 +405,7 @@ def atividade_itens():
             form.errors.insumo = 'Cadastre pelo menos uma Composição ou Insumo'
 
 
-    fields = [Atividades_Itens.tipo,Atividades_Itens.item,Atividades_Itens.quantidade,Atividades_Itens.valor]
+    fields = [Atividades_Itens.tipo,Atividades_Itens.item,Atividades_Itens.quantidade,]
     gridItens = grid((Atividades_Itens.atividade==idAtividade),args=[idAtividade],searchable=False,onvalidation=validarItem,
         oncreate = completar_item, onupdate = completar_item,fields=fields)
 
@@ -471,7 +471,7 @@ def buscar_atividade():
 
 #@auth.requires_membership('admin')
 def obra_atividades():
-    idObra = int(request.args(0)) 
+    idObra = int(request.args(0))
 
     formAtividade = SQLFORM.factory(
         Field('etapa','integer',label='Etapa:',requires=IS_EMPTY_OR(IS_IN_DB(db,'etapas.id','%(etapa)s'))),
@@ -481,8 +481,12 @@ def obra_atividades():
         submit_button='Adicionar',
         )
     formAtividade.element(_name='etapa')['_onchange'] = "ajax('%s',['etapa'],':eval');" % URL('obra', 'buscar_atividade')
-    
-    if formAtividade.process().accepted:
+
+    def valida_atividade(form):
+        if db((Obras_Itens.obra == idObra)&(Obras_Itens.atividade==form.vars.atividade)).select().first():
+            form.errors.atividade = 'Atividade já Cadastrada' 
+
+    if formAtividade.process(onvalidation = valida_atividade).accepted:
         
         itens = db(Atividades_Itens.atividade == formAtividade.vars.atividade).select()
         etapa = Atividades[int(formAtividade.vars.atividade)]['etapa']
@@ -517,9 +521,10 @@ def obra_atividades():
                     item = Composicao[int(row.composicao)].descricao
                 else:
                     item = Insumo[int(row.insumo)].descricao
-                xitens.append(dict(item=item))
 
-            xatividades.append(dict(id=atividade.atividade, itens = xitens, qtde = atividade.quantidade))
+                xitens.append(dict(item=item,indice=row.indice, id=row.id))
+
+            xatividades.append(dict(id=atividade.atividade, itens=xitens, qtde=atividade.quantidade,))
         
         result.append(dict(etapa=etapa.etapa,atividade=xatividades))
   
@@ -527,15 +532,33 @@ def obra_atividades():
     linhas = []
     for etapa in result:
         c = c + 1
-        linhas.append(dict(item = Etapas[int(etapa['etapa'])].etapa, c=c, p=0))
+        linhas.append(dict(item = Etapas[int(etapa['etapa'])].etapa, c=c, p=0,))
         p = c    
         for atividade in etapa['atividade']:
             c = c+1
-            linhas.append(dict(item=Atividades[int(atividade['id'])].atividade,qtde = atividade['qtde'],c=c, p=p))
+            linhas.append(dict(item=Atividades[int(atividade['id'])].atividade,
+                               qtde = atividade['qtde'],
+                               c=c, 
+                               p=p,
+                               id = "%s-%s" %(idObra,atividade['id'])
+                               ))
             pp = c
             for item in atividade['itens']:
                 c = c+1
-                linhas.append(dict(item = item['item'],qtde = atividade['qtde'],c=c,p=pp))
-
+                linhas.append(dict(item = item['item'],
+                    id = item['id'],
+                    qtde = round(float(atividade['qtde']) * float(item['indice']),2),
+                    c=c,
+                    p=pp
+                    ))
 
     return dict(formAtividade=formAtividade, result=result, linhas=linhas)
+
+def alterar_item():
+    id  = request.post_vars.id
+    valor = request.post_vars.valor
+    if id.count("-") > 0:
+        idObra,idAtividade = id.split('-')
+    else:
+        Obras_Itens[int(id)] = dict(indice= float(valor)/quantidade)
+    return 
