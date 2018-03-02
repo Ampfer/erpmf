@@ -476,7 +476,7 @@ def obra_atividades():
     formAtividade = SQLFORM.factory(
         Field('etapa','integer',label='Etapa:',requires=IS_EMPTY_OR(IS_IN_DB(db,'etapas.id','%(etapa)s'))),
         Field('atividade','integer',label='Item:',requires=IS_IN_DB(db,'atividades.id','%(atividade)s (%(unidade)s)')),
-        Field('quantidade','Decimal',label='Quantidade:',requires=[IS_DECIMAL_IN_RANGE(dot=','),notempty]),
+        Field('quantidade','decimal(7,2)',label='Quantidade:',requires=[IS_DECIMAL_IN_RANGE(dot=','),notempty]),
         table_name='atividade',
         submit_button='Adicionar',
         )
@@ -488,20 +488,12 @@ def obra_atividades():
 
     if formAtividade.process(onvalidation = valida_atividade).accepted:
         
-        itens = db(Atividades_Itens.atividade == formAtividade.vars.atividade).select()
-        etapa = Atividades[int(formAtividade.vars.atividade)]['etapa']
-        
-        for item in itens:
-            Obras_Itens.update_or_insert((Obras_Itens.obra==idObra)&(Obras_Itens.etapa==etapa)&(Obras_Itens.atividade==formAtividade.vars.atividade),
-                               obra=idObra,
-                               atividade = (formAtividade.vars.atividade),
-                               etapa = (etapa), 
-                               composicao = (item.composicao), 
-                               insumo=item.insumo,
-                               quantidade = formAtividade.vars.quantidade,
-                               indice = item.quantidade
-                               )
+        atualizar_item(idObra = idObra,
+                       idAtividade=formAtividade.vars.atividade,
+                       quantidade = formAtividade.vars.quantidade)
+
         response.flash = 'Item Adicionado'
+
     elif formAtividade.errors:
         response.flash = 'Erro no Formulário'
 
@@ -554,11 +546,32 @@ def obra_atividades():
 
     return dict(formAtividade=formAtividade, result=result, linhas=linhas)
 
+
+def atualizar_item(idObra,idAtividade,quantidade):
+
+    itens = db(Atividades_Itens.atividade == idAtividade).select()
+    etapa = Atividades[int(idAtividade)]['etapa']
+    
+    for item in itens:
+        Obras_Itens.update_or_insert((Obras_Itens.obra==idObra)&(Obras_Itens.etapa==etapa)&(Obras_Itens.atividade==idAtividade),
+                           obra=idObra,
+                           atividade = idAtividade,
+                           etapa = etapa, 
+                           composicao = item.composicao, 
+                           insumo=item.insumo,
+                           quantidade = quantidade,
+                           indice = item.quantidade
+                           )
+
 def alterar_item():
     id  = request.post_vars.id
     valor = request.post_vars.valor
     if id.count("-") > 0:
         idObra,idAtividade = id.split('-')
+        atualizar_item(idObra=idObra,idAtividade=idAtividade,quantidade=valor)
+        response.js = "$('#obraatividades').get(0).reload()"
     else:
-        Obras_Itens[int(id)] = dict(indice= float(valor)/quantidade)
+        qtde = float(Obras_Itens[int(id)].quantidade)
+        indice = "%.2f" %(round(float(valor)/qtde,2))
+        Obras_Itens[int(id)] = dict(indice=indice) 
     return 
