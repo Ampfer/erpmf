@@ -100,6 +100,9 @@ def insumoHistorico():
 
 def composicao():
 
+    Composicao.maodeobra = Field.Virtual('maodeobra',lambda row:valorMaoObra(row.composicao.id), label='M.O.')
+    Composicao.valor = Field.Virtual('valor',lambda row:valorComposicao(row.composicao.id), label='Valor')
+
     fields = [Composicao.id, Composicao.descricao, Composicao.unidade, Composicao.maodeobra, Composicao.valor]
     formComposicao = grid(Composicao,60,fields=fields,orderby=Composicao.descricao)
 
@@ -116,7 +119,7 @@ def composicaoCadastro():
     if id_composicao == "0":
         formComposicao = SQLFORM(Composicao, field_id='id', _id='formComposicao')
         formInsumos = btnExcluir = btnNovo = ''
-        valorComposicao = valorMaodeObra = 0
+        vlComposicao = vlMaodeObra = 0
         composicao = 'Nova Composicão'
     else:
         formComposicao = SQLFORM(Composicao,id_composicao, field_id='id', _id='formComposicao')
@@ -125,9 +128,10 @@ def composicaoCadastro():
                         target='composicao_insumo', ajax=True, args=id_composicao)
         btnExcluir = excluir("#")
         btnNovo = novo("composicaoCadastro")
-
-        valorComposicao = ("{0:.2f}".format(round(Composicao[id_composicao].valor,2)))
-        valorMaodeObra = ("{0:.2f}".format(round(Composicao[id_composicao].maodeobra,2)))
+        valor = valorComposicao(id_composicao)
+        maodeObra = valorMaoObra(id_composicao)
+        vlComposicao = ("{0:.2f}".format(round(valor,2)))
+        vlMaodeObra = ("{0:.2f}".format(round(maodeObra,2)))
         composicao = Composicao[id_composicao].descricao
 
     btnVoltar = voltar("composicao")
@@ -348,10 +352,25 @@ def insumosOrcamento():
 
     return locals()
 
+def valor_atividade(idAtividade):
+    itens = db(Atividades_Itens.atividade == idAtividade).select()
+    total = 0
+    for item in itens:
+        if item.composicao:
+            valor = round(float(valorComposicao(int(item.composicao)))*float(item.quantidade),2)
+        else:
+            valor = round(float(Insumo[int(item.insumo)].preco)*float(item.quantidade),2)
+        total += valor
+    return "{0:.2f}".format(total)
+    
+
 #@auth.requires_membership('admin')
 def atividades():
 
-    gridAtividades = grid(Atividades,60,orderby=Atividades.atividade)
+    Atividades.valor = Field.Virtual('valor',lambda row:valor_atividade(int(row.atividades.id)), label='Valor')
+
+    fields = [Atividades.atividade, Atividades.etapa,Atividades.unidade, Atividades.valor]
+    gridAtividades = grid(Atividades,70,fields=fields,orderby=[Atividades.etapa,Atividades.atividade])
 
     if gridAtividades.create_form:
         redirect(URL('atividade'))
@@ -391,12 +410,14 @@ def atividade_itens():
     def completar_item(form):
         if form.vars.composicao:
             item = Composicao[int(form.vars.composicao)].descricao
+            unidade = Composicao[int(form.vars.composicao)].unidade
             tipo = 'Composição'
         else:
             item = Insumo[int(form.vars.insumo)].descricao
+            unidade = Insumo[int(form.vars.insumo)].unidade
             tipo = 'Insumo'
 
-        Atividades_Itens[int(form.vars.id)] = dict(item = item, tipo=tipo)
+        Atividades_Itens[int(form.vars.id)] = dict(item = item, tipo=tipo,unidade=unidade)
 
     def validarItem(form):
         if form.vars.insumo and form.vars.composicao:
@@ -405,10 +426,13 @@ def atividade_itens():
             form.errors.insumo = 'Cadastre pelo menos uma Composição ou Insumo'
 
 
-    fields = [Atividades_Itens.tipo,Atividades_Itens.item,Atividades_Itens.quantidade,]
+    fields = [Atividades_Itens.tipo,Atividades_Itens.item,Atividades_Itens.quantidade,Atividades_Itens.unidade,]
     gridItens = grid((Atividades_Itens.atividade==idAtividade),args=[idAtividade],searchable=False,onvalidation=validarItem,
         oncreate = completar_item, onupdate = completar_item,fields=fields)
-
+    
+    if gridItens.create_form or gridItens.update_form:
+        gridItens[1].element(_name='composicao')['_onchange'] = "$('#atividades_itens_quantidade').focus();"
+        gridItens[1].element(_name='insumo')['_onchange'] = "$('#atividades_itens_quantidade').focus();"
     return dict(gridItens=gridItens)
 
 #@auth.requires_membership('admin')

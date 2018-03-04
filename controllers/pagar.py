@@ -170,7 +170,7 @@ def pagar_parcelas():
         from datetime import timedelta
         condicao = db(Condicao.id ==  pagar_condicao ).select(Condicao.dias).first()[Condicao.dias]
         for index,dia in enumerate(condicao):
-            parcela_valor = pagar_valor/len(condicao)
+            parcela_valor = round(pagar_valor/len(condicao),2)
             #parcela_parcela = (str(index+1) + '/' + str(len(condicao)))
             parcela_parcela = '1'
             parcelas = dict(pagar = id_pagar,parcela=parcela_parcela,vencimento = pagar_emissao + timedelta(dia),valor=parcela_valor)

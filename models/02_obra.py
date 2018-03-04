@@ -5,7 +5,7 @@ from decimal import *
 Etapas = db.define_table('etapas',
     Field('etapa','string',label='Descrição:',length=30),
     Field('item','string',label='Item:',length=02),
-    format='%(etapa)s'
+    format='%(item)s - %(etapa)s'
     )
 def buscaEtapa(id):
     if not id:
@@ -39,8 +39,6 @@ def valorMaoObra(id):
 Composicao = db.define_table('composicao',
      Field('descricao', 'string', label='Descrição:', length=100),
      Field('unidade', 'string', label='Unidade:', length=04),
-     Field.Virtual('maodeobra',lambda row:valorMaoObra(row.composicao.id), label='M.O.'),
-     Field.Virtual('valor',lambda row:valorComposicao(row.composicao.id), label='Valor'),
      format='%(descricao)s',
      )
 Composicao.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
@@ -152,13 +150,14 @@ Atividades_Itens = db.define_table('atividades_itens',
     Field('tipo','string',label='Tipo:'),
     Field('item','string',label='Item:'),
     Field('composicao','integer', label='Composição'),
+    Field('unidade', 'string', label='Unidade:', length=04),
     Field('insumo','integer',label='Insumos:'),
-    Field('quantidade', 'decimal(7,2)',label='Quantidade:'),
+    Field('quantidade', 'decimal(9,4)',label='Quantidade:'),
     )
 Atividades_Itens.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 Atividades_Itens.atividade.readable = Atividades_Itens.atividade.writable = False
-Atividades_Itens.composicao.requires = IS_EMPTY_OR(IS_IN_DB(db,"composicao.id",'%(descricao)s'))
-Atividades_Itens.insumo.requires = IS_EMPTY_OR(IS_IN_DB(db,"insumos.id",'%(descricao)s'))
+Atividades_Itens.composicao.requires = IS_EMPTY_OR(IS_IN_DB(db,"composicao.id",'%(descricao)s (%(unidade)s)'))
+Atividades_Itens.insumo.requires = IS_EMPTY_OR(IS_IN_DB(db,"insumos.id",'%(descricao)s (%(unidade)s)'))
 
 Obras = db.define_table('obras',
     Field('demanda','integer',label='Demanda:'),
@@ -172,8 +171,8 @@ Obras_Itens = db.define_table('obras_itens',
     Field('etapa', 'integer', label='Etapas:'),
     Field('composicao','integer', label='Composição:'),
     Field('insumo','integer', label='Insumo:'),
-    Field('quantidade','decimal(7,2)', label='Quantidade:'),
-    Field('indice', 'decimal(7,2)',label='Indice:'),
+    Field('quantidade','decimal(9,4)', label='Quantidade:'),
+    Field('indice', 'decimal(9,4)',label='Indice:'),
     )
 Obras_Itens.obra.readable = Obras_Itens.obra.writable = False
 Obras_Itens.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
