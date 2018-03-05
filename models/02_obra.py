@@ -7,6 +7,8 @@ Etapas = db.define_table('etapas',
     Field('item','string',label='Item:',length=02),
     format='%(item)s - %(etapa)s'
     )
+Etapas.etapa.requires = IS_UPPER()
+
 def buscaEtapa(id):
     if not id:
         raise HTTP(404, 'ID Etapa não encontrado')

@@ -498,7 +498,7 @@ def obra_atividades():
     idObra = int(request.args(0))
 
     formAtividade = SQLFORM.factory(
-        Field('etapa','integer',label='Etapa:',requires=IS_EMPTY_OR(IS_IN_DB(db,'etapas.id','%(etapa)s'))),
+        Field('etapa','integer',label='Etapa:',requires=IS_EMPTY_OR(IS_IN_DB(db,'etapas.id','%(item)s - %(etapa)s'))),
         Field('atividade','integer',label='Item:',requires=IS_IN_DB(db,'atividades.id','%(atividade)s (%(unidade)s)')),
         Field('quantidade','decimal(7,2)',label='Quantidade:',requires=[IS_DECIMAL_IN_RANGE(dot=','),notempty]),
         table_name='atividade',
@@ -521,54 +521,51 @@ def obra_atividades():
     elif formAtividade.errors:
         response.flash = 'Erro no Formulário'
 
-    etapas = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,distinct=True, orderby=Obras_Itens.etapa)
-    
-    result = []
-    for etapa in etapas:
-        q = (Obras_Itens.obra == idObra) & (Obras_Itens.etapa==etapa.etapa)
-        atividades = db(q).select()
-        xatividades = []
-        for atividade in atividades:
-            q1 = (Obras_Itens.obra == idObra) & (Obras_Itens.etapa==etapa.etapa) & (Obras_Itens.atividade==atividade.atividade)
-            itens =  db(q).select()
-            xitens = []
-            for row in itens:
-                if row.composicao:
-                    item = Composicao[int(row.composicao)].descricao
-                else:
-                    item = Insumo[int(row.insumo)].descricao
-
-                xitens.append(dict(item=item,indice=row.indice, id=row.id))
-
-            xatividades.append(dict(id=atividade.atividade, itens=xitens, qtde=atividade.quantidade,))
-        
-        result.append(dict(etapa=etapa.etapa,atividade=xatividades))
-  
-    c = 0
+     
+    itens = db(Obras_Itens.obra == idObra).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
     linhas = []
-    for etapa in result:
-        c = c + 1
-        linhas.append(dict(item = Etapas[int(etapa['etapa'])].etapa, c=c, p=0,))
-        p = c    
-        for atividade in etapa['atividade']:
-            c = c+1
-            linhas.append(dict(item=Atividades[int(atividade['id'])].atividade,
-                               qtde = atividade['qtde'],
-                               c=c, 
-                               p=p,
-                               id = "%s-%s" %(idObra,atividade['id'])
-                               ))
+    idEtapa=idAtividade=0 
+    c = p = 0
+    for item in itens:
+        if item.etapa != idEtapa:
+            etapa = True
+            idEtapa = item.etapa
+        if item.atividade != idAtividade:
+            atividade = True
+            idAtividade = item.atividade
+        c += 1
+        if etapa:
+            linhas.append(dict(item = Etapas[int(item.etapa)].etapa, c=c, p=0,))
+            etapa=False
+            idEtapa = item.etapa
+            p = c
             pp = c
-            for item in atividade['itens']:
-                c = c+1
-                linhas.append(dict(item = item['item'],
-                    id = item['id'],
-                    qtde = round(float(atividade['qtde']) * float(item['indice']),2),
-                    c=c,
-                    p=pp
-                    ))
+            c += 1
+        if atividade:
+            linhas.append(dict(item=Atividades[int(item.atividade)].atividade,
+                               qtde = item.quantidade,
+                               c=c, 
+                               p=pp,
+                               id = "%s-%s" %(idObra,item.atividade)
+                               ))
+            atividade = False
+            idAtividade = item.atividade
+            p = c
+            c += 1
 
-    return dict(formAtividade=formAtividade, result=result, linhas=linhas)
+        if item.composicao:
+            xItem = Composicao[int(item.composicao)].descricao
+        else:
+            xItem = Insumo[int(item.insumo)].descricao
+        
+        linhas.append(dict(item = xItem,
+                           id = item.id,
+                           qtde = round(float(item.quantidade) * float(item.indice),2),
+                           c=c,
+                           p=p
+                           ))
+
+    return dict(formAtividade=formAtividade,linhas=linhas)
 
 
 def atualizar_item(idObra,idAtividade,quantidade):
@@ -577,7 +574,7 @@ def atualizar_item(idObra,idAtividade,quantidade):
     etapa = Atividades[int(idAtividade)]['etapa']
     
     for item in itens:
-        Obras_Itens.update_or_insert((Obras_Itens.obra==idObra)&(Obras_Itens.etapa==etapa)&(Obras_Itens.atividade==idAtividade),
+        Obras_Itens.update_or_insert((Obras_Itens.obra==idObra)&(Obras_Itens.etapa==etapa)&(Obras_Itens.atividade==idAtividade)&(Obras_Itens.composicao==item.composicao)&(Obras_Itens.insumo==item.insumo),
                            obra=idObra,
                            atividade = idAtividade,
                            etapa = etapa, 

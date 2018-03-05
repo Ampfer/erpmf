@@ -33,11 +33,15 @@
             <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
                 <td>{{=linha['item']}}</td>
                 <td></td>
+                <td>{{=linha['c']}}</td>
+                <td></td>
           </tr>
         {{else:}}
             <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
             <td>{{=linha['item']}}</td>
             <td class="editavel" id="{{=linha['id']}}" style="text-align: center;">{{=linha['qtde']}}</td>
+            <td>{{=linha['c']}}</td>
+            <td>{{=linha['p']}}</td>
             </tr>
         {{pass}}
     {{pass}}
@@ -71,7 +75,7 @@ $(document).ready(function() {
       $(this).html(novoElemento.bind('blur keydown', function(e) {
         var keyCode = e.which;
         var conteudoNovo = $(this).val();
-        if (keyCode == 13 && conteudoNovo != '' && conteudoNovo != conteudoOriginal) {
+        if (keyCode == 13 && conteudoNovo != '') {
           var objeto = $(this);
           $.ajax({
             type: "POST",
