@@ -24,6 +24,7 @@
     <thead>
         <tr>
           <th>Item</th>
+          <th style="text-align: center;">UN</th>
           <th style="text-align: center;">Quantidade</th>
         </tr>
     </thead>
@@ -33,15 +34,13 @@
             <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
                 <td>{{=linha['item']}}</td>
                 <td></td>
-                <td>{{=linha['c']}}</td>
                 <td></td>
           </tr>
         {{else:}}
             <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
             <td>{{=linha['item']}}</td>
+            <td style="text-align: center;">{{=linha['unidade']}}</td>
             <td class="editavel" id="{{=linha['id']}}" style="text-align: center;">{{=linha['qtde']}}</td>
-            <td>{{=linha['c']}}</td>
-            <td>{{=linha['p']}}</td>
             </tr>
         {{pass}}
     {{pass}}

@@ -1,0 +1,27 @@
+<div class="well">
+    {{=formFiltros.custom.begin}}
+    <div class="row">
+        <div class="col-md-7">
+            {{=formFiltros.custom.label.atividade}}
+            {{=formFiltros.custom.widget.atividade}}
+        </div>
+        <div class="col-md-3">
+            {{=formFiltros.custom.label.tipo}}
+            {{=formFiltros.custom.widget.tipo}}
+        </div class="col-md-2">
+            <div style="margin-top: 55px">{{=formFiltros.custom.submit}}</div>
+        </div>
+    </div>
+    {{=formFiltros.custom.end}}
+</div>
+
+<script>
+        $(document).ready(function(){   
+            ordenarSelect();
+        });
+        function ordenarSelect(){   
+            $("#orcamento_atividade").html($("option", $("#orcamento_atividade")).sort(function(a,b){
+                return a.text == b.text  ? 0 : a.text < b.text ? -1 : 1;
+            }));
+        }
+</script>

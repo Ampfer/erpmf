@@ -143,6 +143,7 @@ Atividades = db.define_table('atividades',
     Field('atividade','string',label='Descrição:',length=100),
     Field('etapa','reference etapas', label='Etapa:'),
     Field('unidade', 'string', label='Unidade:', length=04),
+    format = '%(atividade)s'
     )
 Atividades.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s')
 Atividades.atividade.requires = IS_UPPER()
@@ -173,9 +174,12 @@ Obras_Itens = db.define_table('obras_itens',
     Field('etapa', 'integer', label='Etapas:'),
     Field('composicao','integer', label='Composição:'),
     Field('insumo','integer', label='Insumo:'),
-    Field('quantidade','decimal(9,4)', label='Quantidade:'),
+    Field('quantidade','decimal(7,2)', label='Quantidade:'),
     Field('indice', 'decimal(9,4)',label='Indice:'),
     )
+
+
 Obras_Itens.obra.readable = Obras_Itens.obra.writable = False
 Obras_Itens.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 Obras_Itens.indice.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
+Obras_Itens.atividade.represent = lambda value,row: db.atividades[value]

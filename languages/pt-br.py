@@ -190,6 +190,7 @@
 'Free Applications': 'Aplicações gratuitas',
 'g': 'g',
 'Gerar': 'Gerar',
+'Gerar Orçamento': 'Gerar Orçamento',
 'Graph Model': 'Graph Model',
 'Group ID': 'ID do Grupo',
 'Group uniquely assigned to user %(id)s': 'Group uniquely assigned to user %(id)s',

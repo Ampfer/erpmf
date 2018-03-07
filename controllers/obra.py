@@ -465,6 +465,8 @@ def obra():
 
         loadAtividade = LOAD(c='obra', f='obra_atividades', content='Aguarde, carregando...',
                            target='obraatividades', ajax=True, args=idObras)
+        loadOrcamento = LOAD(c='obra', f='obra_orcamento',
+                   target='obraorcamento', ajax=True, args=idObras)
 
         btnExcluir = excluir('#')
         btnNovo = novo("obra")
@@ -544,6 +546,7 @@ def obra_atividades():
         if atividade:
             linhas.append(dict(item=Atividades[int(item.atividade)].atividade,
                                qtde = item.quantidade,
+                               unidade = Atividades[int(item.atividade)].unidade,
                                c=c, 
                                p=pp,
                                id = "%s-%s" %(idObra,item.atividade)
@@ -555,12 +558,15 @@ def obra_atividades():
 
         if item.composicao:
             xItem = Composicao[int(item.composicao)].descricao
+            unidade = Composicao[int(item.composicao)].unidade
         else:
             xItem = Insumo[int(item.insumo)].descricao
+            unidade = Insumo[int(item.insumo)].unidade
         
         linhas.append(dict(item = xItem,
                            id = item.id,
                            qtde = round(float(item.quantidade) * float(item.indice),2),
+                           unidade=unidade,
                            c=c,
                            p=p
                            ))
@@ -596,3 +602,32 @@ def alterar_item():
         indice = "%.2f" %(round(float(valor)/qtde,2))
         Obras_Itens[int(id)] = dict(indice=indice) 
     return 
+
+def obra_orcamento():
+    idObra = int(request.args(0))
+    itens = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,Obras_Itens.atividade, 
+        orderby=[Obras_Itens.etapa, Obras_Itens.atividade],distinct=True)
+
+    xitens = {}
+    for item in itens:
+        chave = '%s-%s' %(int(item.etapa),int(item.atividade))
+        
+        atividade = '%s-%s-%s' %(Etapas[item.etapa].item,Etapas[item.etapa].etapa, Atividades[item.atividade].atividade)
+        xitens.update({chave:atividade})
+
+    formFiltros = SQLFORM.factory(
+        Field('atividade',label='Item:',requires=IS_IN_SET(xitens,multiple=True)),
+        Field('tipo',label='Tipo de Insumo',requires = IS_IN_DB(db,db.tipoInsumo.id,'%(descricao)s',multiple=True)),        
+        table_name='orcamento',
+        submit_button='Gerar Orçamento',
+        )
+
+    print formFiltros.vars.atividade        
+    if formFiltros.process().accepted:
+        print formFiltros.vars.atividade        
+        print 'aqui'
+    elif formFiltros.errors:
+        response.flash = 'Erro no Formulário'
+
+    return dict(formFiltros=formFiltros)
+    
