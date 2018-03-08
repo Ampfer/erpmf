@@ -20,12 +20,14 @@ def buscaEtapa(id):
         raise HTTP(404, 'Etapa não encontrado')
     return etapa
 
-def valorComposicao(id):
+def valorComposicao(id,tipo=[]):
     idComposicao = int(id)
     insumos = db(Composicao_Insumos.composicao == idComposicao).select()
     valor_Composicao = 0
     for insumo in insumos:
-        valor_Composicao += (insumo.quantidade * insumo.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
+        tp = Insumo[int(insumo.insumo)].tipo
+        if tipo == [] or tp in tipo:
+            valor_Composicao += (insumo.quantidade * insumo.preco).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
     return valor_Composicao
 
 def valorMaoObra(id):

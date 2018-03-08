@@ -621,37 +621,27 @@ def obra_orcamento():
 
     form_pesq = SQLFORM.factory(     
         Field('atividade',label='Item:',requires=IS_IN_SET(xitens,multiple=True)),
-        Field('tipo',label='Tipo de Insumo',requires = IS_IN_DB(db,db.tipoInsumo.id,'%(descricao)s',multiple=True)),
+        Field('tipo',label='Tipo de Insumo',requires = IS_IN_DB(db,db.tipoInsumo.descricao,multiple=True)),
         table_name='orcamento',
         submit_button='Gerar Orçamento',
         )
 
     linhas = []
     if form_pesq.process().accepted:
+        tipos = form_pesq.vars.tipo
         if form_pesq.vars.atividade == []:
             q = (Obras_Itens.obra == idObra)
         else:
             q = (Obras_Itens.obra == idObra) & (Obras_Itens.atividade.belongs(form_pesq.vars.atividade))        
         
         Obras_Itens.valor = Field.Virtual('valor',
-            lambda row: valorComposicao(row.obras_itens.composicao) if row.obras_itens.composicao else valor_insumo(row.obras_itens.insumo) , 
+            lambda row: valorComposicao(row.obras_itens.composicao , tipos) if row.obras_itens.composicao else valor_insumo(row.obras_itens.insumo) , 
             label='Valor')
         itens = db(q).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
 
         linhas = gerar_linhas(idObra,itens)
 
     return dict(form_pesq=form_pesq, linhas=linhas)
-
-def valor_item(id):
-    idComposicao = Obras_Itens[int(id)].composicao
-    idInsumo = Obras_Itens[int(id)].insumo
-    if idComposicao:
-        valor = valorComposicao(idComposicao)
-    elif idInsumo:
-        valor = valor_insumo(idInsumo)
-    else:
-        valor = 0
-    return valor
     
 def gerar_linhas(idObra,itens):
     linhas = []
@@ -677,7 +667,7 @@ def gerar_linhas(idObra,itens):
             rows = db(q1).select()
             valor = 0
             for r in rows:
-                valor += float(r.valor) * float(r.indice)
+                valor += round(float(r.valor) * float(r.indice),2)
 
 
             linhas.append(dict(item=Atividades[int(item.atividade)].atividade,
