@@ -15,7 +15,7 @@
     </div>
     {{=form_pesq.custom.end}}
 </div>
-{{for linha in linhas:}}
+
 <div class="well">
     <table class="table tree-2 table-bordered table-striped table-condensed">
         <thead>
@@ -23,6 +23,8 @@
                 <th>Item</th>
                 <th style="text-align: center;">UN</th>
                 <th style="text-align: center;">Quantidade</th>
+                <th style="text-align: center;">Valor</th>
+                <th style="text-align: center;">Total</th>
             </tr>
         </thead>
         <body>
@@ -32,12 +34,15 @@
                         <td>{{=linha['item']}}</td>
                         <td></td>
                         <td></td>
+                        <td></td>
                     </tr>
                 {{else:}}
                     <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
                         <td>{{=linha['item']}}</td>
                         <td style="text-align: center;">{{=linha['unidade']}}</td>
-                        <td class="editavel" id="{{=linha['id']}}" style="text-align: center;">{{=linha['qtde']}}</td>
+                        <td style="{{=linha['css']}}">{{=linha['qtde']}}</td>
+                        <td style="{{=linha['css']}}">{{=linha['valor']}}</td>
+                        <td style="{{=linha['css']}}">{{=linha['total']}}</td>
                     </tr>
                 {{pass}}
             {{pass}}

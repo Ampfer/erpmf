@@ -81,6 +81,10 @@ Unidade = db.define_table('unidade',
 	)
 Unidade.unidade.requires = [IS_NOT_EMPTY(),IS_LENGTH(4),IS_NOT_IN_DB(db,'unidade.unidade')]
 
+def valor_insumo(id):
+	idInsumo = int(id)
+	return Insumo[idInsumo].preco
+	
 Insumo = db.define_table('insumos',
                          Field('descricao', 'string', label='Descrição:', length=100),
                          Field('codigo', 'string', label='Código:', length=07),

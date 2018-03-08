@@ -523,7 +523,7 @@ def obra_atividades():
     elif formAtividade.errors:
         response.flash = 'Erro no Formulário'
 
-     
+    Obras_Itens.valor = Field.Virtual('valor',lambda row: 0, label='Valor')
     itens = db(Obras_Itens.obra == idObra).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
     linhas = gerar_linhas(idObra,itens)
     '''
@@ -626,16 +626,33 @@ def obra_orcamento():
         submit_button='Gerar Orçamento',
         )
 
-    itens = []
     linhas = []
     if form_pesq.process().accepted:
-        q = (Obras_Itens.obra == idObra) & (Obras_Itens.atividade.belongs(form_pesq.vars.atividade))        
+        if form_pesq.vars.atividade == []:
+            q = (Obras_Itens.obra == idObra)
+        else:
+            q = (Obras_Itens.obra == idObra) & (Obras_Itens.atividade.belongs(form_pesq.vars.atividade))        
+        
+        Obras_Itens.valor = Field.Virtual('valor',
+            lambda row: valorComposicao(row.obras_itens.composicao) if row.obras_itens.composicao else valor_insumo(row.obras_itens.insumo) , 
+            label='Valor')
         itens = db(q).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
 
-        #linhas = gerar_linhas(idObra,itens)
+        linhas = gerar_linhas(idObra,itens)
 
     return dict(form_pesq=form_pesq, linhas=linhas)
 
+def valor_item(id):
+    idComposicao = Obras_Itens[int(id)].composicao
+    idInsumo = Obras_Itens[int(id)].insumo
+    if idComposicao:
+        valor = valorComposicao(idComposicao)
+    elif idInsumo:
+        valor = valor_insumo(idInsumo)
+    else:
+        valor = 0
+    return valor
+    
 def gerar_linhas(idObra,itens):
     linhas = []
     idEtapa=idAtividade=0 
@@ -656,12 +673,22 @@ def gerar_linhas(idObra,itens):
             pp = c
             c += 1
         if atividade:
+            q1 = (Obras_Itens.obra == idObra) & (Obras_Itens.atividade == item.atividade) 
+            rows = db(q1).select()
+            valor = 0
+            for r in rows:
+                valor += float(r.valor) * float(r.indice)
+
+
             linhas.append(dict(item=Atividades[int(item.atividade)].atividade,
-                               qtde = item.quantidade,
+                               qtde = "{0:.2f}".format(item.quantidade),
                                unidade = Atividades[int(item.atividade)].unidade,
+                               valor = "{0:.2f}".format(valor),
+                               total = "{0:.2f}".format(round(valor * float(item.quantidade),2)),
                                c=c, 
                                p=pp,
-                               id = "%s-%s" %(idObra,item.atividade)
+                               id = "%s-%s" %(idObra,item.atividade),
+                               css = 'text-align: right; color:#0000ff;pad;padding-right: 10px',
                                ))
             atividade = False
             idAtividade = item.atividade
@@ -675,11 +702,15 @@ def gerar_linhas(idObra,itens):
             xItem = Insumo[int(item.insumo)].descricao
             unidade = Insumo[int(item.insumo)].unidade
         
+        total = round(float(item.quantidade)*float(item.indice)*float(item.valor),2)
         linhas.append(dict(item = xItem,
                            id = item.id,
-                           qtde = round(float(item.quantidade) * float(item.indice),2),
+                           qtde = "{0:.2f}".format(round(float(item.quantidade) * float(item.indice),2)),
                            unidade=unidade,
+                           valor = "{0:.2f}".format(item.valor),
+                           total = "{0:.2f}".format(total),
                            c=c,
-                           p=p
+                           p=p,
+                           css = 'text-align: right;padding-right: 10px',
                            ))
     return linhas
