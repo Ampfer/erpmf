@@ -458,7 +458,7 @@ def obra():
 
     if idObras == "0":
         formObra = SQLFORM(Obras,field_id='id',_id='obra')
-        loadAtividade = ''
+        loadAtividade = loadOrcamento = ''
         btnExcluir = btnNovo = ''
     else:
         formObra = SQLFORM(Obras, idObras,_id='obra',field_id='id')
@@ -466,7 +466,7 @@ def obra():
         loadAtividade = LOAD(c='obra', f='obra_atividades', content='Aguarde, carregando...',
                            target='obraatividades', ajax=True, args=idObras)
         loadOrcamento = LOAD(c='obra', f='obra_orcamento',
-                   target='obraorcamento', ajax=True, args=idObras)
+                           target='obraorcamento', ajax=True, args=idObras)
 
         btnExcluir = excluir('#')
         btnNovo = novo("obra")
@@ -525,6 +525,8 @@ def obra_atividades():
 
      
     itens = db(Obras_Itens.obra == idObra).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
+    linhas = gerar_linhas(idObra,itens)
+    '''
     linhas = []
     idEtapa=idAtividade=0 
     c = p = 0
@@ -570,9 +572,9 @@ def obra_atividades():
                            c=c,
                            p=p
                            ))
+        '''
 
     return dict(formAtividade=formAtividade,linhas=linhas)
-
 
 def atualizar_item(idObra,idAtividade,quantidade):
 
@@ -603,6 +605,8 @@ def alterar_item():
         Obras_Itens[int(id)] = dict(indice=indice) 
     return 
 
+
+
 def obra_orcamento():
     idObra = int(request.args(0))
     itens = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,Obras_Itens.atividade, 
@@ -610,24 +614,72 @@ def obra_orcamento():
 
     xitens = {}
     for item in itens:
-        chave = '%s-%s' %(int(item.etapa),int(item.atividade))
-        
+        #chave = '%s-%s' %(int(item.etapa),int(item.atividade))
+        chave = item.atividade
         atividade = '%s-%s-%s' %(Etapas[item.etapa].item,Etapas[item.etapa].etapa, Atividades[item.atividade].atividade)
         xitens.update({chave:atividade})
 
-    formFiltros = SQLFORM.factory(
+    form_pesq = SQLFORM.factory(     
         Field('atividade',label='Item:',requires=IS_IN_SET(xitens,multiple=True)),
-        Field('tipo',label='Tipo de Insumo',requires = IS_IN_DB(db,db.tipoInsumo.id,'%(descricao)s',multiple=True)),        
+        Field('tipo',label='Tipo de Insumo',requires = IS_IN_DB(db,db.tipoInsumo.id,'%(descricao)s',multiple=True)),
         table_name='orcamento',
         submit_button='Gerar Orçamento',
         )
 
-    print formFiltros.vars.atividade        
-    if formFiltros.process().accepted:
-        print formFiltros.vars.atividade        
-        print 'aqui'
-    elif formFiltros.errors:
-        response.flash = 'Erro no Formulário'
+    itens = []
+    linhas = []
+    if form_pesq.process().accepted:
+        q = (Obras_Itens.obra == idObra) & (Obras_Itens.atividade.belongs(form_pesq.vars.atividade))        
+        itens = db(q).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
 
-    return dict(formFiltros=formFiltros)
-    
+        #linhas = gerar_linhas(idObra,itens)
+
+    return dict(form_pesq=form_pesq, linhas=linhas)
+
+def gerar_linhas(idObra,itens):
+    linhas = []
+    idEtapa=idAtividade=0 
+    c = p = 0
+    for item in itens:
+        if item.etapa != idEtapa:
+            etapa = True
+            idEtapa = item.etapa
+        if item.atividade != idAtividade:
+            atividade = True
+            idAtividade = item.atividade
+        c += 1
+        if etapa:
+            linhas.append(dict(item = Etapas[int(item.etapa)].etapa, c=c, p=0,))
+            etapa=False
+            idEtapa = item.etapa
+            p = c
+            pp = c
+            c += 1
+        if atividade:
+            linhas.append(dict(item=Atividades[int(item.atividade)].atividade,
+                               qtde = item.quantidade,
+                               unidade = Atividades[int(item.atividade)].unidade,
+                               c=c, 
+                               p=pp,
+                               id = "%s-%s" %(idObra,item.atividade)
+                               ))
+            atividade = False
+            idAtividade = item.atividade
+            p = c
+            c += 1
+
+        if item.composicao:
+            xItem = Composicao[int(item.composicao)].descricao
+            unidade = Composicao[int(item.composicao)].unidade
+        else:
+            xItem = Insumo[int(item.insumo)].descricao
+            unidade = Insumo[int(item.insumo)].unidade
+        
+        linhas.append(dict(item = xItem,
+                           id = item.id,
+                           qtde = round(float(item.quantidade) * float(item.indice),2),
+                           unidade=unidade,
+                           c=c,
+                           p=p
+                           ))
+    return linhas

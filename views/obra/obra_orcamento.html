@@ -1,27 +1,69 @@
 <div class="well">
-    {{=formFiltros.custom.begin}}
+    {{=form_pesq.custom.begin}}
     <div class="row">
         <div class="col-md-7">
-            {{=formFiltros.custom.label.atividade}}
-            {{=formFiltros.custom.widget.atividade}}
+            {{=form_pesq.custom.label.atividade}}
+            {{=form_pesq.custom.widget.atividade}}
         </div>
         <div class="col-md-3">
-            {{=formFiltros.custom.label.tipo}}
-            {{=formFiltros.custom.widget.tipo}}
-        </div class="col-md-2">
-            <div style="margin-top: 55px">{{=formFiltros.custom.submit}}</div>
+            {{=form_pesq.custom.label.tipo}}
+            {{=form_pesq.custom.widget.tipo}}
+        </div>
+        <div class="col-md-2" style="margin-top: 55px">
+            {{=form_pesq.custom.submit}}
         </div>
     </div>
-    {{=formFiltros.custom.end}}
+    {{=form_pesq.custom.end}}
 </div>
+{{for linha in linhas:}}
+<div class="well">
+    <table class="table tree-2 table-bordered table-striped table-condensed">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th style="text-align: center;">UN</th>
+                <th style="text-align: center;">Quantidade</th>
+            </tr>
+        </thead>
+        <body>
+            {{for linha in linhas:}}
+                {{if linha['p'] == 0:}}   
+                    <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
+                        <td>{{=linha['item']}}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {{else:}}
+                    <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
+                        <td>{{=linha['item']}}</td>
+                        <td style="text-align: center;">{{=linha['unidade']}}</td>
+                        <td class="editavel" id="{{=linha['id']}}" style="text-align: center;">{{=linha['qtde']}}</td>
+                    </tr>
+                {{pass}}
+            {{pass}}
+            </body>
+    </table> 
+</div>          
 
-<script>
-        $(document).ready(function(){   
-            ordenarSelect();
-        });
-        function ordenarSelect(){   
-            $("#orcamento_atividade").html($("option", $("#orcamento_atividade")).sort(function(a,b){
-                return a.text == b.text  ? 0 : a.text < b.text ? -1 : 1;
-            }));
-        }
+
+
+
+<script type="text/javascript">
+    $(document).ready(function(){   
+        ordenarSelect();
+    });
+    function ordenarSelect(){   
+        $("#orcamento_atividade").html($("option", $("#orcamento_atividade")).sort(function(a,b){
+            return a.text == b.text  ? 0 : a.text < b.text ? -1 : 1;
+        }));
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.tree-2').treegrid({
+                    expanderExpandedClass: 'glyphicon glyphicon-minus',
+                    expanderCollapsedClass: 'glyphicon glyphicon-plus'
+                    });
+    });
 </script>
