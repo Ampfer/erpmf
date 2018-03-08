@@ -635,8 +635,9 @@ def obra_orcamento():
             q = (Obras_Itens.obra == idObra) & (Obras_Itens.atividade.belongs(form_pesq.vars.atividade))        
         
         Obras_Itens.valor = Field.Virtual('valor',
-            lambda row: valorComposicao(row.obras_itens.composicao , tipos) if row.obras_itens.composicao else valor_insumo(row.obras_itens.insumo) , 
+            lambda row: valorComposicao(row.obras_itens.composicao,tipos) if row.obras_itens.composicao else valor_insumo(row.obras_itens.insumo, tipos) , 
             label='Valor')
+        
         itens = db(q).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
 
         linhas = gerar_linhas(idObra,itens)
