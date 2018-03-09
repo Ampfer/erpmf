@@ -23,7 +23,7 @@ def entrada():
     if idReceber == "0":
         Receber.emissao.default= request.now.date()
         form_receber = SQLFORM(Receber,field_id='id',_id='form_receber')        
-        form_parcelas = form_receitas = " Primeiro Cadastre um Contas a Receber"
+        form_parcelas = form_produtos = form_receitas = " Primeiro Cadastre um Contas a Receber"
         btnExcluir = btnNovo = ''
         
     else:
