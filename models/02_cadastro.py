@@ -3,7 +3,7 @@
 notempty=IS_NOT_EMPTY(error_message='Campo Obrigatório')
 TipoPessoa = ('Física','Juridica')
 TipoEndereco = ('Faturamento','Obra')
-TipoDemanda = ('Obra','Projeto','Administração')
+TipoDemanda = ('Construção','Reforma','Projeto','Cronograma')
 Departamentos = ('Vendas','Compras','Financeiro')
 Estados = {'SP':'São Paulo','RJ':'Rio de Janeiro','MG':'Minas Gerais','RS':'Rio Grande do Sul','SC':'Santa Catarina','PR':'Paraná'}
 TipoInsumos = {'Material':'MT-Marerial','Mão de Obra':'MO-Mão de Obra','Equipamentos':'EQ-Equipamentos','Documentação':'DC-Documentação'}

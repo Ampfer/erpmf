@@ -486,10 +486,10 @@ def buscar_atividade():
     import json
 
     rows  = db(Atividades.etapa == request.vars.etapa).select() 
-    
     atividades = []
     for row in rows:
-        atividades.append(dict(atividade = row.atividade, id = row.id))
+        atv = '%s (%s)' %(row.atividade,row.unidade)
+        atividades.append(dict(atividade = atv , id = row.id)) 
     atividadeJson = json.dumps(atividades)
 
     jquery = "$('#atividade_atividade').find('option').remove();$.each(%s, function (i, d) {$('<option>').val(d.id).text(d.atividade).appendTo($('#atividade_atividade'));});" %(atividadeJson)
@@ -526,53 +526,6 @@ def obra_atividades():
     Obras_Itens.valor = Field.Virtual('valor',lambda row: 0, label='Valor')
     itens = db(Obras_Itens.obra == idObra).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
     linhas = gerar_linhas(idObra,itens)
-    '''
-    linhas = []
-    idEtapa=idAtividade=0 
-    c = p = 0
-    for item in itens:
-        if item.etapa != idEtapa:
-            etapa = True
-            idEtapa = item.etapa
-        if item.atividade != idAtividade:
-            atividade = True
-            idAtividade = item.atividade
-        c += 1
-        if etapa:
-            linhas.append(dict(item = Etapas[int(item.etapa)].etapa, c=c, p=0,))
-            etapa=False
-            idEtapa = item.etapa
-            p = c
-            pp = c
-            c += 1
-        if atividade:
-            linhas.append(dict(item=Atividades[int(item.atividade)].atividade,
-                               qtde = item.quantidade,
-                               unidade = Atividades[int(item.atividade)].unidade,
-                               c=c, 
-                               p=pp,
-                               id = "%s-%s" %(idObra,item.atividade)
-                               ))
-            atividade = False
-            idAtividade = item.atividade
-            p = c
-            c += 1
-
-        if item.composicao:
-            xItem = Composicao[int(item.composicao)].descricao
-            unidade = Composicao[int(item.composicao)].unidade
-        else:
-            xItem = Insumo[int(item.insumo)].descricao
-            unidade = Insumo[int(item.insumo)].unidade
-        
-        linhas.append(dict(item = xItem,
-                           id = item.id,
-                           qtde = round(float(item.quantidade) * float(item.indice),2),
-                           unidade=unidade,
-                           c=c,
-                           p=p
-                           ))
-        '''
 
     return dict(formAtividade=formAtividade,linhas=linhas)
 
@@ -611,7 +564,7 @@ def obra_orcamento():
     idObra = int(request.args(0))
     itens = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,Obras_Itens.atividade, 
         orderby=[Obras_Itens.etapa, Obras_Itens.atividade],distinct=True)
-
+    totalOrcamento = legenda = ''
     xitens = {}
     for item in itens:
         #chave = '%s-%s' %(int(item.etapa),int(item.atividade))
@@ -639,10 +592,22 @@ def obra_orcamento():
             label='Valor')
         
         itens = db(q).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
-
         linhas = gerar_linhas(idObra,itens)
 
-    return dict(form_pesq=form_pesq, linhas=linhas)
+        totalOrcamento = 0
+        for item in itens:
+            valor = valorComposicao(item.composicao,tipos) if item.composicao else valor_insumo(item.insumo, tipos)
+            totalOrcamento += round(float(item.quantidade) * float(item.indice) * float(valor),2)
+
+        if tipos == []:
+            legenda = 'Total do Orçamento'
+        else:
+            tipo=''
+            for tp in tipos:
+                tipo += "-" + tp 
+            legenda = "Total ( %s )" %(tipo)
+     
+    return dict(form_pesq=form_pesq, linhas=linhas,totalOrcamento=totalOrcamento,legenda=legenda)
     
 def gerar_linhas(idObra,itens):
     linhas = []
