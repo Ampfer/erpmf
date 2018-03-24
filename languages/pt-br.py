@@ -53,6 +53,7 @@
 'Bairro:': 'Bairro:',
 'Banco': 'Banco',
 'Bom para': 'Bom para',
+'Buscar Insumos': 'Buscar Insumos',
 'Buy this book': 'Compre o livro',
 'c': 'c',
 'Cache': 'Cache',

@@ -173,8 +173,6 @@ def composicao_insumo():
 
     return locals()
 
-
-
 #@auth.requires_membership('admin')
 def orcamentos():
     fields = [Orcamentos.dtorcamento,Orcamentos.descricao,Orcamentos.cliente,Orcamentos.total]
@@ -251,7 +249,6 @@ def orcamentoComposicao():
     total = Orcamentos[idOrcamento].total or 0
 
     return dict(formOrcamentoComposicao = formOrcamentoComposicao, total=total)
-
 
 def insumoTrigger():
     return "jQuery('#orcamentoInsumos_preco').val('%s');jQuery('#orcamentoInsumos_unidade').val('%s');"\
@@ -363,7 +360,6 @@ def valor_atividade(idAtividade):
         total += valor
     return "{0:.2f}".format(total)
     
-
 #@auth.requires_membership('admin')
 def atividades():
 
@@ -445,8 +441,6 @@ def obras():
 
     return locals()
 
-
-
 def demandaTrigger():
     return "$('#obras_descricao').val('%s')" %(Demandas[int(request.vars.demanda)].descricao)
 
@@ -467,6 +461,8 @@ def obra():
                            target='obraatividades', ajax=True, args=idObras)
         loadOrcamento = LOAD(c='obra', f='obra_orcamento',
                            target='obraorcamento', ajax=True, args=idObras)
+        loadInsumos = LOAD(c='obra', f='obra_insumos',
+                   target='obraoinsumos', ajax=True, args=idObras)
 
         btnExcluir = excluir('#')
         btnNovo = novo("obra")
@@ -558,8 +554,6 @@ def alterar_item():
         Obras_Itens[int(id)] = dict(indice=indice) 
     return 
 
-
-
 def obra_orcamento():
     idObra = int(request.args(0))
     itens = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,Obras_Itens.atividade, 
@@ -609,6 +603,101 @@ def obra_orcamento():
      
     return dict(form_pesq=form_pesq, linhas=linhas,totalOrcamento=totalOrcamento,legenda=legenda)
     
+def obra_insumos():
+    idObra = int(request.args(0))
+    itens = db(Obras_Itens.obra == idObra).select(Obras_Itens.etapa,Obras_Itens.atividade, 
+        orderby=[Obras_Itens.etapa, Obras_Itens.atividade],distinct=True)
+    xitens = {}
+    for item in itens:
+        chave = item.atividade
+        atividade = '%s-%s-%s' %(Etapas[item.etapa].item,Etapas[item.etapa].etapa, Atividades[item.atividade].atividade)
+        xitens.update({chave:atividade})
+
+    form_pesq = SQLFORM.factory(     
+        Field('atividade',label='Item:',requires=IS_IN_SET(xitens,multiple=True)),
+        Field('tipo',label='Tipo de Insumo',requires = IS_IN_DB(db,db.tipoInsumo.descricao,multiple=True)),
+        table_name='orcamento',
+        submit_button='Buscar Insumos',
+        )
+
+    query = ''
+    if form_pesq.process().accepted:
+        tipos = form_pesq.vars.tipo
+        if form_pesq.vars.atividade == []:
+            query = (Obras_Itens.obra == idObra)
+        else:
+            query = (Obras_Itens.obra == idObra) & (Obras_Itens.atividade.belongs(form_pesq.vars.atividade))        
+        
+    
+        Relatorio.truncate()
+        rows = db(query).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
+        
+        for row in rows:
+
+            qtde = round(float(row.quantidade)*float(row.indice),2)
+
+            if row.insumo:
+                tp = Insumo[int(row.insumo)].tipo
+                if tipos == [] or tp in tipos:
+                    insumo = db(Insumo.id == row.insumo).select().first()
+                    sum = Relatorio.quantidade.sum()
+                    qtdeAnt = db(Relatorio.codigo==insumo.codigo).select(sum).first()[sum] or 0
+
+                    Relatorio.update_or_insert(Relatorio.codigo == insumo.codigo,
+                                codigo = insumo.codigo,
+                                descricao = insumo.descricao,
+                                unidade = insumo.unidade,
+                                quantidade = float(qtdeAnt)+float(qtde),
+                                valor=insumo.preco,
+                                )
+            elif row.composicao:    
+                rows2 = db(Composicao_Insumos.composicao==row.composicao).select()
+                for row2 in rows2:
+                    tp = Insumo[int(row2.insumo)].tipo
+                    if tipos == [] or tp in tipos:
+                        qtdeInsumo = round(float(row2.quantidade) * float(qtde),2)
+                        insumo = db(Insumo.id == row2.insumo).select().first()
+
+                        sum = Relatorio.quantidade.sum()
+                        qtdeAnt = db(Relatorio.codigo==insumo.codigo).select(sum).first()[sum] or 0
+
+                        Relatorio.update_or_insert(Relatorio.codigo == insumo.codigo,
+                                    codigo = insumo.codigo,
+                                    descricao = insumo.descricao,
+                                    unidade = insumo.unidade,
+                                    quantidade = float(qtdeAnt)+float(qtdeInsumo),
+                                    valor=insumo.preco,
+                                    total = round((float(qtdeAnt)+float(qtdeInsumo))*float(insumo.preco),2)
+                                    )
+
+    if query:
+        sum = Relatorio.total.sum()
+        totalInsumos = db(Relatorio.id > 0).select(sum).first()[sum]
+
+        obraInsumos = db(Relatorio.id>0).select(Relatorio.codigo,
+                                            Relatorio.descricao,
+                                            Relatorio.unidade,
+                                            Relatorio.quantidade,
+                                            Relatorio.valor,
+                                            Relatorio.total,
+                                            orderby=Relatorio.descricao
+                                            )
+
+        insumos = SQLTABLE(obraInsumos,_id='insumos',
+                                        _class='display',
+                                        _cellspacing = "0",
+                                        _width = "100%",                                       
+                                        headers='labels',
+                                        truncate = 100)
+    else:
+        insumos = ''
+        totalInsumos = 0
+
+
+    return dict(form_pesq=form_pesq,insumos=insumos)
+
+
+
 def gerar_linhas(idObra,itens):
     linhas = []
     idEtapa=idAtividade=0 
