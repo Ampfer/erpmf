@@ -1,4 +1,8 @@
 {{extend 'layout.html'}}
+<style>
+    .tab-pane .tab:selected {-fx-background-color: #FFFfff;}
+</style>
+    
 <div class="container">
     <div class="panel panel-info">
         <div class="panel-heading"><h4>Obra</h4></div>
@@ -43,7 +47,7 @@
                     {{=loadOrcamento}}
                 </div>
                 <div id="menu3" class="tab-pane fade">
-                    
+                    {{=loadInsumos}}
                 </div>
             </div>
         </div>

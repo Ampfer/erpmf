@@ -126,8 +126,7 @@ Relatorio = db.define_table('relatorio',
                             Field('conta','string',label='Etapa',length=30),
                             Field('quantidade','decimal(7,2)',label='Quantidade'),
                             Field('valor','decimal(7,2)',label='Valor'),
-                            #Field('total','decimal(7,2)',label='Total'),
-                            Field('total', compute=lambda r: (r['valor'] * r['quantidade']).quantize(Decimal('1.00'), rounding=ROUND_HALF_UP)),
+                            Field('total','decimal(7,2)',label='Total'),              
                             Field('porcentagem','decimal(7,2)',label='%'),
                             Field('acumulado','decimal(7,2)',label='Acumulado')
                             )

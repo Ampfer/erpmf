@@ -1,0 +1,24 @@
+<style>
+    #insumos tr:nth-child(odd) td { background: #e3e3e3; }
+    tr 
+</style>
+<div class="well">
+    {{=form_pesq.custom.begin}}
+    <div class="row">
+        <div class="col-md-7">
+            {{=form_pesq.custom.label.atividade}}
+            {{=form_pesq.custom.widget.atividade}}
+        </div>
+        <div class="col-md-3">
+            {{=form_pesq.custom.label.tipo}}
+            {{=form_pesq.custom.widget.tipo}}
+        </div>
+        <div class="col-md-2" style="margin-top: 55px">
+            {{=form_pesq.custom.submit}}
+        </div>
+    </div>
+    {{=form_pesq.custom.end}}
+</div>
+
+{{=insumos}}
+
