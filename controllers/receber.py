@@ -199,8 +199,6 @@ def receber_receitas():
 
 def cliente_ficha():
 
-    #session.cliente = None
-
     form_pesq = SQLFORM.factory(
         Field('cliente',default=request.vars.cliente or session.cliente,requires=IS_IN_DB(db,"clientes.id",'%(nome)s',zero='Selecione um cliente')),
         table_name='pesquisar',
@@ -246,7 +244,9 @@ def cliente_recebimentos():
     idCliente = request.args(0)
     fields = [Conta_corrente.lote,Conta_corrente.descricao,Conta_corrente.conta,Conta_corrente.dtpagamento,Conta_corrente.vlrecebimento]
     query = (Conta_corrente.lote == Receber_parcelas.lote) & (Receber_parcelas.receber == Receber.id) & (Receber.cliente == idCliente)
+    
     gridRecebimentos = grid(query,searchable=False,create=False,deletable=False,editable=False,fields=fields)
+    
     return dict(gridRecebimentos=gridRecebimentos)
 
 #@auth.requires_membership('admin')   
@@ -288,7 +288,7 @@ def receber():
     formRecebimentos = LOAD(c='receber',f='recebimentos_lista',
         content='Aguarde, carregando...',target='recebimentoslista',ajax=True,)
 
-    formCheques = LOAD(c='pagar',f='recebimentos_cheques',
+    formCheques = LOAD(c='receber',f='recebimentos_cheques',
         content='Aguarde, carregando...',target='recebimentoscheques',ajax=True,)
 
     return dict(formParcelas=formParcelas,formRecebimentos=formRecebimentos,formCheques=formCheques,
@@ -318,7 +318,6 @@ def recebimentos_lista():
     form[0].insert(-1,novo)
 
     return dict(form=form,novo = novo)
-
 
 def excluirCheque():
     idCheque = request.args(0)
@@ -376,7 +375,7 @@ def recebimentos():
             atualizaRecebimentos(session.id_lote)
             response.flash='Recebimento Salvo com Sucesso!'
             response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
-        elif form_pagamentos.errors:
+        elif formRecebimentos.errors:
             response.flash = 'Erro no Formulário...!' 
     else:
         valoranterior = db(Conta_corrente.id == idRecebimento).select(Conta_corrente.vlpagamento).first()[Conta_corrente.vlrecebimento]
@@ -392,6 +391,18 @@ def recebimentos():
             response.flash = 'Erro no Formulário...!'
 
     return locals()
+
+def buscadoc(loteId):
+    if loteId == 0:
+        dcto = db(Pagar_parcelas.id.belongs(session.ids)).select(db.pagar.documento, db.pagar_parcelas.parcela,
+              left=db.pagar_parcelas.on(db.pagar.id == db.pagar_parcelas.pagar))
+    else:
+        dcto = db(Pagar_parcelas.lote == loteId).select(db.pagar.documento, db.pagar_parcelas.parcela,
+              left=db.pagar_parcelas.on(db.pagar.id == db.pagar_parcelas.pagar))
+    doctos = []
+    for x in dcto:
+        doctos.append('(' + x.pagar.documento + '-' + x.pagar_parcelas.parcela + ') ')
+    return doctos#
 
 def atualizaPagamentos():
     query = db(Conta_corrente.lote == idlote)
@@ -423,7 +434,6 @@ def atualizaPagamentos():
                                                                     orderby=~Receber_parcelas.vencimento).first()
         id_parcela = parcela[Receber_parcelas.id]
         Receber_parcelas[id_parcela] = dict(valorpago=float(parcela[Receber_parcelas.valor]) + valor)
-
 
 def recebimentos_delete():
     id = request.args(0)

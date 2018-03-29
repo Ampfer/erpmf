@@ -452,7 +452,7 @@ def obra():
 
     if idObras == "0":
         formObra = SQLFORM(Obras,field_id='id',_id='obra')
-        loadAtividade = loadOrcamento = ''
+        loadAtividade = loadOrcamento = loadInsumos = ''
         btnExcluir = btnNovo = ''
     else:
         formObra = SQLFORM(Obras, idObras,_id='obra',field_id='id')
@@ -587,11 +587,13 @@ def obra_orcamento():
         
         itens = db(q).select(orderby=[Obras_Itens.etapa, Obras_Itens.atividade])
         linhas = gerar_linhas(idObra,itens)
-
+        obra = Obras[idObra]
+        bdi = 1 + obra.bdi/100
+ 
         totalOrcamento = 0
         for item in itens:
             valor = valorComposicao(item.composicao,tipos) if item.composicao else valor_insumo(item.insumo, tipos)
-            totalOrcamento += round(float(item.quantidade) * float(item.indice) * float(valor),2)
+            totalOrcamento += round(float(item.quantidade) * float(item.indice) * float(valor) * float(bdi),2)
 
         if tipos == []:
             legenda = 'Total do Orçamento'

@@ -52,6 +52,7 @@
 'Back': 'Back',
 'Bairro:': 'Bairro:',
 'Banco': 'Banco',
+'Bdi:': 'Bdi:',
 'Bom para': 'Bom para',
 'Buscar Insumos': 'Buscar Insumos',
 'Buy this book': 'Compre o livro',

@@ -432,8 +432,7 @@ def pagar():
     except ValueError:
         session.id_lote = 0
 
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-               _href=URL(url))
+    btnVoltar = voltar(url)
 
     #,_onClick="jQuery('#pagarLotes').get(0).reload()"
     #if 
