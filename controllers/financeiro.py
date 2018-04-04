@@ -1,11 +1,11 @@
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def contas():
     formConta = SQLFORM.grid(Conta,
             csv=False,user_signature=False,details=False,
             )
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def conta_corrente():
     from datetime import datetime
     
@@ -33,7 +33,7 @@ def conta_corrente():
     
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def extrato():
     
     query = (Conta_corrente.conta == session.conta) & (Conta_corrente.dtpagamento >= session.datainicial) & (Conta_corrente.dtpagamento <= session.datafinal)
@@ -74,7 +74,7 @@ def extrato():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def conta_lancamento():
     id_contacorrente = request.args(0) or "0"
     tipo = request.args(1) or "MAN"
@@ -105,7 +105,7 @@ def conta_lancamento():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def conta_corrente_delete():
     id = request.args(0)
     tipo = request.args(1)
@@ -114,14 +114,14 @@ def conta_corrente_delete():
     redirect(URL('conta_corrente',vars=dict(conta = session.conta)))
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def banco():
     formBanco = SQLFORM.grid(Banco,
             csv=False,user_signature=False,details=False,maxtextlength=50,
             )
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def cheques():
     formCheques = SQLFORM.grid(Cheques,
             csv=False,user_signature=False,details=False,maxtextlength=50,

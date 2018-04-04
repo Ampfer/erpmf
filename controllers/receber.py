@@ -227,7 +227,7 @@ def cliente_ficha():
 
         form_parcelas = SQLFORM.grid(query,
             formname="cliente_parcelas",field_id = Receber_parcelas.id,orderby=Receber_parcelas.vencimento,fields=fields,
-            links = [lambda row: A(SPAN(_class="glyphicon glyphicon-share-alt"),' Receber', _class="btn btn-default",_id='pagar',_title="Pagar Parcelas",
+            links = [lambda row: A(SPAN(_class="glyphicon glyphicon-share-alt"),' Receber', _class="btn btn-default",_id='receber',_title="Receber Parcelas",
                                         _href=URL('receber',vars=dict(id_lote = row.receber_parcelas.lote,ids = row.receber_parcelas.id,url="cliente_ficha")))
             ],deletable = False,editable = False,details=False,create=False,searchable=False,
             csv=False,user_signature=False,)
@@ -303,7 +303,6 @@ def mostrar_parcelas():
 
 #@auth.requires_membership('a#dmin')    
 def recebimentos_lista():
-   
     query = db(Conta_corrente.lote == session.id_lote)
     session.total_recebimentos = query.select(Conta_corrente.vlrecebimento.sum()).first()[Conta_corrente.vlrecebimento.sum()] or 0
     fields = [Conta_corrente.lote, Conta_corrente.descricao, Conta_corrente.conta, Conta_corrente.dtpagamento,
@@ -330,7 +329,7 @@ def recebimentos_cheques():
     sum = Cheques.valor.sum()
     total_cheques= db(Cheques.lotpag == session.id_lote).select(sum).first()[sum]
 
-    links = [lambda row: A(SPAN(_class="glyphicon glyphicon-trash"), _class="btn btn-default", _id='excluirCheque',_onclick="return confirm('Deseja Excluir esse Cheque ?');",callback=URL('pagar', 'excluirCheque', args=[row.id]))]
+    links = [lambda row: A(SPAN(_class="glyphicon glyphicon-trash"), _class="btn btn-default", _id='excluirCheque',_onclick="return confirm('Deseja Excluir esse Cheque ?');",callback=URL('receber', 'excluirCheque', args=[row.id]))]
 
     gridCheques = grid(Cheques.lotpag==session.id_lote,searchable=False,create=False,details=False,deletable=False,
                         editable=False,links=links)
@@ -353,6 +352,7 @@ def recebimentos_cheques():
     pass
 
 def recebimentos():
+    print 
     idRecebimento = request.args(0) or "0"
 
     Conta_corrente.lote.readable = False
@@ -364,26 +364,24 @@ def recebimentos():
         Conta_corrente.dtpagamento.default= request.now.date()
         Conta_corrente.vlrecebimento.default = session.total_receber - session.total_recebimentos
         formRecebimentos = SQLFORM.factory(Lote,Conta_corrente,_id='formRecebimentos',field_id='id',table_name='recebimentos')
-
         if formRecebimentos.process().accepted:
             if session.id_lote == 0:
                 session.id_lote = Lote.insert(dtlote = formRecebimentos.vars.dtpagamento,tipo = 'receber',parcelas=session.ids)
 
             descricao = "REC LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0)[0])
-
-            Conta_corrente.insert(dtpagamento = formRecebimentos.vars.dtpagamento, vlrecebimento = formRecebimentos.vars.vlpagamento,tipo = 'receber', lote=session.id_lote,conta= formRecebimentos.vars.conta,descricao=descricao)
+            Conta_corrente.insert(dtpagamento = formRecebimentos.vars.dtpagamento, vlrecebimento = formRecebimentos.vars.vlrecebimento,tipo = 'receber', lote=session.id_lote,conta= formRecebimentos.vars.conta,descricao=descricao)
             atualizaRecebimentos(session.id_lote)
             response.flash='Recebimento Salvo com Sucesso!'
             response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
         elif formRecebimentos.errors:
             response.flash = 'Erro no Formulário...!' 
     else:
-        valoranterior = db(Conta_corrente.id == idRecebimento).select(Conta_corrente.vlpagamento).first()[Conta_corrente.vlrecebimento]
+        valoranterior = db(Conta_corrente.id == idRecebimento).select(Conta_corrente.vlrecebimento).first()[Conta_corrente.vlrecebimento]
 
         formRecebimentos = SQLFORM(Conta_corrente,idRecebimento,submit_button='Alterar',_id='formRecebimentos',field_id='id')
 
         if formRecebimentos.process().accepted:
-            atualizaPagamentos(session.id_lote)
+            atualizaRecebimentos(session.id_lote)
             response.flash = 'Recebimento Alterado com Sucesso!'
             response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
 
@@ -394,17 +392,17 @@ def recebimentos():
 
 def buscadoc(loteId):
     if loteId == 0:
-        dcto = db(Pagar_parcelas.id.belongs(session.ids)).select(db.pagar.documento, db.pagar_parcelas.parcela,
-              left=db.pagar_parcelas.on(db.pagar.id == db.pagar_parcelas.pagar))
+        dcto = db(Receber_parcelas.id.belongs(session.ids)).select(db.receber.documento, db.receber_parcelas.parcela,
+              left=db.receber_parcelas.on(db.receber.id == db.receber_parcelas.receber))
     else:
-        dcto = db(Pagar_parcelas.lote == loteId).select(db.pagar.documento, db.pagar_parcelas.parcela,
-              left=db.pagar_parcelas.on(db.pagar.id == db.pagar_parcelas.pagar))
+        dcto = db(Receber_parcelas.lote == loteId).select(db.receber.documento, db.receber_parcelas.parcela,
+              left=db.receber_parcelas.on(db.receber.id == db.receber_parcelas.receber))
     doctos = []
     for x in dcto:
-        doctos.append('(' + x.pagar.documento + '-' + x.pagar_parcelas.parcela + ') ')
+        doctos.append('(' + x.receber.documento + '-' + x.receber_parcelas.parcela + ') ')
     return doctos#
 
-def atualizaPagamentos():
+def atualizaRecebimentos(idlote):
     query = db(Conta_corrente.lote == idlote)
     sum = Conta_corrente.vlrecebimento.sum()
     valor = float(query.select(sum).first()[sum]) or 0
@@ -413,7 +411,6 @@ def atualizaPagamentos():
     parcelas = db(Receber_parcelas.id.belongs(session.ids)).select(Receber_parcelas.id, Receber_parcelas.valor,
                                                                  Receber_parcelas.valorpago,
                                                                  orderby=Receber_parcelas.vencimento)
-    response.js = "alert('teste');"
     for row in parcelas:
         if valor >= row.valor:
             valor = valor - float(row.valor)
