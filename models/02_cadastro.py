@@ -3,7 +3,7 @@
 notempty=IS_NOT_EMPTY(error_message='Campo Obrigatório')
 TipoPessoa = ('Física','Juridica')
 TipoEndereco = ('Faturamento','Obra')
-TipoDemanda = ('Construção','Reforma','Projeto','Cronograma')
+TipoDemanda = ('Construção','Reforma','Projeto','Cronograma', 'Estoque')
 Departamentos = ('Vendas','Compras','Financeiro')
 Estados = {'SP':'São Paulo','RJ':'Rio de Janeiro','MG':'Minas Gerais','RS':'Rio Grande do Sul','SC':'Santa Catarina','PR':'Paraná'}
 TipoInsumos = {'Material':'MT-Marerial','Mão de Obra':'MO-Mão de Obra','Equipamentos':'EQ-Equipamentos','Documentação':'DC-Documentação'}
@@ -66,8 +66,8 @@ Enderecos = db.define_table('enderecos',
 Enderecos.tipo.requires = IS_IN_SET(TipoEndereco,zero=None)
 Enderecos.estado.requires = IS_IN_SET(Estados,zero=None)
 Enderecos.estado.default = 'SP'
-Enderecos.cliente.readable = Contatos.cliente.writable = False
-Enderecos.fornecedor.readable = Contatos.fornecedor.writable = False
+Enderecos.cliente.readable = Enderecos.cliente.writable = False
+Enderecos.fornecedor.readable = Enderecos.fornecedor.writable = False
 
 Condicao = db.define_table('condicao',
 	Field('descricao','string',label='Descrição:',length=30),

@@ -11,7 +11,7 @@ Pagar.fornecedor.requires = IS_IN_DB(db,"fornecedores.id",'%(nome)s',zero='Escol
 Pagar.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Pagar.emissao.requires = data
 Pagar.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
-Pagar.demanda.requires = IS_IN_DB(db,"demandas.id",'%(descricao)s')
+Pagar.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(descricao)s'))
 
 Pagar_parcelas = db.define_table('pagar_parcelas',
 	Field('pagar','reference pagar'),
