@@ -459,6 +459,8 @@ def pagar():
 def mostrar_parcelas():
         
     query = db(Pagar_parcelas.id.belongs(session.ids))
+
+   
     
     session.total_pagar = query.select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
     form = SQLFORM.grid(query,
@@ -516,6 +518,8 @@ def pagamentos():
     Conta_corrente.vlrecebimento.readable = Conta_corrente.vlrecebimento.writable = False
     Conta_corrente.descricao.readable = Conta_corrente.descricao.writable = False
     Conta_corrente.vlrecebimento.default = 0
+    Conta_corrente.desconto.default = 0
+    Conta_corrente.juros.default = 0
 
     if id_pagamento == "0":
         Conta_corrente.dtpagamento.default= request.now.date()
@@ -560,7 +564,7 @@ def pagamentos():
 def atualizaPagamentos(idlote):
 
     query = db(Conta_corrente.lote == idlote)
-    sum = Conta_corrente.vlpagamento.sum()
+    sum = (Conta_corrente.vlpagamento + Conta_corrente.desconto - Conta_corrente.juros).sum()
     valor = round(float(query.select(sum).first()[sum]),2) or 0
     datapg = query.select(Conta_corrente.dtpagamento,orderby=~Conta_corrente.dtpagamento).first() or None
 
@@ -702,7 +706,7 @@ def fornecedor_ficha():
 #@auth.requires_membership('admin')
 def fornecedorPagamentos():
     id_fornecedor = request.args(0)
-    fields = [Conta_corrente.lote,Conta_corrente.descricao,Conta_corrente.conta,Conta_corrente.dtpagamento,Conta_corrente.vlpagamento]
+    fields = [Conta_corrente.lote,Conta_corrente.descricao,Conta_corrente.conta,Conta_corrente.dtpagamento,Conta_corrente.vlpagamento,Conta_corrente.desconto,Conta_corrente.juros]
     query = (Conta_corrente.lote == Pagar_parcelas.lote) & (Pagar_parcelas.pagar == Pagar.id) & (Pagar.fornecedor == id_fornecedor)
     qridPagamentos = grid(query,searchable=False,create=False,deletable=False,
         editable=False,fields=fields,groupby = Conta_corrente.lote)
