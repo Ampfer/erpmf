@@ -53,12 +53,10 @@ Cheques = db.define_table('cheques',
 						  Field('valor','decimal(7,2)',label='Valor'),
 						  Field('dtcheque','date',label='Bom para'),
                           Field('nome','string',label='Nome',length=100),
-						  Field('lotpag','integer'),
-						  Field('lotrec','integer')
+						  Field('lote','reference lote',),
 						  )
-Cheques.banco.requires = IS_IN_DB(db,'banco.codigo','%(nome)s')
+Cheques.banco.requires = IS_IN_DB(db,'banco.codigo','%(codigo)s')
 Cheques.id.readable = Cheques.id.writable = False
-Cheques.lotpag.readable = Cheques.lotpag.writable = False
-Cheques.lotrec.readable = Cheques.lotrec.writable = False
+Cheques.lote.readable = Cheques.lote.writable = False
 Cheques.dtcheque.requires = data
 Cheques.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
