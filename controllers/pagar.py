@@ -409,9 +409,9 @@ def lote_delete():
     datapg = None
     del Lote[id_lote]
     atualizaPagamentos(total,datapg)
-    idsCheques = db(Cheques.lotpag==id_lote).select(Cheques.id)
+    idsCheques = db(Cheques.lote==id_lote).select(Cheques.id)
     for idCheque in idsCheques:
-        Cheques[idCheque.id] = dict(lotpag=None)
+        Cheques[idCheque.id] = dict(lote=None)
     redirect(URL(url))
 
 #@auth.requires_membership('admin')
@@ -479,9 +479,9 @@ def pagamentos_delete():
 
     if not db(Conta_corrente.lote).count():
         del Lote[idLote]
-        idsCheques = db(Cheques.lotpag == idLote).select(Cheques.id)
+        idsCheques = db(Cheques.lote == idLote).select(Cheques.id)
         for idCheque in idsCheques:
-            Cheques[idCheque.id] = dict(lotpag=None)
+            Cheques[idCheque.id] = dict(lote=None)
 
     atualizaPagamentos(float(valoranterior),datapg)
     #redirect(URL('pagar',vars=dict(ids=session.ids,id_lote=session.id_lote)))
@@ -631,28 +631,28 @@ def atualizaPagamentos_old(valor,datapg):
 
 def excluirCheque():
     idCheque = request.args(0)
-    Cheques[idCheque] = dict(lotpag=None)
+    Cheques[idCheque] = dict(lote=None)
     response.js = "$('#pagamentosCheques').get(0).reload()"
 
 #@auth.requires_membership('admin')
 def pagamentosCheques():
 
     sum = Cheques.valor.sum()
-    total_cheques= db(Cheques.lotpag == session.id_lote).select(sum).first()[sum]
+    total_cheques= db(Cheques.lote == session.id_lote).select(sum).first()[sum]
 
     links = [lambda row: A(SPAN(_class="glyphicon glyphicon-trash"), _class="btn btn-default", _id='excluirCheque',_onclick="return confirm('Deseja Excluir esse Cheque ?');",callback=URL('pagar', 'excluirCheque', args=[row.id]))]
 
-    gridCheques = SQLFORM.grid(Cheques.lotpag==session.id_lote,searchable=False,create=False,details=False,deletable=False,editable=False,
+    gridCheques = SQLFORM.grid(Cheques.lote==session.id_lote,searchable=False,create=False,details=False,deletable=False,editable=False,
                                  csv=False,maxtextlength=50,user_signature=False,links=links)
 
     form_pesq = SQLFORM.factory(
         Field('cheque',
-        requires=IS_IN_DB(db(Cheques.lotpag == None),"cheques.id",'%(banco)s %(agencia)s %(conta)s N. %(cheque)s R$ %(valor)s %(nome)s'    ,zero='Selecione um Cheque')),
+        requires=IS_IN_DB(db(Cheques.lote == None),"cheques.id",'%(banco)s %(agencia)s %(conta)s N. %(cheque)s R$ %(valor)s %(nome)s'    ,zero='Selecione um Cheque')),
         table_name='pesquisar',
         submit_button='Salvar',)
 
     if form_pesq.process().accepted:
-        Cheques[form_pesq.vars.cheque] = dict(lotpag=session.id_lote)
+        Cheques[form_pesq.vars.cheque] = dict(lote=session.id_lote)
         redirect('#')
     elif form_pesq.errors:
         response.flash = 'Erro no Formulário'
