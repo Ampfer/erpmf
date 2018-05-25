@@ -56,6 +56,7 @@ Receitas = db.define_table('receitas',
 	)
 Receitas.id.readable = Receitas.id.writable = False
 Receitas.receber.readable = Receitas.receber.writable = False
+Receitas.demanda.readable = Receitas.demanda.writable = False
 Receitas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Receitas.dtreceita.requires = data
  

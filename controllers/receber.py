@@ -187,7 +187,7 @@ def receber_receitas():
     fields= (Receitas.receita, Receitas.dtreceita,Receitas.valor)
     btnVoltar = voltar1('receitas')
 
-    formReceitas = grid(Receitas.receber==idReceber,
+    formReceitas = grid(Receitas.receber==idReceber,alt='250px',
         formname="receitas",searchable = False,args=[idReceber],fields=fields,onvalidation=validar)
 
     if formReceitas.update_form:
@@ -323,10 +323,10 @@ def recebimentos_lista():
 def recebimentos_cheques():
 
     sum = Cheques.valor.sum()
-    total_cheques= db(Cheques.lote == session.id_lote).select(sum).first()[sum]
+    total_cheques= db(Cheques.lotrec == session.id_lote).select(sum).first()[sum]
 
-    Cheques.lote.default = session.id_lote
-    gridCheques = grid(Cheques.lote==session.id_lote,searchable=False,
+    Cheques.lotrec.default = session.id_lote
+    gridCheques = grid(Cheques.lotrec==session.id_lote,searchable=False,
                         formname="recebimentoscheques",args=[session.id_lote])
     btnVoltar = voltar1('recebimentoscheques')
 
@@ -341,29 +341,44 @@ def recebimentos_cheques():
     pass
 
 def recebimentos():
-    print 
     idRecebimento = request.args(0) or "0"
 
-    Conta_corrente.lote.readable = False
+    Conta_corrente.lote.readable = Conta_corrente.lote.writable = False 
     Conta_corrente.vlpagamento.readable = Conta_corrente.vlpagamento.writable = False
     Conta_corrente.descricao.readable = Conta_corrente.descricao.writable = False
+    Conta_corrente.tipo.readable = Conta_corrente.tipo.writable = False
     Conta_corrente.vlpagamento.default = 0
+    Conta_corrente.desconto.default = 0
+    Conta_corrente.juros.default = 0
 
     if idRecebimento == "0":
         Conta_corrente.dtpagamento.default= request.now.date()
         Conta_corrente.vlrecebimento.default = session.total_receber - session.total_recebimentos
         formRecebimentos = SQLFORM.factory(Lote,Conta_corrente,_id='formRecebimentos',field_id='id',table_name='recebimentos')
+        
         if formRecebimentos.process().accepted:
             if session.id_lote == 0:
                 session.id_lote = Lote.insert(dtlote = formRecebimentos.vars.dtpagamento,tipo = 'receber',parcelas=session.ids)
 
             descricao = "REC LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0)[0])
-            Conta_corrente.insert(dtpagamento = formRecebimentos.vars.dtpagamento, vlrecebimento = formRecebimentos.vars.vlrecebimento,tipo = 'receber', lote=session.id_lote,conta= formRecebimentos.vars.conta,descricao=descricao)
-            atualizaRecebimentos(session.id_lote)
+            
+            Conta_corrente.insert(dtpagamento = formRecebimentos.vars.dtpagamento, 
+                                  vlpagamento = formRecebimentos.vars.vlrecebimento,
+                                  tipo = 'receber', 
+                                  lote=session.id_lote,
+                                  conta= formRecebimentos.vars.conta,
+                                  descricao=descricao,
+                                  desconto = formRecebimentos.vars.desconto,
+                                  juros = formRecebimentos.vars.juros,
+                                  )                
+
+            atualizaRecebimentos(session.id_lote)              
+
             response.flash='Recebimento Salvo com Sucesso!'
             response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
         elif formRecebimentos.errors:
             response.flash = 'Erro no Formulário...!' 
+        
     else:
         valoranterior = db(Conta_corrente.id == idRecebimento).select(Conta_corrente.vlrecebimento).first()[Conta_corrente.vlrecebimento]
 

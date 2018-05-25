@@ -60,6 +60,7 @@
 'Cache': 'Cache',
 'cache': 'cache',
 'Cache Keys': 'Chaves de cache',
+'Cadastrar': 'Cadastrar',
 'Cadastro': 'Cadastro',
 'Cadastroid': 'Cadastroid',
 'Cadastros': 'Cadastros',

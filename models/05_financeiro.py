@@ -31,8 +31,8 @@ Conta_corrente = db.define_table('conta_corrente',
 	Field('tipo','string',length=30)
 	)
 Conta_corrente.id.readable = Conta_corrente.id.writable = False
-Conta_corrente.lote.writable = False
-Conta_corrente.descricao.writable =  False
+Conta_corrente.lote.readable = Conta_corrente.lote.writable = False
+Conta_corrente.descricao.readable = Conta_corrente.descricao.writable =  False
 Conta_corrente.tipo.readable = Conta_corrente.tipo.writable = False
 Conta_corrente.dtpagamento.requires = data
 Conta_corrente.vlrecebimento.requires = IS_DECIMAL_IN_RANGE(dot=',')
@@ -53,10 +53,12 @@ Cheques = db.define_table('cheques',
 						  Field('valor','decimal(7,2)',label='Valor'),
 						  Field('dtcheque','date',label='Bom para'),
                           Field('nome','string',label='Nome',length=100),
-						  Field('lote','reference lote',),
+						  Field('lotrec','reference lote',),
+						  Field('lotpag','reference lote',),
 						  )
 Cheques.banco.requires = IS_IN_DB(db,'banco.codigo','%(codigo)s')
 Cheques.id.readable = Cheques.id.writable = False
-Cheques.lote.readable = Cheques.lote.writable = False
+Cheques.lotrec.readable = Cheques.lotrec.writable = False
+Cheques.lotpag.readable = Cheques.lotpag.writable = False
 Cheques.dtcheque.requires = data
 Cheques.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
