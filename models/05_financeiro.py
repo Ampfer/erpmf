@@ -23,16 +23,16 @@ Conta_corrente = db.define_table('conta_corrente',
 	Field('descricao','string',label='Descricão do Lançamento',length=60),
 	Field('dtpagamento','date',label='Data'),
 	Field('conta','reference conta',label= 'Conta'),
-	Field('vlrecebimento','decimal(7,2)',label='Recebimento'),
-	Field('vlpagamento','decimal(7,2)',label='Pagamento'),
+	Field('vlrecebimento','decimal(7,2)',label='Crédito'),
+	Field('vlpagamento','decimal(7,2)',label='Débito'),
 	Field('juros','decimal(7,2)',label='Juros'),
 	Field('desconto','decimal(7,2)',label='Desconto'),
 	Field('lote','reference lote',ondelete='CASCADE'),
 	Field('tipo','string',length=30)
 	)
 Conta_corrente.id.readable = Conta_corrente.id.writable = False
-Conta_corrente.lote.readable = Conta_corrente.lote.writable = False
-Conta_corrente.descricao.readable = Conta_corrente.descricao.writable =  False
+Conta_corrente.lote.writable = False
+Conta_corrente.descricao.writable =  False
 Conta_corrente.tipo.readable = Conta_corrente.tipo.writable = False
 Conta_corrente.dtpagamento.requires = data
 Conta_corrente.vlrecebimento.requires = IS_DECIMAL_IN_RANGE(dot=',')

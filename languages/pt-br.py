@@ -290,6 +290,7 @@
 'Other Recipes': 'Outras Receitas',
 'Overview': 'Visão Geral',
 'p': 'p',
+'Pagamento': 'Pagamento',
 'Pagar': 'Pagar',
 'Parcela:': 'Parcela:',
 'Password': 'Senha',
