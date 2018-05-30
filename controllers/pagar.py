@@ -529,7 +529,7 @@ def pagamentos():
             if session.id_lote == 0:
                 session.id_lote = Lote.insert(dtlote = form_pagamentos.vars.dtpagamento,tipo = 'pagar',parcelas=session.ids)
 
-            descricao = "PAG LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0)[0])
+            descricao = "PAG LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0,session.id_lote)[0])
 
             Conta_corrente.insert(dtpagamento = form_pagamentos.vars.dtpagamento,
                                   vlpagamento = form_pagamentos.vars.vlpagamento,

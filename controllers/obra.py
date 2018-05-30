@@ -451,6 +451,7 @@ def obra():
     btnVoltar = voltar('obras')
 
     if idObras == "0":
+        Obras.bdi.default = 0
         formObra = SQLFORM(Obras,field_id='id',_id='obra')
         loadAtividade = loadOrcamento = loadInsumos = ''
         btnExcluir = btnNovo = ''

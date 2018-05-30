@@ -79,7 +79,7 @@ def clienteEnderecos():
   idCliente = int(request.args(0))
         
   Enderecos.cliente.default = idCliente
-  Enderecos.fornecedor.default = 0
+  Enderecos.fornecedor.default = None
 
   formEnderecos = grid((Enderecos.cliente==idCliente),formname="enderecos",
                         searchable = False,args=[idCliente])
