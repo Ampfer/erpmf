@@ -89,7 +89,7 @@ Compras = db.define_table('compras',
 	Field.Virtual('valor',lambda row: totalCompra(row), label='Valor:'),
 	)
 Compras.fornecedor.requires = IS_IN_DB(db,"fornecedores.id",'%(nome)s',zero='Escolha um Fornecedor')
-Compras.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(nome)s',zero=None))
+Compras.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(descricao)s',zero=None))
 Compras.emissao.requires = data
 Compras.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
 Compras.tipo.requires = IS_IN_SET(['Pedido','Orçamento'],zero=None)

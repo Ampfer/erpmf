@@ -182,7 +182,7 @@ def receber_receitas():
         if (total_receitas + float(form.vars.valor) - old_valor) > receber_valor:
             form.errors.valor = "Soma das Receitas é Maior que o Valor do Documento" 
         elif (total_receitas + float(form.vars.valor) - old_valor) < receber_valor:
-            session.flash = 'Valor do Documento: %s Soma das Receitas: %s ' %(Receber_valor,total_receitas) 
+            session.flash = 'Valor do Documento: %s Soma das Receitas: %s ' %(receber_valor,total_receitas) 
 
     fields= (Receitas.receita, Receitas.dtreceita,Receitas.valor)
     btnVoltar = voltar1('receitas')

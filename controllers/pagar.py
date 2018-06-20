@@ -567,8 +567,8 @@ def pagamentos():
 def atualizaPagamentos(idlote):
 
     query = db(Conta_corrente.lote == idlote)
-    #sum = (Conta_corrente.vlpagamento + Conta_corrente.desconto - Conta_corrente.juros).sum()
-    sum = (Conta_corrente.vlpagamento).sum()
+    sum = (Conta_corrente.vlpagamento + Conta_corrente.desconto - Conta_corrente.juros).sum()
+    #sum = (Conta_corrente.vlpagamento).sum()
     try:
         valor = round(float(query.select(sum).first()[sum]),2)
     except:
@@ -655,9 +655,11 @@ def fornecedor_ficha():
 
     
     query = (Pagar_parcelas.pagar == Pagar.id) & (Pagar.fornecedor==session.fornecedor)
+    '''
     lotes=[0]
     for row in db(query).select(Pagar_parcelas.lote):
         lotes.append(row.lote)
+    '''
     total = db(query).select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
     total_pago = db(query).select(Pagar_parcelas.valorpago.sum()).first()[Pagar_parcelas.valorpago.sum()] or 0
     total_pendente = total - total_pago
@@ -685,21 +687,27 @@ def fornecedor_ficha():
 def fornecedorPagamentos():
 
     id_fornecedor = request.args(0)
-    query = (Conta_corrente.id > 0) 
 
+    qparcelas = (Pagar_parcelas.pagar==Pagar.id) & (Pagar.fornecedor==id_fornecedor) 
+    parcelas = db(qparcelas).select(Pagar_parcelas.id)
+    lotes = []
+    for parcela in parcelas:
+        for lote in db(Lote.id>0).select():
+            if parcela.id in lote.parcelas:
+                lotes.append(lote.id)
 
-    fields = [Conta_corrente.lote,Conta_corrente.descricao,Conta_corrente.conta,Conta_corrente.dtpagamento,Conta_corrente.vlpagamento,Conta_corrente.desconto,Conta_corrente.juros]
-    #query = (Conta_corrente.lote == Pagar_parcelas.lote) & (Pagar_parcelas.pagar == Pagar.id) & (Pagar.fornecedor == id_fornecedor)
-    qridPagamentos = grid(query,searchable=False,create=False,deletable=False,
-        editable=False,fields=fields,groupby = Conta_corrente.lote)
+    Conta_corrente.lote.readable = True
+    Conta_corrente.descricao.readable = True
+    fields = [Conta_corrente.dtpagamento,Conta_corrente.descricao,Conta_corrente.conta,Conta_corrente.vlpagamento,Conta_corrente.desconto,Conta_corrente.juros]
+
+    qridPagamentos = grid(db(Conta_corrente.lote.belongs(lotes)),searchable=False,create=False,deletable=False,
+        editable=False,fields=fields,groupby = Conta_corrente.lote, orderby = Conta_corrente.dtpagamento)
     return dict(qridPagamentos=qridPagamentos)
 
 #@auth.requires_membership('admin')
 def compras():
     fields = [Compras.emissao,Compras.documento,Compras.fornecedor,Compras.demanda, Compras.tipo,Compras.valor]
-    gridCompras = SQLFORM.grid(Compras,
-                              formname="compras", csv=False, user_signature=False, details=False,
-                              orderby=~Compras.emissao, maxtextlength=50,fields=fields)
+    gridCompras = grid(Compras,formname="compras",orderby=~Compras.emissao,fields=fields)
 
     if request.args(-2) == 'new':
         redirect(URL('compra'))
@@ -716,7 +724,11 @@ def compra():
     if id_compra == "0":
         Compras.emissao.default = request.now.date()
         mx = Compras.id.max()
-        Compras.documento.default = '{:0>6}'.format(int(db(Compras.id>0).select(mx).first()[mx])+1)
+        try:
+            Compras.documento.default = '{:0>6}'.format(int(db(Compras.id>0).select(mx).first()[mx])+1)
+        except:
+            Compras.documento.default = 1
+ 
         formCompra = SQLFORM(Compras, field_id='id', _id='compra')
         formCompraInsumos = ''
         btnExcluir = btnNovo = ''
@@ -806,17 +818,17 @@ def emailTrigger():
 #@auth.requires_membership('admin')
 def enviarEmail():
     import os
-    id_compra = request.vars.id_compra
-    id_cadastro = Compras[id_compra].fornecedor.cadastro
-    query = (Contatos.cadastro == id_cadastro)
+    idCompra = request.vars.id_compra
+    idFornecedor = Compras[idCompra].fornecedor
+    query = (Contatos.fornecedor == idFornecedor)
 
-    compraGeraPdf(id_compra)
+    compraGeraPdf(idCompra)
 
     emaildefault=db(query&Contatos.departamento=='Vendas').select(Contatos.email).first()['email']
     Emails.email.default = emaildefault
-    Emails.assunto.default = 'Pedido de Compra n. %s' %Compras[id_compra].documento
+    Emails.assunto.default = 'Pedido de Compra n. %s' %Compras[idCompra].documento
 
-    anexo = 'Ped%s_%s.pdf' %('{:0>3}'.format(Compras[id_compra].fornecedor),Compras[id_compra].documento)
+    anexo = 'Ped%s_%s.pdf' %('{:0>3}'.format(Compras[idCompra].fornecedor),Compras[idCompra].documento)
     pdf = os.path.join(request.folder, 'static', 'pdf', '%s') %(anexo)
     Emails.anexo.default = anexo
     Emails.anexo.writable = False

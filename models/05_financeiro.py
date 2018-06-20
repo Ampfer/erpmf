@@ -31,8 +31,8 @@ Conta_corrente = db.define_table('conta_corrente',
 	Field('tipo','string',length=30)
 	)
 Conta_corrente.id.readable = Conta_corrente.id.writable = False
-Conta_corrente.lote.writable = False
-Conta_corrente.descricao.writable =  False
+Conta_corrente.lote.readable = Conta_corrente.lote.writable = False
+Conta_corrente.descricao.readable = Conta_corrente.descricao.writable =  False
 Conta_corrente.tipo.readable = Conta_corrente.tipo.writable = False
 Conta_corrente.dtpagamento.requires = data
 Conta_corrente.vlrecebimento.requires = IS_DECIMAL_IN_RANGE(dot=',')
