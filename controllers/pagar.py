@@ -491,7 +491,7 @@ def pagamentos_lista():
     
     query = db(Conta_corrente.lote == session.id_lote)
     session.total_pagamentos = query.select(Conta_corrente.vlpagamento.sum()).first()[Conta_corrente.vlpagamento.sum()] or 0
-    fields = [Conta_corrente.conta, Conta_corrente.dtpagamento,
+    fields = [Conta_corrente.lote,Conta_corrente.conta, Conta_corrente.dtpagamento,
               Conta_corrente.vlpagamento,Conta_corrente.desconto,Conta_corrente.juros]
     form = SQLFORM.grid(Conta_corrente.lote==session.id_lote,
             formname="pagamentos",_class='web2py_grid',csv=False,maxtextlength=50,fields=fields,
@@ -551,9 +551,6 @@ def pagamentos():
         form_pagamentos = SQLFORM(Conta_corrente,id_pagamento,submit_button='Alterar',_id='form_pagamentos',field_id='id')
 
         if form_pagamentos.process().accepted:
-            #valor = form_pagamentos.vars.vlpagamento - valoranterior
-            #datapg = form_pagamentos.vars.dtpagamento
-            #atualizaPagamentos(float(valor), datapg)
             atualizaPagamentos(session.id_lote)
             response.flash = 'Pagamento Alterado com Sucesso!'
             response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
