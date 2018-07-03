@@ -882,7 +882,7 @@ def compraGeraPdf(id_compra):
 
     demanda = Compras[id_compra].demanda.nome
     obs = Compras[id_compra].obs
-    insumos = db(ComprasInsumos.id>0).select()
+    insumos = db(ComprasInsumos.compra == id_compra).select()
 
     pdf = Report()
     li=30
