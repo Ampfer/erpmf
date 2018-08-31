@@ -203,7 +203,7 @@ def pagar_parcelas():
 
     formParcelas = grid((Pagar_parcelas.pagar==id_pagar),alt='250px',
             formname="parcelas",searchable = False,args=[id_pagar],onvalidation=validar,
-            ondelete = deletar_parcela,deletable=False,editargs= dict(deletable=True),
+            ondelete = deletar_parcela,deletable=True,editargs= dict(deletable=True),
             orderby=Pagar_parcelas.vencimento,)
 
     btnVoltar = voltar1('parcelas')
@@ -222,24 +222,27 @@ def geraDespesas():
     
     try:
         rr = db(PagarInsumos.pagar == idPagar).select(orderby = PagarInsumos.insumo)
-        idInsumo = 0
-        valorDespesa = 0
+
         for r in rr:
-            if r.insumo != idInsumo:
-                valorDespesa = 0
-            valorDespesa += round(float(r.quantidade)*float(r.preco),2) - float(r.desconto)
-            print valorDespesa
+            
+            #valorDespesa += round(float(r.quantidade)*float(r.preco),2) - float(r.desconto)
+            
+            valorDespesa = round(float(r.quantidade)*float(r.preco),2) - float(r.desconto)
             tipoInsumo = Insumo(int(r.insumo)).tipo
             conta = db(TipoInsumo.descricao == tipoInsumo).select().first()['conta']
             query = (Despesas.despesa == int(conta)) & (Despesas.demanda == int(pagar.demanda)) & (Despesas.pagar == int(idPagar))
-            
+            try:
+                totalDespesas = float(db(query).select().first()['valor'])
+            except :
+                totalDespesas = 0
+      
             Despesas.update_or_insert(query,
                                       pagar = idPagar,
                                       dtdespesa = pagar.emissao,                                  
                                       demanda=pagar.demanda,
                                       despesa=conta,
-                                      valor = valorDespesa
-                                      )
+                                      valor = valorDespesa + totalDespesas
+                                      )   
     except:
         pass
     response.js = "$('#despesas').get(0).reload()"
