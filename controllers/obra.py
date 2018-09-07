@@ -452,7 +452,7 @@ def obra():
 
     if idObras == "0":
         formObra = SQLFORM(Obras,field_id='id',_id='obra')
-        loadAtividade = loadOrcamento = ''
+        loadAtividade = loadOrcamento = loadInsumos = ''
         btnExcluir = btnNovo = ''
     else:
         formObra = SQLFORM(Obras, idObras,_id='obra',field_id='id')
