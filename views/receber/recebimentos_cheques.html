@@ -1,16 +1,53 @@
-<div class="well">
-    {{=gridCheques}}
+{{if gridCheques.create_form or gridCheques.update_form:}}
+    {{=gridCheques[1].custom.begin}}
+    <div class="well">
+        <div class="row">
+            <div class="col-md-2">
+                {{=gridCheques[1].custom.label.banco}}
+                {{=gridCheques[1].custom.widget.banco}}
+            </div>
+            <div class="col-md-2">
+                {{=gridCheques[1].custom.label.agencia}}
+                {{=gridCheques[1].custom.widget.agencia}}
+            </div>
+            <div class="col-md-2">
+                {{=gridCheques[1].custom.label.conta}}
+                {{=gridCheques[1].custom.widget.conta}}
+            </div>
+            <div class="col-md-2">
+                {{=gridCheques[1].custom.label.cheque}}
+                {{=gridCheques[1].custom.widget.cheque}}
+            </div>
+            <div class="col-md-2">
+                {{=gridCheques[1].custom.label.valor}}
+                {{=gridCheques[1].custom.widget.valor}}
+            </div>
+            <div class="col-md-2">
+                {{=gridCheques[1].custom.label.dtcheque}}
+                {{=gridCheques[1].custom.widget.dtcheque}}
+            </div>
+        </div>
+        <div class="row">
+            <p></p>
+            <div class="col-md-6">
+                {{=gridCheques[1].custom.label.nome}}
+                {{=gridCheques[1].custom.widget.nome}}
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="right">
+                {{=gridCheques[1].custom.submit}}
+                {{=btnVoltar}}
+                {{=btnExcluir}}
+            </div>
+        </div>
+    </div>
+    {{=gridCheques[1].custom.end}}
+{{else:}}
+    <div class="well">
+        {{=gridCheques}}
+    </div>    
     <pre>Total de Cheques : <b>{{=total_cheques}}</b>    Total de Recebiemtnos : <b>{{=session.total_recebimentos}}</b></pre>
-    <div class="row">
-        <p></p>
-        {{=form_pesq.custom.begin}}
-        <div class="col-md-10">
-            {{=form_pesq.custom.widget.cheque}}
-        </div>
-
-        <div class="col-md-2">
-            {{=form_pesq.custom.submit}}
-        </div>
-        {{=form_pesq.custom.end}}
-    </div><!-- /.row -->
-</div><!-- /.well -->
+{{pass}}

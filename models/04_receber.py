@@ -45,7 +45,6 @@ Receber_parcelas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Receber_parcelas.valorpago.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Receber_parcelas.valorpago.writable = False
 Receber_parcelas.valorpago.default = 0
-Receber_parcelas.lote.default = 0
 Receber_parcelas.lote.readable = Receber_parcelas.lote.writable = False
 
 Receitas = db.define_table('receitas',
@@ -57,5 +56,7 @@ Receitas = db.define_table('receitas',
 	)
 Receitas.id.readable = Receitas.id.writable = False
 Receitas.receber.readable = Receitas.receber.writable = False
+Receitas.demanda.readable = Receitas.demanda.writable = False
 Receitas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Receitas.dtreceita.requires = data
+ 

@@ -167,8 +167,10 @@ Atividades_Itens.insumo.requires = IS_EMPTY_OR(IS_IN_DB(db,"insumos.id",'%(descr
 Obras = db.define_table('obras',
     Field('demanda','integer',label='Demanda:'),
     Field('descricao', 'string', label='Descrição:'),
+    Field('bdi','decimal(7,2)', label='Bdi:')
     )
 Obras.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(codigo)s'))
+Obras.bdi.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 
 Obras_Itens = db.define_table('obras_itens',
     Field('obra','reference obras', label='Obra:'),

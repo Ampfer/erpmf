@@ -23,18 +23,22 @@ Conta_corrente = db.define_table('conta_corrente',
 	Field('descricao','string',label='Descricão do Lançamento',length=60),
 	Field('dtpagamento','date',label='Data'),
 	Field('conta','reference conta',label= 'Conta'),
-	Field('vlrecebimento','decimal(7,2)',label='Valor do Recebimento'),
-	Field('vlpagamento','decimal(7,2)',label='Valor do Pagamento'),
+	Field('vlrecebimento','decimal(7,2)',label='Crédito'),
+	Field('vlpagamento','decimal(7,2)',label='Débito'),
+	Field('juros','decimal(7,2)',label='Juros'),
+	Field('desconto','decimal(7,2)',label='Desconto'),
 	Field('lote','reference lote',ondelete='CASCADE'),
 	Field('tipo','string',length=30)
 	)
 Conta_corrente.id.readable = Conta_corrente.id.writable = False
-Conta_corrente.lote.writable = False
-Conta_corrente.descricao.writable =  False
+Conta_corrente.lote.readable = Conta_corrente.lote.writable = False
+Conta_corrente.descricao.readable = Conta_corrente.descricao.writable =  False
 Conta_corrente.tipo.readable = Conta_corrente.tipo.writable = False
 Conta_corrente.dtpagamento.requires = data
 Conta_corrente.vlrecebimento.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Conta_corrente.vlpagamento.requires = IS_DECIMAL_IN_RANGE(dot=',')
+Conta_corrente.juros.requires = IS_DECIMAL_IN_RANGE(dot=',')
+Conta_corrente.desconto.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 Banco = db.define_table('banco',
 						Field('codigo', 'string',label = 'Numero',length=3, unique = True),
@@ -49,12 +53,12 @@ Cheques = db.define_table('cheques',
 						  Field('valor','decimal(7,2)',label='Valor'),
 						  Field('dtcheque','date',label='Bom para'),
                           Field('nome','string',label='Nome',length=100),
-						  Field('lotpag','integer'),
-						  Field('lotrec','integer')
+						  Field('lotrec','reference lote',),
+						  Field('lotpag','reference lote',),
 						  )
-Cheques.banco.requires = IS_IN_DB(db,'banco.codigo','%(nome)s')
+Cheques.banco.requires = IS_IN_DB(db,'banco.codigo','%(codigo)s')
 Cheques.id.readable = Cheques.id.writable = False
-Cheques.lotpag.readable = Cheques.lotpag.writable = False
 Cheques.lotrec.readable = Cheques.lotrec.writable = False
+Cheques.lotpag.readable = Cheques.lotpag.writable = False
 Cheques.dtcheque.requires = data
 Cheques.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')

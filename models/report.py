@@ -30,4 +30,4 @@ class Report(FPDF, HTMLMixin):
     def texto(self,w=2,texto='',margem=10,fonte='Times',size=10,tipo=''):
         self.set_x(margem)
         self.set_font(fonte, tipo, size)
-        self.write(w, texto.decode('UTF-8').encode('cp1252'))
+        #self.write(w, texto.decode('UTF-8').encode('cp1252'))

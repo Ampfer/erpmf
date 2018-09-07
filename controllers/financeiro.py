@@ -1,11 +1,11 @@
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def contas():
     formConta = SQLFORM.grid(Conta,
             csv=False,user_signature=False,details=False,
             )
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def conta_corrente():
     from datetime import datetime
     
@@ -33,8 +33,10 @@ def conta_corrente():
     
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def extrato():
+
+    Conta_corrente.descricao.readable = Conta_corrente.descricao.writable = True
     
     query = (Conta_corrente.conta == session.conta) & (Conta_corrente.dtpagamento >= session.datainicial) & (Conta_corrente.dtpagamento <= session.datafinal)
     query1 = (Conta_corrente.conta == session.conta) & (Conta_corrente.dtpagamento < session.datainicial)
@@ -51,17 +53,15 @@ def extrato():
         session.totrec = session.totrec + row.vlrecebimento
         session.totpag = session.totpag + row.vlpagamento
         return saldo
-    
-    fields = [Conta_corrente.dtpagamento, Conta_corrente.descricao,Conta_corrente.vlpagamento,Conta_corrente.vlrecebimento,Conta_corrente.tipo]          
-    form_conta = SQLFORM.grid(query,
-            formname="conta_corrente",field_id = Conta_corrente.id,
+
+    fields = [Conta_corrente.dtpagamento, Conta_corrente.descricao,Conta_corrente.vlrecebimento,Conta_corrente.vlpagamento,Conta_corrente.tipo]          
+    form_conta = grid(query,formname="conta_corrente",field_id = Conta_corrente.id,
             orderby=Conta_corrente.dtpagamento,deletable = False,editable = False,
-            details=False,create=False,searchable=False,csv=False,user_signature=False,
-            fields=fields,sortable=False,maxtextlength=50,
+            create=False,searchable=False,fields=fields,sortable=False,
             links = [dict(header='Saldo',body=lambda row:saldo(row)),
             lambda row: A(SPAN(_class="glyphicon glyphicon-pencil"),' Editar', _class="btn btn-default",_href='#',_onclick="show_modal('%s','Conta Corrente');" % URL('financeiro','conta_lancamento',args=[row.id,row.tipo])),
-                    lambda row: A(SPAN(_class="glyphicon glyphicon-trash"),' Excluir', _class="btn btn-default",_id='excluir',_onclick="return confirm('Deseja Excluir esse Lançamento ?');" ,_href=URL('financeiro','conta_corrente_delete',args=[row.id,row.tipo])) if row.tipo == "MAN" else " "
-                    ],
+            lambda row: A(SPAN(_class="glyphicon glyphicon-trash"),' Excluir', _class="btn btn-default",_id='excluir',_onclick="return confirm('Deseja Excluir esse Lançamento ?');" ,_href=URL('financeiro','conta_corrente_delete',args=[row.id,row.tipo])) if row.tipo == "MAN" else " "
+                      ],
             )
 
     novo =A(SPAN(_class="glyphicon glyphicon-plus"),' Novo', _class="btn btn-default", _id='novo')
@@ -74,18 +74,19 @@ def extrato():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def conta_lancamento():
     id_contacorrente = request.args(0) or "0"
     tipo = request.args(1) or "MAN"
-    Conta_corrente.lote.readable = Conta_corrente.writable = False
-    Conta_corrente.descricao.readable = Conta_corrente.descricao.writable = True
     Conta_corrente.conta.readable = Conta_corrente.conta.writable = False
+    Conta_corrente.descricao.readable = Conta_corrente.descricao.writable = True
     Conta_corrente.tipo.default = tipo
     Conta_corrente.conta.default = session.conta
     Conta_corrente.vlrecebimento.default = 0.00
     Conta_corrente.vlpagamento.default = 0.00
-    Conta_corrente.vlpagamento.lote = 0
+    Conta_corrente.desconto.default = 0.00
+    Conta_corrente.juros.default = 0.00
+    Conta_corrente.lote.default = None
 
     if id_contacorrente == "0":
         form = SQLFORM(Conta_corrente,field_id='id',_id='conta_lancamento')
@@ -105,7 +106,7 @@ def conta_lancamento():
 
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def conta_corrente_delete():
     id = request.args(0)
     tipo = request.args(1)
@@ -114,14 +115,14 @@ def conta_corrente_delete():
     redirect(URL('conta_corrente',vars=dict(conta = session.conta)))
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def banco():
     formBanco = SQLFORM.grid(Banco,
             csv=False,user_signature=False,details=False,maxtextlength=50,
             )
     return locals()
 
-@auth.requires_membership('admin')
+#@auth.requires_membership('admin')
 def cheques():
     formCheques = SQLFORM.grid(Cheques,
             csv=False,user_signature=False,details=False,maxtextlength=50,
