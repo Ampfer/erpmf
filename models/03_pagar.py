@@ -4,12 +4,14 @@ Pagar = db.define_table('pagar',
 	Field('documento','string',label='Documento:',length=30 ),
 	Field('demanda', 'reference demandas',label='Demanda'),
 	Field('emissao','date', label='Data:'),
+	Field('tipo','string',label='Tipo:',length=30 ),
 	Field('valor','decimal(7,2)',label='Valor:'),
 	Field('condicao','reference condicao', label='Condição de Pagamento:',ondelete = "SET NULL")
 	)
 Pagar.fornecedor.requires = IS_IN_DB(db,"fornecedores.id",'%(nome)s',zero='Escolha um Fornecedor')
 Pagar.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Pagar.emissao.requires = data
+Pagar.tipo.requires = IS_IN_SET(['Compra','Transferência','Devolução'],zero=None)
 Pagar.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
 Pagar.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(descricao)s'))
 

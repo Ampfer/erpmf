@@ -150,10 +150,11 @@ def pagar_parcelas():
 
     old_valor = request.post_vars.valor or "0"
 
-    pagar = db(Pagar.id==id_pagar).select(Pagar.valor,Pagar.condicao,Pagar.emissao).first()
+    pagar = db(Pagar.id==id_pagar).select(Pagar.valor,Pagar.condicao,Pagar.emissao,Pagar.tipo).first()
     pagar_valor = float(pagar[Pagar.valor])
     pagar_condicao = int(pagar[Pagar.condicao])
     pagar_emissao = pagar[Pagar.emissao]
+    pagar_tipo = pagar[Pagar.tipo]
     rows = db(Pagar_parcelas.pagar==id_pagar).select(Pagar_parcelas.valor.sum()).first()
     total_parcela = float(rows[Pagar_parcelas.valor.sum()] or 0) 
 
@@ -176,7 +177,7 @@ def pagar_parcelas():
             parcelas = dict(pagar = id_pagar,parcela=parcela_parcela,vencimento = pagar_emissao + timedelta(dia),valor=parcela_valor)
             Pagar_parcelas[0] = parcelas 
 
-    if total_parcela == 0:
+    if total_parcela == 0 and pagar_tipo != 'Transferência':
         gera_parcela(id_pagar,pagar_valor,pagar_condicao,pagar_emissao)
    
     Pagar_parcelas.pagar.default = id_pagar
