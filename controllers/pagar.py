@@ -879,12 +879,13 @@ def compraGeraPdf(id_compra):
 
     fornecedor = Compras[id_compra].fornecedor.nome
     condicao = '%s \n' %(Compras[id_compra].condicao.descricao)
-    endereco = '%s-%s-%s-%s' %(Compras[id_compra].demanda.endereco.endereco,
+    endereco = '%s - %s - %s - %s' %(Compras[id_compra].demanda.endereco.endereco,
                                Compras[id_compra].demanda.endereco.bairro,
                                Compras[id_compra].demanda.endereco.cidade,
                                Compras[id_compra].demanda.endereco.estado)
 
-    demanda = Compras[id_compra].demanda.nome
+    demanda = Compras[id_compra].demanda.descricao
+    print demanda
     obs = Compras[id_compra].obs
     insumos = db(ComprasInsumos.compra == id_compra).select()
 
@@ -896,18 +897,24 @@ def compraGeraPdf(id_compra):
             li=0
             pdf.add_page()
             # Dados do Pedido
-            # texto(self,w=2,texto='',margem=10,fonte='Times',size=10,tipo=''):
-            pdf.texto(3,'Fornecedor:',10,'Times',8,'B')
-            pdf.texto(3,'Condição de Pagamento:\n',150,'Times',8,'B')
-            pdf.texto(8,fornecedor,10,'Times',12,'')
-            pdf.texto(8,condicao,150,'Times',12,'')
-            pdf.texto(3,'Endereço de Entrega:',10,'Times',8,'B')
-            pdf.texto(3,'Obra:\n',150,'Times',8,'B')
-            pdf.texto(8,endereco,10,'Times',12,'')
-            pdf.texto(8, demanda, 150, 'Times', 12, '')
-
-            pdf.set_font('Arial', 'B', 10)
+            pdf.set_font('Times', 'B', 8)
+            pdf.cell(130, 8, "Fornecedor:".decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            pdf.cell(60, 8, "Condição de Pagamento:".decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            pdf.ln(5)
+            pdf.set_font('Times', '', 10)
+            pdf.cell(130, 8, fornecedor.decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            pdf.cell(60, 8, condicao.decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            pdf.ln(5)
+            pdf.set_font('Times', 'B', 8)
+            pdf.cell(130, 8, "Endereço:".decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            pdf.cell(60, 8, "Obra:".decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            pdf.ln(5)
+            pdf.set_font('Times', '', 10)
+            pdf.cell(130, 8, endereco.decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            pdf.cell(60, 8, demanda.decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+            
             pdf.ln(9)
+            pdf.set_font('Arial', 'B', 10)
             pdf.set_fill_color(192,192,192)
             pdf.cell(20, 8, "Código".decode('UTF-8').encode('cp1252'), 0, 0, 'C',True)
             pdf.cell(100, 8, "Descrição".decode('UTF-8').encode('cp1252'), 0, 0, 'C', True)
@@ -938,10 +945,11 @@ def compraGeraPdf(id_compra):
     pdf.cell(20, 8, moeda(totalPedido), 0, 1, 'R',True)
     if obs:
         pdf.ln(2)
-        pdf.texto(2, 'Observação:', 10, 'Times', 8, 'B')
-        pdf.ln(4)
+        pdf.set_font('Times', 'B', 8)
+        pdf.cell(130, 8, "Observação:".decode('UTF-8').encode('cp1252'), 0, 0, 'L',False)
+        pdf.ln(6)
         pdf.set_font('Times', '', 10)
-        pdf.multi_cell(190,4, obs.decode('UTF-8').encode('cp1252'), 1, 0, 'J',)
+        pdf.multi_cell(190,4, obs.decode('UTF-8').encode('cp1252'), 0, 0, 'J',)
 
     response.headers['Content-Type'] = 'application/pdf'
 
