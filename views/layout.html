@@ -26,6 +26,8 @@
     <link rel="apple-touch-icon" href="{{=URL('static','images/favicon.png')}}">
     <!-- All JavaScript at the bottom, except for Modernizr which enables
          HTML5 elements & feature detects -->
+    
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="{{=URL('static','js/modernizr-2.8.3.min.js')}}"></script>
     <!--[if lt IE 9]>
         <script src="{{=URL('static','js/respond-1.4.2.min.js')}}"></script>
@@ -78,8 +80,63 @@
       {{if left_sidebar_enabled:}}
         <div class="col-md-3 left-sidebar">
             {{block left_sidebar}}
-            <h3>Left Sidebar</h3>
-            <p></p>
+              <div class="nav-side-menu">
+                  <div class="brand">Brand Logo</div>
+                  <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+                
+                      <div class="menu-list">
+                
+                          <ul id="menu-content" class="menu-content collapse out">
+                              <li>
+                                <a href="#">
+                                <i class="fa fa-dashboard fa-lg"></i> Dashboard
+                                </a>
+                              </li>
+
+                              <li  data-toggle="collapse" data-target="#products" class="collapsed active">
+                                <a href="#"><i class="fa fa-gift fa-lg"></i> Engenharia <span class="arrow"></span></a>
+                              </li>
+                              <ul class="sub-menu collapse" id="products">
+                                  <li class="active"><a href="#">Demanda</a></li>
+                                  <li><a href="#">Orçamento</a></li>
+                                  <li><a href="#">Cronograma</a></li>
+                                  <li><a href="#">Medição</a></li>
+                                  <li><a href="#">Diário de Obras</a></li>
+                              </ul>
+
+                              <li data-toggle="collapse" data-target="#service" class="collapsed">
+                                <a href="#"><i class="fa fa-globe fa-lg"></i> Suprimentos<span class="arrow"></span></a>
+                              </li>  
+                              <ul class="sub-menu collapse" id="service">
+                                <li>Insumo</li>
+                                <li>Serviços</li>
+                                <li>Composição</li>
+                                <li>Pedido de Compra</li>
+                                <li>Entrada de NFs</li>
+                              </ul>
+
+
+                              <li data-toggle="collapse" data-target="#new" class="collapsed">
+                                <a href="#"><i class="fa fa-car fa-lg"></i> Financeiro <span class="arrow"></span></a>
+                              </li>
+                              <ul class="sub-menu collapse" id="new">
+                                <li>Contas a Pagar</li>
+                                <li>Contas a Receber</li>
+                              </ul>
+                               <li>
+                                <a href="#">
+                                <i class="fa fa-user fa-lg"></i> Relatórios
+                                </a>
+                                </li>
+
+                               <li>
+                                <a href="#">
+                                <i class="fa fa-users fa-lg"></i> Gerencial
+                                </a>
+                              </li>
+                          </ul>
+                   </div>
+              </div>
             {{end}}
         </div>
       {{pass}}
@@ -101,7 +158,8 @@
 
     </div>
 
-    {{block footer}} <!-- this is default footer -->      
+    {{block footer}} <!-- this is default footer -->  
+    <!--   
     <footer class="footer">
       <div class="container-fluid">
         <div class="copyright pull-left">{{=T('Copyright')}} &#169; {{=request.now.year}}</div>
@@ -111,6 +169,7 @@
           </div>
       </div>
     </footer>
+     --> 
     {{end}}
     <!-- The javascript =============================== -->
     <script src="{{=URL('static','js/bootstrap.min.js')}}"></script>

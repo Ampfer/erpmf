@@ -273,13 +273,13 @@ def demanda():
 
         formDespesas = LOAD(c='cadastro', f='demandaDespesas', content='Aguarde, carregando...',
                            target='demandaDespesas', ajax=True, args=idDemanda)
-        '''
+        
         formInsumos = LOAD(c='cadastro', f='demandaInsumos', content='Aguarde, carregando...',
                            target='demandaInsumos', ajax=True, args=idDemanda)
         formAbc = LOAD(c='cadastro', f='demandaAbc', content='Aguarde, carregando...',
                            target='demandaAbc', ajax=True, args=idDemanda)
-        '''           
-        formInsumos = formAbc = ''                 
+                   
+        #formAbc = ''                 
         btnExcluir = excluir("#")
         btnNovo = novo("demanda")
 
@@ -389,7 +389,7 @@ def demandaInsumos():
         response.flash = 'Erro no Formulário'
 
 
-    rows = db(PagarInsumos.demanda==idDemanda).select(PagarInsumos.insumo.with_alias('insumo'),
+    rows = db(q).select(PagarInsumos.insumo.with_alias('insumo'),
                                                  PagarInsumos.unidade.with_alias('un'),
                                                  PagarInsumos.quantidade.with_alias('qtde'),
                                                  PagarInsumos.preco.with_alias('preco'),
@@ -455,7 +455,7 @@ def demandaAbc():
         sum1 = (PagarInsumos.quantidade * PagarInsumos.preco - PagarInsumos.desconto).sum()
         if abc == 'INSUMO':
             groupby=PagarInsumos.insumo
-            query = (PagarInsumos.demanda == idDemanda) & (PagarInsumos.insumo == Insumo.id)
+            query = (PagarInsumos.pagar == Pagar.id) & (Pagar.demanda==idDemanda) & (PagarInsumos.insumo == Insumo.id)
             xdesc = 'Insumo[row.pagarInsumos.insumo].descricao'
             if tipo != None:
                 query = query & (Insumo.tipo==tipo)
