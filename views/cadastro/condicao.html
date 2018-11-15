@@ -1,49 +1,39 @@
-{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{left_sidebar_enabled=True,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
 <div class="container">
+    <div class="page-header text-info">
+        <h1>CONDIÇÃO <small>Condição de Pagamento</small></h1>
+    </div>
+
     {{if formCondicao.create_form or formCondicao.update_form:}}
         {{=formCondicao[1].custom.begin}}
-        <div class="panel panel-info">
-            <div class="panel-heading"><h4>Condição de Pagamento</h4></div>
-            <div class="panel-body">
-                <div class="well">
-                    <div class="row">
-                        <div class="col-md-6">
-                            {{=formCondicao[1].custom.label.descricao}}
-                            {{=formCondicao[1].custom.widget.descricao}}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p></p>
-                            {{=formCondicao[1].custom.label.dias}}
-                            {{=formCondicao[1].custom.widget.dias}}
-                        </div>
-                    </div>
-                </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                {{=formCondicao[1].custom.label.descricao}}
+                {{=formCondicao[1].custom.widget.descricao}}
+                
             </div>
         </div>
-        <div class="panel panel-info">
-            <div class="panel-body">
-                <div class="right">
-                    {{=formCondicao[1].custom.submit}}
-                    {{=voltar('condicao')}}
-                    {{if formCondicao.update_form:}}
-                        {{=novo('condicao/new/condicao')}}
-                        {{=excluir('#')}}
-                    {{pass}}
-                </div>
+        <p></p>
+        <div class="row">
+            <div class="col-md-6">        
+                {{=formCondicao[1].custom.label.dias}}
+                {{=formCondicao[1].custom.widget.dias}}
             </div>
+        </div>
+        <hr>
+        <div class="btn-group btn-group-sm" role="group">  
+            {{=formCondicao[1].custom.submit}}
+            {{=voltar('condicao')}}
+            {{if formCondicao.update_form:}}
+                {{=novo('condicao/new/condicao')}}
+                {{=excluir('#')}}
+            {{pass}}
         </div>
         {{=formCondicao[1].custom.end}}
     {{else:}}
-        <div class="panel panel-info">
-            <div class="panel-heading"><h4>Condição de Pagamento</h4></div>
-                <div class="panel-body">
-                    {{=formCondicao}}
-                </div>
-            </div>
-        </div>
+        {{=formCondicao}}
     {{pass}}
 </div>
 

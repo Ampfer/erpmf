@@ -1,12 +1,10 @@
-{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{left_sidebar_enabled=True,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
+<div class="page-header text-info">
+	<h1>CLIENTES <small>Lista de Clientes</small></h1>
+</div>
 <div class="container">
-    <div class="panel panel-info">
-        <div class="panel-heading"><h4>Clientes</h4></div>
-            <div class="panel-body">
-                {{=form}}
-            </div>
-        </div>
-    </div>
+	{{=form}}
+	<hr>
 </div>
 

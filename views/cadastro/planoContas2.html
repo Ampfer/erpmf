@@ -1,22 +1,26 @@
-<div class="well">
-    {{if formPc2.create_form or formPc2.update_form:}}
-        {{=formPc2[1].custom.begin}}
-        <div class="row">
-            <div class="col-md-6">
-                {{=formPc2[1].custom.label.nivel1}}
-                {{=formPc2[1].custom.widget.nivel1}}
-            </div>  
-            <div class="col-md-6">
-                {{=formPc2[1].custom.label.conta}}
-                {{=formPc2[1].custom.widget.conta}}
-            </div>  
-        </div> 
-        <div class="right" style="margin-top: 30PX; ">
-            {{=formPc2[1].custom.submit}}
-            {{=voltar1('planocontas2')}}
-        </div>
-        {{=formPc2[1].custom.end}}
-    {{else:}}
-        {{=formPc2}}
-    {{pass}}
-</div>
+
+{{if formPc2.create_form or formPc2.update_form:}}
+    {{=formPc2[1].custom.begin}}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+            {{=formPc2[1].custom.label.nivel1}}
+            {{=formPc2[1].custom.widget.nivel1}}
+            </div>
+        </div>  
+        <div class="col-md-6">
+            <div class="form-group">
+            {{=formPc2[1].custom.label.conta}}
+            {{=formPc2[1].custom.widget.conta}}
+            </div>
+        </div>  
+    </div> 
+    <hr>
+    <div class="btn-group btn-group-sm" role="group">  
+        {{=formPc2[1].custom.submit}}
+        {{=voltar1('planocontas2')}}
+    </div>
+    {{=formPc2[1].custom.end}}
+{{else:}}
+    {{=formPc2}}
+{{pass}}

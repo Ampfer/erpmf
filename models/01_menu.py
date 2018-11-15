@@ -61,7 +61,7 @@ response.menu+=[
     ('Conta Corrente', False, URL(r=request, c='financeiro', f='conta_corrente')),
     ])]
 response.menu+=[
-    (T('Obra'), False, URL(request.application,'default','index'), [
+    (T('Engenharia'), False, URL(request.application,'default','index'), [
     ('Etapas', False, URL(r=request, c='obra', f='etapas')),
     ('Atividades', False, URL(r=request, c='obra', f='atividades')),
     ('Composição', False, URL(r=request, c='obra', f='composicao')),

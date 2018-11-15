@@ -1,33 +1,41 @@
-<div class="well">
-    {{if formPc3.create_form or formPc3.update_form:}}
-        {{=formPc3[1].custom.begin}}
-        <div class="row">
-            <div class="col-md-4">
-                {{=formPc3[1].custom.label.nivel1}}
-                {{=formPc3[1].custom.widget.nivel1}}
-            </div>  
-            <div class="col-md-4">
-                {{=formPc3[1].custom.label.nivel2}}
-                {{=formPc3[1].custom.widget.nivel2}}
-            </div> 
-            <div class="col-md-4">
-                {{=formPc3[1].custom.label.conta}}
-                {{=formPc3[1].custom.widget.conta}}
-            </div>   
+
+{{if formPc3.create_form or formPc3.update_form:}}
+    {{=formPc3[1].custom.begin}}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+            {{=formPc3[1].custom.label.nivel1}}
+            {{=formPc3[1].custom.widget.nivel1}}
+            </div>
+        </div>  
+        <div class="col-md-4">
+            <div class="form-group">
+            {{=formPc3[1].custom.label.nivel2}}
+            {{=formPc3[1].custom.widget.nivel2}}
+            </div>
         </div> 
-        <div class="row">
-            <p></p>
-            <div class="col-md-4">
-                {{=formPc3[1].custom.label.despesa}}
-                {{=formPc3[1].custom.widget.despesa}}
-            </div>   
+        <div class="col-md-4">
+            <div class="form-group">
+            {{=formPc3[1].custom.label.conta}}
+            {{=formPc3[1].custom.widget.conta}}
+            </div>
         </div>   
-        <div class="right" style="margin-top: 30PX; ">
-            {{=formPc3[1].custom.submit}}
-            {{=voltar1('planocontas3')}}
-        </div>    
-        {{=formPc3[1].custom.end}}
-    {{else:}}
-        {{=formPc3}}
-    {{pass}}
-</div>
+    </div> 
+    <div class="row">
+        <p></p>
+        <div class="col-md-4">
+            <div class="form-group">
+            {{=formPc3[1].custom.label.despesa}}
+            {{=formPc3[1].custom.widget.despesa}}
+            </div>
+        </div>   
+    </div>   
+    <hr>
+    <div class="btn-group btn-group-sm" role="group">  
+        {{=formPc3[1].custom.submit}}
+        {{=voltar1('planocontas3')}}
+    </div>    
+    {{=formPc3[1].custom.end}}
+{{else:}}
+    {{=formPc3}}
+{{pass}}

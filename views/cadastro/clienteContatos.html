@@ -1,46 +1,51 @@
 {{if formContatos.create_form or formContatos.update_form:}}
     {{=formContatos[1].custom.begin}}
-    <div class="well">
-        <div class="row">
+    <div class="row">
             <div class="col-md-4">
-                {{=formContatos[1].custom.label.departamento}}
-                {{=formContatos[1].custom.widget.departamento}}
+                <div class="form-group">
+                    {{=formContatos[1].custom.label.departamento}}
+                    {{=formContatos[1].custom.widget.departamento}}
+                </div>
             </div>
             <div class="col-md-8">
-                {{=formContatos[1].custom.label.nome}}
-                {{=formContatos[1].custom.widget.nome}}
+                <div class="form-group">
+                    {{=formContatos[1].custom.label.nome}}
+                    {{=formContatos[1].custom.widget.nome}}
+                </div>
             </div>
         </div>
-        <div class="row">
-            <p></p>
-            <div class="col-md-3">
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
                 {{=formContatos[1].custom.label.fone}}
                 {{=formContatos[1].custom.widget.fone}}
             </div>
-            <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
                 {{=formContatos[1].custom.label.celular}}
                 {{=formContatos[1].custom.widget.celular}}
-            </div>
-            <div class="col-md-6">
+            </div>   
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
                 {{=formContatos[1].custom.label.email}}
                 {{=formContatos[1].custom.widget.email}}
-            </div>
-        </div>
+            </div>   
+        </div>   
     </div>
-    <div class="panel panel-info">
-        <div class="panel-body">
-            <div class="right">
-                {{=formContatos[1].custom.submit}}
-                {{=btnVoltar}}
-                {{=btnExcluir}}
-            </div>
+
+        <hr>
+        <div class="btn-group btn-group-sm" role="group">  
+            {{=formContatos[1].custom.submit}}
+            {{=btnVoltar}}
+            {{=btnExcluir}}
         </div>
-    </div>
+
     {{=formContatos[1].custom.end}}
 {{else:}}
-    <div class="well">
-        {{=formContatos}}
-    </div>
+    {{=formContatos}}
 {{pass}}
 
 <script type="text/javascript">

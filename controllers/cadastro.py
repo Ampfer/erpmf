@@ -15,8 +15,6 @@ def teste():
 def clientes():
     fields = (Clientes.id,Clientes.nome)
     form = grid(Clientes,formname="clientes",fields=fields)
-            
-    form = DIV(form, _class="well")
 
     if request.args(-2) == 'new':
        redirect(URL('cliente'))

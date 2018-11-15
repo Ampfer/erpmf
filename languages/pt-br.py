@@ -165,6 +165,7 @@
 'Encanador:': 'Encanador:',
 'Endereco': 'Endereco',
 'Endereço:': 'Endereço:',
+'Engenharia': 'Engenharia',
 'Enter a number': 'Enter a number',
 'Enter a number between %(min)g and %(max)g': 'Enter a number between %(min)g and %(max)g',
 'Enter a value': 'Enter a value',

@@ -40,7 +40,7 @@
     mc0 = 'col-md-12'
     mc1 = 'col-md-9'
     mc2 = 'col-md-6'
-    left_sidebar_enabled = globals().get('left_sidebar_enabled', False)
+    left_sidebar_enabled = globals().get('left_sidebar_enabled', True)
     right_sidebar_enabled = globals().get('right_sidebar_enabled', False)
     middle_column = {0: mc0, 1: mc1, 2: mc2}[
     (left_sidebar_enabled and 1 or 0)+(right_sidebar_enabled and 1 or 0)]
@@ -71,6 +71,7 @@
         </div>
       </div>
     </nav>
+    {{print response.menu[3]}}
     <!-- Masthead ===================================== -->    
     {{block header}}
     {{end}}
@@ -78,62 +79,24 @@
     <!-- Begin page content -->
     <div class="container-fluid main-container">
       {{if left_sidebar_enabled:}}
-        <div class="col-md-3 left-sidebar">
+        <div class="col-md-2 left-sidebar">
             {{block left_sidebar}}
               <div class="nav-side-menu">
-                  <div class="brand">Brand Logo</div>
+                  <div class="brand">M&F Engenahria</div>
                   <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
-                
                       <div class="menu-list">
-                
                           <ul id="menu-content" class="menu-content collapse out">
-                              <li>
-                                <a href="#">
-                                <i class="fa fa-dashboard fa-lg"></i> Dashboard
-                                </a>
-                              </li>
-
-                              <li  data-toggle="collapse" data-target="#products" class="collapsed active">
-                                <a href="#"><i class="fa fa-gift fa-lg"></i> Engenharia <span class="arrow"></span></a>
-                              </li>
-                              <ul class="sub-menu collapse" id="products">
-                                  <li class="active"><a href="#">Demanda</a></li>
-                                  <li><a href="#">Orçamento</a></li>
-                                  <li><a href="#">Cronograma</a></li>
-                                  <li><a href="#">Medição</a></li>
-                                  <li><a href="#">Diário de Obras</a></li>
-                              </ul>
-
-                              <li data-toggle="collapse" data-target="#service" class="collapsed">
-                                <a href="#"><i class="fa fa-globe fa-lg"></i> Suprimentos<span class="arrow"></span></a>
-                              </li>  
-                              <ul class="sub-menu collapse" id="service">
-                                <li>Insumo</li>
-                                <li>Serviços</li>
-                                <li>Composição</li>
-                                <li>Pedido de Compra</li>
-                                <li>Entrada de NFs</li>
-                              </ul>
-
-
-                              <li data-toggle="collapse" data-target="#new" class="collapsed">
-                                <a href="#"><i class="fa fa-car fa-lg"></i> Financeiro <span class="arrow"></span></a>
-                              </li>
-                              <ul class="sub-menu collapse" id="new">
-                                <li>Contas a Pagar</li>
-                                <li>Contas a Receber</li>
-                              </ul>
-                               <li>
-                                <a href="#">
-                                <i class="fa fa-user fa-lg"></i> Relatórios
-                                </a>
+                              {{for item in response.menu:}}
+                                <li  data-toggle="collapse" data-target="#{{=item[0].replace(' ','')}}" class="collapsed">
+                                  <a href="#">{{=item[0]}} <span class="{{='arrow' if item[3] else ''}}"></span></a>
                                 </li>
-
-                               <li>
-                                <a href="#">
-                                <i class="fa fa-users fa-lg"></i> Gerencial
-                                </a>
-                              </li>
+                                
+                                <ul class="sub-menu collapse" id="{{=item[0].replace(' ','')}}">
+                                    {{for subitem in item[3]:}}
+                                      <li><a href="{{=subitem[2]}}">{{=subitem[0]}}</a></li>
+                                    {{pass}}
+                                </ul>               
+                              {{pass}}
                           </ul>
                    </div>
               </div>

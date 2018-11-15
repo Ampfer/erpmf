@@ -1,22 +1,26 @@
-<div class="well">
-    {{=form_pesq.custom.begin}}
-    <div class="row">
-        <div class="col-md-3">
-            {{=form_pesq.custom.label.dtinicial}}
-            {{=form_pesq.custom.widget.dtinicial}}
-        </div>
-        <div class="col-md-3">
-            {{=form_pesq.custom.label.dtfinal}}
-            {{=form_pesq.custom.widget.dtfinal}}
-        </div>
-        <div class="col-md-3">
-            <h3></h3>
-            {{=form_pesq.custom.submit}}
+
+{{=form_pesq.custom.begin}}
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+        {{=form_pesq.custom.label.dtinicial}}
+        {{=form_pesq.custom.widget.dtinicial}}
         </div>
     </div>
-    {{=form_pesq.custom.end}}
-    {{=insumos}}
+    <div class="col-md-3">
+        <div class="form-group">
+        {{=form_pesq.custom.label.dtfinal}}
+        {{=form_pesq.custom.widget.dtfinal}}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <h3></h3>
+        {{=form_pesq.custom.submit}}
+    </div>
 </div>
+{{=form_pesq.custom.end}}
+{{=insumos}}
+
 
 <script>
 $(document).ready(function(){
