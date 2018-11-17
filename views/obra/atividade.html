@@ -1,47 +1,25 @@
 {{extend 'layout.html'}}
 <div class="container">
-    <div class="panel panel-info">
-        <div class="panel-heading"><h6>Cadastro de Atividades</h6></div>
-        <div class="panel-body">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#home">Atividade</a></li>
-                <li><a data-toggle="tab" href="#menu1">Itens</a></li>
-            </ul>
-            <div class="tab-content">
-                <div id="home" class="tab-pane fade in active">
-                        {{=formAtividade.custom.begin}}
-                        <div class="well">
-                            <div class="row">
-                                <div class="col-md-7">
-                                    {{=formAtividade.custom.label.atividade}}
-                                    {{=formAtividade.custom.widget.atividade}}
-                                </div>
-                                <div class="col-md-3">
-                                    {{=formAtividade.custom.label.etapa}}
-                                    {{=formAtividade.custom.widget.etapa}}
-                                </div>
-                                <div class="col-md-2">
-                                    {{=formAtividade.custom.label.unidade}}
-                                    {{=formAtividade.custom.widget.unidade}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-info">
-                            <div class="panel-body">
-                                <div class="right">
-                                    {{=formAtividade.custom.submit}}
-                                    {{=btnNovo}}
-                                    {{=btnVoltar}}
-                                    {{=btnExcluir}}
-                                </div>
-                            </div>
-                        </div>
-                        {{=formAtividade.custom.end}}
-                </div>
-                <div id="menu1" class="tab-pane fade">
-                    {{=loadItens}}
-                </div>
+    {{=titulo("TAREFAS ","Cadastro de Tarefas",btnNovo,btnVoltar)}}
+
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#home">Atividade</a></li>
+        <li><a data-toggle="tab" href="#menu1">Itens</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+            {{=formAtividade.custom.begin}}
+            <div class="row">
+                {{=campo(7,formAtividade.custom.label.atividade,formAtividade.custom.widget.atividade)}}
+                {{=campo(3,formAtividade.custom.label.etapa,formAtividade.custom.widget.etapa)}}
+                {{=campo(2,formAtividade.custom.label.unidade,formAtividade.custom.widget.unidade)}}
             </div>
+            <hr>
+            {{=btnRodape(formAtividade.custom.submit,btnExcluir)}}
+            {{=formAtividade.custom.end}}
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            {{=loadItens}}
         </div>
     </div>
 </div>

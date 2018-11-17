@@ -3,7 +3,6 @@
 notempty=IS_NOT_EMPTY(error_message='Campo Obrigatório')
 TipoPessoa = ('Física','Juridica')
 TipoEndereco = ('Faturamento','Obra')
-TipoDemanda = ('Construção','Reforma','Projeto','Cronograma', 'Estoque')
 Departamentos = ('Vendas','Compras','Financeiro')
 Estados = {'SP':'São Paulo','RJ':'Rio de Janeiro','MG':'Minas Gerais','RS':'Rio Grande do Sul','SC':'Santa Catarina','PR':'Paraná'}
 TipoInsumos = {'Material':'MT-Marerial','Mão de Obra':'MO-Mão de Obra','Equipamentos':'EQ-Equipamentos','Documentação':'DC-Documentação'}
@@ -146,18 +145,6 @@ PlanoContas3 = db.define_table('plano_contas3',
 						)
 #PlanoContas3.nivel1.requires = IS_IN_DB(db,'plano_contas1','%(conta)s',zero=None)
 #PlanoContas3.nivel2.requires = IS_IN_DB(db,'plano_contas2','%(conta)s',zero=None)
-
-Demandas = db.define_table('demandas',
-	Field('codigo','string',label = "Código:",length=9),
-    Field('descricao','string',label='Descrição:',length=60),
-    Field('cliente','reference clientes'),
-    Field('endereco','reference enderecos',ondelete = "SET NULL"),
-    Field('tipo','string',label = "Tipo de Demanda:",length=30),
-    format='%(descricao)s'
-    )
-Demandas.cliente.requires = IS_IN_DB(db,"clientes.id",'%(nome)s')
-Demandas.endereco.requires = IS_EMPTY_OR(IS_IN_DB(db,"enderecos.id",'%(endereco)s - %(bairro)s - %(cidade)s - %(estado)s '))
-Demandas.tipo.requires = IS_IN_SET(TipoDemanda,zero=None)
 
 TipoInsumo = db.define_table('tipoInsumo',
                              Field('descricao','string',label='Descrição', length = 30,unique=True),

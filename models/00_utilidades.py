@@ -30,7 +30,7 @@ def adicionar(controle,funcao,titulo):
     _onclick="show_modal('%s','%s');" %(URL(controle,funcao,vars={'reload_div':'map'}),titulo))
 def atualizar(funcao,titulo,target):
     return A(SPAN(_class="glyphicon glyphicon-refresh"),titulo,_class="btn btn-default",_id='adcionar',
-    _href='#', _onclick="ajax('%s',[],'%s');" % (URL(funcao, args=request.args(0)),target))
+    _href='#', _onclick="ajax('%s',[],'%s');" % (URL(funcao, args=request.args(0)),target))      
 
 def grid(query,maxtextlength=50,pag=100,alt='400px',**kwargs):
     
@@ -48,6 +48,20 @@ def grid(query,maxtextlength=50,pag=100,alt='400px',**kwargs):
         pass   
     
     return grid
+
+def titulo(titulo,subTitulo,*args):
+    subTitulo = '<small>%s</small>' %(subTitulo)
+    btn = DIV(args,_class="btn-group btn-group-xs",_role = 'group') if args else ''
+    return DIV(H1(titulo,XML(subTitulo)),btn,_class='page-header text-info') 
+
+def btnRodape(*args):
+    return DIV(args,_class="btn-group btn-group-sm",_role = 'group')
+
+def campo(col,label,widget):
+    coluna = 'col-md-%s' %(col)  
+    div1 = DIV(label,widget,_class='form-group')
+    response = DIV(div1,_class=coluna)
+    return response
 
 def lista_arquivos_imagem(caminho):
     """
