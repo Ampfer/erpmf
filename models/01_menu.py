@@ -69,7 +69,13 @@ response.menu+=[
     ('Insumo', False, URL(r=request, c='obra', f='insumos')),
     ('Obras', False, URL(r=request, c='obra', f='obras')),
     ])]
-
+response.menu+=[
+    (T('Relatórios'), False, URL(request.application,'default','index'), [
+    ('Curva ABC', False, URL(r=request, c='relatorios', f='curva')),    
+    ('Insumos', False, URL(r=request, c='relatorios', f='insumos')),
+    ('Despesas', False, URL(r=request, c='relatorios', f='despesas')),
+    ])]
+    
 DEVELOPMENT_MENU = True
 
 if "auth" in locals(): auth.wikimenu() 
