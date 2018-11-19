@@ -40,11 +40,13 @@
     mc0 = 'col-md-12'
     mc1 = 'col-md-9'
     mc2 = 'col-md-6'
-    left_sidebar_enabled = globals().get('left_sidebar_enabled', True)
+    left_sidebar_enabled = globals().get('left_sidebar_enabled', False)
     right_sidebar_enabled = globals().get('right_sidebar_enabled', False)
     middle_column = {0: mc0, 1: mc1, 2: mc2}[
     (left_sidebar_enabled and 1 or 0)+(right_sidebar_enabled and 1 or 0)]
+    print middle_column
     }}
+  
   </head>
   <body>
     <!--[if lt IE 8]><p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
@@ -71,7 +73,7 @@
         </div>
       </div>
     </nav>
-    {{print response.menu[3]}}
+    
     <!-- Masthead ===================================== -->    
     {{block header}}
     {{end}}
@@ -79,28 +81,28 @@
     <!-- Begin page content -->
     <div class="container-fluid main-container">
       {{if left_sidebar_enabled:}}
-        <div class="col-md-2 left-sidebar">
-            {{block left_sidebar}}
-              <div class="nav-side-menu">
-                  <div class="brand">M&F Engenahria</div>
-                  <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
-                      <div class="menu-list">
-                          <ul id="menu-content" class="menu-content collapse out">
-                              {{for item in response.menu:}}
-                                <li  data-toggle="collapse" data-target="#{{=item[0].replace(' ','')}}" class="collapsed">
-                                  <a href="#">{{=item[0]}} <span class="{{='arrow' if item[3] else ''}}"></span></a>
-                                </li>
-                                
-                                <ul class="sub-menu collapse" id="{{=item[0].replace(' ','')}}">
-                                    {{for subitem in item[3]:}}
-                                      <li><a href="{{=subitem[2]}}">{{=subitem[0]}}</a></li>
-                                    {{pass}}
-                                </ul>               
-                              {{pass}}
-                          </ul>
-                   </div>
+        <div class="col-md-3 left-sidebar">
+          {{block left_sidebar}}
+          <div class="nav-side-menu">
+            <div class="brand">M&F Engenahria</div>
+              <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+              <div class="menu-list">
+                <ul id="menu-content" class="menu-content collapse out">
+                  {{for item in response.menu:}}
+                    <li  data-toggle="collapse" data-target="#{{=item[0].replace(' ','')}}" class="collapsed">
+                      <a href="#">{{=item[0]}} <span class="{{='arrow' if item[3] else ''}}"></span></a>
+                    </li>
+                    <ul class="sub-menu collapse" id="{{=item[0].replace(' ','')}}">
+                      {{for subitem in item[3]:}}
+                        <li><a href="{{=subitem[2]}}">{{=subitem[0]}}</a></li>
+                      {{pass}}
+                    </ul>               
+                  {{pass}}
+                </ul>
               </div>
-            {{end}}
+            </div>
+          </div>
+          {{end}}
         </div>
       {{pass}}
 
