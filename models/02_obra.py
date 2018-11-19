@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+
+TipoDemanda = ('Construção','Reforma','Projeto','Cronograma', 'Estoque')
 Tempo = ('Sol','Nublado','Chuva')
 from decimal import *
 
 Etapas = db.define_table('etapas',
     Field('etapa','string',label='Descrição:',length=30),
     Field('item','string',label='Item:',length=02),
+    Field('tarefas','list:reference atividades', label='Tarefas:'),
     format='%(item)s - %(etapa)s'
     )
 Etapas.etapa.requires = IS_UPPER()
+Etapas.tarefas.requires = IS_IN_DB(db,"atividades.id",'%(atividade)s',multiple=True)
 
 def buscaEtapa(id):
     if not id:
@@ -19,6 +23,19 @@ def buscaEtapa(id):
     if not etapa:
         raise HTTP(404, 'Etapa não encontrado')
     return etapa
+
+Demandas = db.define_table('demandas',
+    Field('codigo','string',label = "Código:",length=9),
+    Field('descricao','string',label='Descrição:',length=60),
+    Field('cliente','reference clientes'),
+    Field('endereco','reference enderecos',ondelete = "SET NULL"),
+    Field('tipo','string',label = "Tipo de Demanda:",length=30),
+    format='%(descricao)s'
+    )
+Demandas.cliente.requires = IS_IN_DB(db,"clientes.id",'%(nome)s')
+Demandas.endereco.requires = IS_EMPTY_OR(IS_IN_DB(db,"enderecos.id",'%(endereco)s - %(bairro)s - %(cidade)s - %(estado)s '))
+Demandas.tipo.requires = IS_IN_SET(TipoDemanda,zero=None)
+
 
 def valorComposicao(id,tipo=[]):
     idComposicao = int(id)

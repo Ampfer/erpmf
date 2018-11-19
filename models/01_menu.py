@@ -62,14 +62,20 @@ response.menu+=[
     ])]
 response.menu+=[
     (T('Engenharia'), False, URL(request.application,'default','index'), [
+    ('Demandas', False, URL(r=request, c='obra', f='demandas')),    
     ('Etapas', False, URL(r=request, c='obra', f='etapas')),
-    ('Atividades', False, URL(r=request, c='obra', f='atividades')),
+    ('Tarefas', False, URL(r=request, c='obra', f='atividades')),
     ('Composição', False, URL(r=request, c='obra', f='composicao')),
     ('Insumo', False, URL(r=request, c='obra', f='insumos')),
     ('Obras', False, URL(r=request, c='obra', f='obras')),
-    ('Orçamentos', False, URL(r=request, c='obra', f='orcamentos')),    
     ])]
-
+response.menu+=[
+    (T('Relatórios'), False, URL(request.application,'default','index'), [
+    ('Curva ABC', False, URL(r=request, c='relatorios', f='curva')),    
+    ('Insumos', False, URL(r=request, c='relatorios', f='insumos')),
+    ('Despesas', False, URL(r=request, c='relatorios', f='despesas')),
+    ])]
+    
 DEVELOPMENT_MENU = True
 
 if "auth" in locals(): auth.wikimenu() 
