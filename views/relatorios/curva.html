@@ -19,7 +19,7 @@
             {{=form_pesq.custom.end}}
         </div>
         <div id="menu1" class="tab-pane fade">
-            {{=curvaabc}}
+            
         </div>
     </div>
 </div>
@@ -39,9 +39,7 @@ $(document).ready(function(){
     jQuery('form').submit(function() {
         $('.nav li.active').next('li').removeClass('disabled');
         $('.nav li.active').next('li').find('a').attr("data-toggle","tab").trigger("click");
-        alert('ss')
-        ajax('{{=URL('gerar_abc')}}',
-        ['idDemanda','abc','tipo'], 'menu1');
+        ajax('{{=URL('gerar_abc')}}',['demanda','abc','tipo'],'menu1');
         return false;
     });
     
@@ -56,8 +54,8 @@ $(document).ready(function(){
         /*
         $('.nav li.active').next('li').removeClass('disabled');
         $('.nav li.active').next('li').find('a').attr("data-toggle","tab").trigger("click");
-        */
-    });
+       
+    }); */
 });
 
 </script>

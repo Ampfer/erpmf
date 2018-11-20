@@ -1,16 +1,11 @@
+# -*- coding: utf-8 -*-
+
 def curva():
 
-    idDemanda = request.vars.demanda if request.vars.demanda else None
-    abc = request.vars.abc if request.vars.abc else ''
-    tipo = request.vars.tipo if request.vars.tipo else None
-    #response.js = "$('.nav li.active').next('li').removeClass('disabled');$('.nav li.active').next('li').find('a').attr('data-toggle','tab').trigger('click');"
-    curvaabc = 'jhjh'
-    query = []
-
     form_pesq = SQLFORM.factory(
-        Field('demanda','integer',default=idDemanda,requires=IS_EMPTY_OR(IS_IN_DB(db,'demandas.id','%(codigo)s - %(descricao)s',zero='TODAS')),label='Demanda'),
-        Field('abc', default=abc, requires=IS_IN_SET(['INSUMO','FORNECEDOR'], zero=None),label='Curva ABC'),
-        Field('tipo',default=tipo, requires=IS_EMPTY_OR(IS_IN_DB(db,'tipoInsumo.descricao','%(descricao)s',zero='TODOS')),label='Tipo Insumo'),
+        Field('demanda','integer',requires=IS_EMPTY_OR(IS_IN_DB(db,'demandas.id','%(codigo)s - %(descricao)s',zero='TODAS')),label='Demanda'),
+        Field('abc',requires=IS_IN_SET(['INSUMO','FORNECEDOR'], zero=None),label='Curva ABC'),
+        Field('tipo',requires=IS_EMPTY_OR(IS_IN_DB(db,'tipoInsumo.descricao','%(descricao)s',zero='TODOS')),label='Tipo Insumo'),
         table_name='pesquisar',
         submit_button='Gerar',
         keepvalues = True,
@@ -20,17 +15,14 @@ def curva():
         idDemanda = form_pesq.vars.demanda
         abc = form_pesq.vars.abc
         tipo = form_pesq.vars.tipo
-        #curvaabc = gerar_abc(idDemanda,abc,tipo)       
-
+        
     elif form_pesq.errors:
         response.flash = 'Erro no Formulário'
 
-    #curvaabc = LOAD(c='relatorios', f='gerar_abc', content='Aguarde, carregando...',
-    #                       target='curvaabc', ajax=True, vars=dict(idDemanda=idDemanda,abc=abc,tipo=tipo))
     return locals()
 
 def gerar_abc():
-    idDemanda = request.vars.idDemanda
+    idDemanda = request.vars.demanda
     abc = request.vars.abc
     tipo = request.vars.tipo
     Relatorio.truncate()
@@ -40,16 +32,16 @@ def gerar_abc():
         groupby=PagarInsumos.insumo
         query = (PagarInsumos.pagar == Pagar.id) & (PagarInsumos.insumo == Insumo.id)
         xdesc = 'Insumo[row.pagarInsumos.insumo].descricao'
-        if idDemanda != None:
+        if idDemanda != '':
             query = query & (Pagar.demanda==idDemanda)
-        if tipo != None:
+        if tipo != '':
             query = query & (Insumo.tipo==tipo)
 
     elif abc == 'FORNECEDOR':
         sum = Pagar.valor.sum()
         sum1 = Pagar.valor.sum()
         groupby = Pagar.fornecedor
-        query = (Pagar.demanda==idDemanda) if idDemanda != None else (Pagar.id > 0)
+        query = (Pagar.demanda==idDemanda) if idDemanda != '' else (Pagar.id > 0)
         xdesc = 'Fornecedores[row.pagar.fornecedor].nome'
 
     if query:
