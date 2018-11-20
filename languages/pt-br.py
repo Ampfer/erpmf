@@ -201,6 +201,7 @@
 'Group uniquely assigned to user %(id)s': 'Group uniquely assigned to user %(id)s',
 'Groups': 'Grupos',
 'Hello World': 'Olá Mundo',
+'Histórico de Insumos': 'Histórico de Insumos',
 'Home': 'Principal',
 'How did you get here?': 'Como você chegou aqui?',
 'HTML': 'HTML',

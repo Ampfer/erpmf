@@ -1,0 +1,38 @@
+<table id="insumos" class="display" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+        	<th>Data</th>
+        	<th>Código</th>
+        	<th>Insumo</th>
+        	<th class="text-center">Unidade</th>
+        	<th class="text-right">Quantidade</th>
+			<th class="text-right">Custo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for r in insumos:}}
+        <tr>	
+            <td>{{=r.emissao}}</td>
+            <td>{{=r.codigo}}</td>
+            <td>{{=r.insumo}}</td>
+            <td class="text-center">{{=r.unidade}}</td>
+            <td class="text-right">{{=r.quantidade}}</td>
+            <td class="text-right">{{=r.preco}}</td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+    $('#insumos').DataTable({
+        select: true,
+        paging: false,
+        scrollY: 300,
+        scrollCollapse: true,
+        searching: false,
+        ordering:  true,
+        language: {"url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json"},
+    });
+});
+</script>

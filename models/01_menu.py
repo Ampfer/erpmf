@@ -72,7 +72,7 @@ response.menu+=[
 response.menu+=[
     (T('Relatórios'), False, URL(request.application,'default','index'), [
     ('Curva ABC', False, URL(r=request, c='relatorios', f='curva')),    
-    ('Insumos', False, URL(r=request, c='relatorios', f='insumos')),
+    ('Histórico Insumos', False, URL(r=request, c='relatorios', f='historico_insumo')),
     ('Despesas', False, URL(r=request, c='relatorios', f='despesas')),
     ])]
     

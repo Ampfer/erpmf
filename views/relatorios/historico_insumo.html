@@ -1,6 +1,6 @@
 {{extend 'layout.html'}}
 <div class="container">
-    {{=titulo("ABC ","Curva ABC")}}
+    {{=titulo("INSUMOS ","Histórico de Insumos")}}
 
     <ul class="nav nav-pills">
         <li class="active"><a data-toggle="tab" href="#home">Pesquisa</a></li>
@@ -11,8 +11,11 @@
             {{=form_pesq.custom.begin}}
             <div class="row">
                 {{=campo(4,form_pesq.custom.label.demanda,form_pesq.custom.widget.demanda)}}
-                {{=campo(4,form_pesq.custom.label.abc,form_pesq.custom.widget.abc)}}
-                {{=campo(4,form_pesq.custom.label.tipo,form_pesq.custom.widget.tipo)}}
+                {{=campo(4,form_pesq.custom.label.insumo,form_pesq.custom.widget.insumo)}}
+            </div>
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.dtinicial,form_pesq.custom.widget.dtinicial)}}
+                {{=campo(4,form_pesq.custom.label.dtfinal,form_pesq.custom.widget.dtfinal)}}
             </div>
             <hr>
             {{=btnRodape(form_pesq.custom.submit)}}
@@ -26,20 +29,10 @@
 
 <script>
 $(document).ready(function(){
-    $('#pesquisar_abc').click(function(){
-        var valorabc = $('#pesquisar_abc').val();
-        if(valorabc != 'INSUMO'){
-          $('#pesquisar_tipo').val('TODOS');
-          $('#pesquisar_tipo').prop('disabled',true);
-        } else {
-          $('#pesquisar_tipo').prop('disabled',false);
-        }
-    });
-
     jQuery('form').submit(function() {
         $('.nav li.active').next('li').removeClass('disabled');
         $('.nav li.active').next('li').find('a').attr("data-toggle","tab").trigger("click");
-        ajax('{{=URL('gerar_abc')}}',['demanda','abc','tipo'],'menu1');
+        ajax('{{=URL('gerar_historico_insumo')}}',['demanda','dtinicial','dtfinal','insumo'],'menu1');
         return false;
     });    
 });
