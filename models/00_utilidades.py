@@ -58,8 +58,8 @@ def btnRodape(*args):
     return DIV(args,_class="btn-group btn-group-sm",_role = 'group')
 
 def campo(col,label,widget):
-    coluna = 'col-md-%s' %(col)  
-    div1 = DIV(label,widget,_class='form-group')
+    coluna = 'col-md-%s' %(col)
+    div1 = DIV(label,widget,_class='form-group')  
     response = DIV(div1,_class=coluna)
     return response
 

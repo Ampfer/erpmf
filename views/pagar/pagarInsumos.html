@@ -1,57 +1,32 @@
 {{include 'modal.html'}}
 {{if formInsumos.create_form or formInsumos.update_form:}}
-    {{=formInsumos[1].custom.begin}}
-    <div class="well">
-        <div class="row">
-            <div class="col-md-5">
-                {{=formInsumos[1].custom.label.insumo}}
-                <div class="input-group">
-                    {{=formInsumos[1].custom.widget.insumo}}
-                    <span class="input-group-btn">
-                        {{=btnPesquisar}}
-                    </span>
-                </div><!-- /input-group -->
-            </div>
-            <div class="col-md-1">
-                {{=formInsumos[1].custom.label.unidade}}
-                {{=formInsumos[1].custom.widget.unidade}}
-            </div>
-            <div class="col-md-2">
-                {{=formInsumos[1].custom.label.quantidade}}
-                {{=formInsumos[1].custom.widget.quantidade}}
-            </div>
-            <div class="col-md-2">
-                {{=formInsumos[1].custom.label.preco}}
-                {{=formInsumos[1].custom.widget.preco}}
-            </div>
-            <div class="col-md-2">
-                {{=formInsumos[1].custom.label.desconto}}
-                {{=formInsumos[1].custom.widget.desconto}}
-            </div>
+    {{=formInsumos[1].custom.begin}}   
+    <div class="row">
+        <div class="col-md-5">
+            {{=formInsumos[1].custom.label.insumo}}
+            <div class="input-group">
+                {{=formInsumos[1].custom.widget.insumo}}
+                <span class="input-group-btn">
+                    {{=btnPesquisar}}
+                </span>
+            </div><!-- /input-group -->
         </div>
-        <div class="row">
-            <div class="col-md-3">
-                {{=formInsumos[1].custom.label.etapa}}
-                {{=formInsumos[1].custom.widget.etapa}}
-            </div>
-        </div>
+        {{=campo(1,formInsumos[1].custom.label.unidade,formInsumos[1].custom.widget.unidade)}} 
+        {{=campo(2,formInsumos[1].custom.label.quantidade,formInsumos[1].custom.widget.quantidade)}} 
+        {{=campo(2,formInsumos[1].custom.label.preco,formInsumos[1].custom.widget.preco)}} 
+        {{=campo(2,formInsumos[1].custom.label.desconto,formInsumos[1].custom.widget.desconto)}} 
     </div>
-
-    <div class="left" style="margin-top: 20px;margin-left: 15px">
-        {{=formInsumos[1].custom.submit}}
-        {{=btnVoltar}}
-        {{=btnExcluir}}
+    <div class="row">
+        {{=campo(3,formInsumos[1].custom.label.etapa,formInsumos[1].custom.widget.etapa)}} 
     </div>
-
+    <hr>
+    {{=btnRodape(formInsumos[1].custom.submit,btnVoltar,btnExcluir)}}
     {{=formInsumos[1].custom.end}}
 {{else:}}
-    <div class="well">
-        {{=formInsumos}}
-    </div>
+    {{=formInsumos}}
     <div class="left" style="margin-top: 30px;margin-left: 10px; font-size: 16px">
         <b> Total Insumos: {{=total_insumos}}</b>
     </div>
-    
 {{pass}}
 
 <script type="text/javascript">

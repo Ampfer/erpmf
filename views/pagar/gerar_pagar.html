@@ -1,0 +1,61 @@
+<table id="duplicatas" class="display" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>rowId</th>
+            <th>Fornecedor</th>
+            <th>Documento</th>
+            <th>Parcela</th>
+            <th>Emissão</th>
+            <th>Vencimento</th>
+            <th>Pagamento</th>
+            <th class="text-right">Valor</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {{for r in duplicatas:}}
+        <tr id='{{=r.rowId}}'>
+            <td>{{=r.rowId}}</td> 
+            <td>{{=r.fornecedor}}</td>
+            <td>{{=r.documento}}</td>
+            <td>{{=r.parcela}}</td>
+            <td>{{=r.emissao}}</td>
+            <td>{{=r.vencimento}}</td>
+            <td>{{=r.pagamento}}</td>
+            <td class="text-right">{{=r.valor}}</td>
+            
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+
+<button id = 'pagar' type="button" class="btn btn-default">Pagar Duplicatas</button>
+
+<script>
+$(document).ready(function(){
+    $('#duplicatas').DataTable({
+        select: true,
+        paging: false,
+        scrollY: 300,
+        scrollCollapse: true,
+        searching: false,
+        ordering:  true,
+        DT_RowId: 'r.rowId',
+        language: {"url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json"},
+    });
+    var table = $('#duplicatas').DataTable();
+ 
+    $('#duplicatas tbody').on( 'click', 'tr', function () {
+        $(this).toggleClass('selected');
+    } );
+ 
+    $('#pagar').click( function () {
+        alert( table.rows('.selected').ids() +' row(s) selected' );
+        $.ajax({
+          method: "POST",
+          url: "{{URL('teste')}}",
+          data: { teste: table.rows('.selected').ids() }
+        });    
+    });
+});
+</script>

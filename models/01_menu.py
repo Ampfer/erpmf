@@ -34,7 +34,6 @@ response.menu+=[
     ('Cliente', False, URL(r=request, c='cadastro', f='clientes')),
     ('Fornecedor', False, URL(r=request, c='cadastro', f='fornecedores')),
     ('Produto', False, URL(r=request, c='cadastro', f='produtos')),
-    ('demanda', False, URL(r=request, c='cadastro', f='demandas')),
     ('Condição de Pagamento', False, URL(r=request, c='cadastro', f='condicao')),
     ('Unidade', False, URL(r=request, c='cadastro', f='unidade')),
     ('Tipo de Insumo', False, URL(r=request, c='cadastro', f='tipoInsumo')),
@@ -51,7 +50,7 @@ response.menu+=[
     ('Pedido de Compra', False, URL(r=request, c='pagar', f='compras')),
     ('Entrada de Nota Fiscal', False, URL(r=request, c='pagar', f='entrada_lista')),
     ('Ficha Fornecedor', False, URL(r=request, c='pagar', f='fornecedor_ficha')),      
-    ('Contas a Pagar', False, URL(r=request, c='pagar', f='pagar_lista')),      
+    ('Contas a Pagar', False, URL(r=request, c='pagar', f='pagar_lista1')),     
     ])]
 response.menu+=[
     (T('Financeiro'), False, URL(request.application,'default','index'), [

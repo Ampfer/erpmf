@@ -1,43 +1,21 @@
 {{if formDespesas.create_form or formDespesas.update_form:}}
     {{=formDespesas[1].custom.begin}}
-    <div class="well">
-        <div class="row">
-            <div class="col-md-6">
-                {{=formDespesas[1].custom.label.despesa}}
-                {{=formDespesas[1].custom.widget.despesa}}
-            </div>
-
-            <div class="col-md-3">
-                {{=formDespesas[1].custom.label.dtdespesa}}
-                {{=formDespesas[1].custom.widget.dtdespesa}}
-            </div>
-            <div class="col-md-3">
-                {{=formDespesas[1].custom.label.valor}}
-                {{=formDespesas[1].custom.widget.valor}}
-            </div>
-        </div>
+    <div class="row">
+        {{=campo(6,formDespesas[1].custom.label.despesa,formDespesas[1].custom.widget.despesa)}} 
+        {{=campo(3,formDespesas[1].custom.label.dtdespesa,formDespesas[1].custom.widget.dtdespesa)}} 
+        {{=campo(3,formDespesas[1].custom.label.valor,formDespesas[1].custom.widget.valor)}} 
     </div>
-    <div class="panel panel-info">
-        <div class="panel-body">
-            <div class="right">
-                {{=formDespesas[1].custom.submit}}
-                {{=btnVoltar}}
-                {{=btnExcluir}}
-            </div>
-        </div>
-    </div>
+    <hr>
+    {{=btnRodape(formDespesas[1].custom.submit,btnVoltar,btnExcluir)}}
     {{=formDespesas[1].custom.end}}
 {{else:}}
-    <div class="well">
-        {{=formDespesas}}
-        <div class="left" style="margin-left: 10px; margin-top: 60px">
-            <b> Total Despesas: {{=total_despesas}}</b>
-        </div>
+    {{=formDespesas}}
+    <div class="right" style="margin-top: 30px;margin-left: 10px; font-size: 16px">
+        <div class="alert alert-success"> Total Despesas: {{=total_despesas}}</div>
     </div>
 {{pass}}
 
 <script type="text/javascript">
-
     jQuery(function($){
        $("#pagar_dtdespesa").mask('99/99/9999');
     });

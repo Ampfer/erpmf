@@ -9,11 +9,13 @@ Pagar = db.define_table('pagar',
 	Field('condicao','reference condicao', label='Condição de Pagamento:',ondelete = "SET NULL")
 	)
 Pagar.fornecedor.requires = IS_IN_DB(db,"fornecedores.id",'%(nome)s',zero='Escolha um Fornecedor')
+Pagar.fornecedor.represent = lambda value,row: db.fornecedores[value].nome
 Pagar.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Pagar.emissao.requires = data
 Pagar.tipo.requires = IS_IN_SET(['Compra','Transferência','Devolução'],zero=None)
 Pagar.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
 Pagar.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(descricao)s'))
+Pagar.fornecedor.represent = lambda value,row: db.fornecedores[value]
 
 Pagar_parcelas = db.define_table('pagar_parcelas',
 	Field('pagar','reference pagar'),

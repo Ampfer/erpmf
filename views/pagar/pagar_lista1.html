@@ -1,0 +1,43 @@
+{{extend 'layout.html'}}
+<div class="container">
+    {{=titulo("PAGAR ","Relatório de Titulos")}}
+
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#home">Pesquisa</a></li>
+        <li><a data-toggle="tab" href="#menu1">Resultado</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+            {{=form_pesq.custom.begin}}
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.fornecedor,form_pesq.custom.widget.fornecedor)}}
+                {{=campo(4,form_pesq.custom.label.demanda,form_pesq.custom.widget.demanda)}}
+            </div>
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.dtinicial,form_pesq.custom.widget.dtinicial)}}
+                {{=campo(4,form_pesq.custom.label.dtfinal,form_pesq.custom.widget.dtfinal)}}
+            </div>
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.documento,form_pesq.custom.widget.documento)}}
+                {{=campo(4,form_pesq.custom.label.status,form_pesq.custom.widget.status)}}
+            </div>
+            <hr>
+            {{=btnRodape(form_pesq.custom.submit)}}
+            {{=form_pesq.custom.end}}
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    jQuery('form').submit(function() {
+        $('.nav li.active').next('li').removeClass('disabled');
+        $('.nav li.active').next('li').find('a').attr("data-toggle","tab").trigger("click");
+        ajax('{{=URL('gerar_pagar')}}',['fornecedor','demanda','dtinicial', 'dtfinal','documento','status'],'menu1');
+        return false;
+    }); 
+});
+</script>
