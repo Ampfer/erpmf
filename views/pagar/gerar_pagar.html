@@ -1,7 +1,8 @@
+<button id = 'pagar' type="button" class="btn btn-primary right">Pagar Duplicatas</button>
+
 <table id="duplicatas" class="display" cellspacing="0" width="100%">
     <thead>
         <tr>
-            <th>rowId</th>
             <th>Fornecedor</th>
             <th>Documento</th>
             <th>Parcela</th>
@@ -9,13 +10,15 @@
             <th>Vencimento</th>
             <th>Pagamento</th>
             <th class="text-right">Valor</th>
+            <th class="text-right">Pendente</th>
             
         </tr>
     </thead>
     <tbody>
         {{for r in duplicatas:}}
+        {{print r}}
         <tr id='{{=r.rowId}}'>
-            <td>{{=r.rowId}}</td> 
+
             <td>{{=r.fornecedor}}</td>
             <td>{{=r.documento}}</td>
             <td>{{=r.parcela}}</td>
@@ -23,13 +26,29 @@
             <td>{{=r.vencimento}}</td>
             <td>{{=r.pagamento}}</td>
             <td class="text-right">{{=r.valor}}</td>
-            
+            <td class="text-right">{{=r.pendente}}</td>
         </tr>
         {{pass}}
     </tbody>
 </table>
-
-<button id = 'pagar' type="button" class="btn btn-default">Pagar Duplicatas</button>
+    <div class="row" style="margin-right: 16px">
+        <div class="col col-md-4">
+            <div class="center" style="font-size: 16px">
+            <div class="alert alert-info"> Total Títulos: {{=total}}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-md-4">
+            <div class="center" style="font-size: 16px">
+            <div class="alert alert-success"> Total Pago: {{=total_pago}}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-md-4">
+            <div class="center" style="font-size: 16px">
+            <div class="alert alert-danger"> Total Pendente: {{=total_pendente}}</div>
+        </div>
+    </div>
 
 <script>
 $(document).ready(function(){
@@ -50,12 +69,13 @@ $(document).ready(function(){
     } );
  
     $('#pagar').click( function () {
-        alert( table.rows('.selected').ids() +' row(s) selected' );
-        $.ajax({
-          method: "POST",
-          url: "{{URL('teste')}}",
-          data: { teste: table.rows('.selected').ids() }
-        });    
+        var resultado = table.rows('.selected').ids();
+        var i;
+        ids = []
+        for (i = 0; i < resultado.length; i++) { 
+            ids[i] = resultado[i];
+            };
+        $.redirect("{{=URL('pagar')}}",ids);
     });
 });
 </script>

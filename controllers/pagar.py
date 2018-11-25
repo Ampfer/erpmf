@@ -388,10 +388,9 @@ def pagar_lista1():
     return dict(form_pesq=form_pesq)
 
 def teste():
-    print type(request.vars.teste)
-    for x in request.vars.teste:
-        print x
-
+    ids = request.vars['ids[]']
+    print ids
+    redirect(URL('pagar',vars=dict(ids=ids)))
 
 def gerar_pagar():
     from datetime import datetime
@@ -433,12 +432,12 @@ def gerar_pagar():
                             Pagar_parcelas.vencimento.with_alias('vencimento'),
                             Pagar_parcelas.dtpagamento.with_alias('pagamento'),
                             Pagar_parcelas.valor.with_alias('valor'),
-                            #Pagar_parcelas.valorpendente.with_alias('pendente'),
-                            #Pagar_parcelas.status.with_alias('status'),
+                            (Pagar_parcelas.valor - Pagar_parcelas.valorpago).with_alias('pendente'),
+                            #Pagar_parcelas.status,
                             orderby = Pagar_parcelas.vencimento
                             )
 
-    return dict(duplicatas=duplicatas)
+    return dict(duplicatas=duplicatas,total=total,total_pago=total_pago,total_pendente=total_pendente)
 
 def buscadoc(ids,loteId=0):
 
@@ -495,14 +494,15 @@ def lote_delete():
 #@auth.requires_membership('admin')
 def pagar():
 
-    target = request.vars.target
-    url = request.vars.url
-  
-    if type(request.vars.ids) is list:
-        session.ids = request.vars.ids
+    ids=[]
+    for row in request.vars:
+        ids.append( request.vars[row])
+
+    if type(ids) is list:
+        session.ids = ids
     else:
         session.ids = []
-        session.ids.append(request.vars.ids)
+        session.ids.append(ids)
 
     session.id_lote = request.vars.id_lote or 0
     try:
@@ -510,12 +510,12 @@ def pagar():
     except ValueError:
         session.id_lote = 0
 
-    btnVoltar = voltar(url)
+    btnVoltar = voltar('pagar_lista1')
 
     #,_onClick="jQuery('#pagarLotes').get(0).reload()"
     #if 
     if session.id_lote ==0:
-        if request.vars.ids == None:
+        if ids == None:
             session.flash = 'Selecione pelo menos uma Parcela'
             redirect(URL(c="pagar",f="pagar_lista"))
     else:
