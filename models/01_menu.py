@@ -50,7 +50,7 @@ response.menu+=[
     ('Pedido de Compra', False, URL(r=request, c='pagar', f='compras')),
     ('Entrada de Nota Fiscal', False, URL(r=request, c='pagar', f='entrada_lista')),
     ('Ficha Fornecedor', False, URL(r=request, c='pagar', f='fornecedor_ficha')),      
-    ('Contas a Pagar', False, URL(r=request, c='pagar', f='pagar_lista1')),     
+    ('Contas a Pagar', False, URL(r=request, c='pagar', f='pagar_lista')),     
     ])]
 response.menu+=[
     (T('Financeiro'), False, URL(request.application,'default','index'), [

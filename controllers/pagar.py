@@ -302,7 +302,7 @@ def pagamento_modal(ids):
     return False
 
 #@auth.requires_membership('admin')
-def pagar_lista():
+def pagar_lista_old():
     from datetime import timedelta,date
 
     status = request.vars.status if request.vars.status else 'Pendente'
@@ -367,7 +367,7 @@ def pagar_lista():
     return locals()
 
 #@auth.requires_membership('admin')
-def pagar_lista1():
+def pagar_lista():
        
     form_pesq = SQLFORM.factory(
         Field('fornecedor','integer',label='Fornecedor:',requires=IS_IN_DB(db,'fornecedores.id','fornecedores.nome',zero='TODOS')),
@@ -400,7 +400,8 @@ def gerar_pagar():
     inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial != '' else ''
     final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else request.now
     status = request.vars.status
-    documento = request.vars.documento
+    documento = request.vars.documento.split(',')
+    print documento
 
     query = (Pagar_parcelas.pagar == Pagar.id) & (Fornecedores.id == Pagar.fornecedor)
     if idFornecedor:
@@ -415,14 +416,17 @@ def gerar_pagar():
         query = query & (Pagar_parcelas.dtpagamento == None)
     if status == 'Pago':
         query = query & (Pagar_parcelas.dtpagamento != None) 
-    if documento != '':
-        query = query & (Pagar.documento == documento)
+    if documento != ['']:
+        query = query & (Pagar.documento.contains(documento))
 
     total = db(query).select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
     total_pago = db(query).select(Pagar_parcelas.valorpago.sum()).first()[Pagar_parcelas.valorpago.sum()] or 0
     total_pendente = total - total_pago
 
-    
+    def status():
+        return 'pendente'
+
+
     duplicatas = db(query).select(
                             Pagar.id.with_alias('rowId'),
                             Fornecedores.nome.with_alias('fornecedor'),
@@ -433,7 +437,6 @@ def gerar_pagar():
                             Pagar_parcelas.dtpagamento.with_alias('pagamento'),
                             Pagar_parcelas.valor.with_alias('valor'),
                             (Pagar_parcelas.valor - Pagar_parcelas.valorpago).with_alias('pendente'),
-                            #Pagar_parcelas.status,
                             orderby = Pagar_parcelas.vencimento
                             )
 
@@ -510,7 +513,7 @@ def pagar():
     except ValueError:
         session.id_lote = 0
 
-    btnVoltar = voltar('pagar_lista1')
+    btnVoltar = voltar('pagar_lista')
 
     #,_onClick="jQuery('#pagarLotes').get(0).reload()"
     #if 

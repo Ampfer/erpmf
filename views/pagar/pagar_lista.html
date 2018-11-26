@@ -1,78 +1,43 @@
-{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
-{{include 'modal.html'}}
-
 <div class="container">
-    <div class="panel panel-info">
-        <div class="panel-heading"><h4>Conta a Pagar</h4></div>
-        <div class="panel-body">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#home">Parcelas</a></li>
-              <li><a data-toggle="tab" href="#menu1">Lotes</a></li>
-            </ul>
-            <div class="tab-content">
-                <div id="home" class="tab-pane fade in active">
-                    {{=form_pesq.custom.begin}}
-                    <p></p>
-                    <div class="row">
-                        <div class="col-md-3"> Status {{=form_pesq.custom.widget.status}} </div>
-                        <div class="col-md-3"> Situação {{=form_pesq.custom.widget.situacao}} </div>
-                        <div class="col-md-3"> Período {{=form_pesq.custom.widget.periodo}} </div>
-                        <div class="col-md-3"> {{=form_pesq.custom.submit}}</div>
-                    </div><!-- /.row -->
-                    {{=form_pesq.custom.end}}
-                    <p></p>
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-md-4">
-                                  <h5>Total:</h5>
-                                </div>
-                                <div class="col-md-4">
-                                    <h5>Total Pago:</h5>
-                                </div>
-                                <div class="col-md-4">
-                                  <h5>Total Pendente:</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <h4><b>{{=total}}</b></h4>
-                                </div>
-                                <div class="col-md-4">
-                                    <h4><b>{{=total_pago}}</b></h4>
-                                </div>
-                                <div class="col-md-4">
-                                    <h4><b>{{=total_pendente}}</b></h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {{=grid_pagar}}
-                </div>
-                <div id="menu1" class="tab-pane fade">
-    	            {{=form_lotes}}
-                </div>
+    {{=titulo("PAGAR ","Relatório de Titulos")}}
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#home">Pesquisa</a></li>
+        <li><a data-toggle="tab" href="#menu1">Resultado</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+            <h3>Fitros de Pesquisa</h3>
+            {{=form_pesq.custom.begin}}
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.fornecedor,form_pesq.custom.widget.fornecedor)}}
+                {{=campo(4,form_pesq.custom.label.demanda,form_pesq.custom.widget.demanda)}}
             </div>
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.dtinicial,form_pesq.custom.widget.dtinicial)}}
+                {{=campo(4,form_pesq.custom.label.dtfinal,form_pesq.custom.widget.dtfinal)}}
+            </div>
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.documento,form_pesq.custom.widget.documento)}}
+                {{=campo(4,form_pesq.custom.label.status,form_pesq.custom.widget.status)}}
+            </div>
+            <hr>
+            {{=btnRodape(form_pesq.custom.submit)}}
+            {{=form_pesq.custom.end}}
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            
         </div>
     </div>
 </div>
 
-<script type="text/javascript">
-jQuery(function($){
-	$("input[value='Salvar']").attr('value','Pagar Duplicatas');
-  $("input[value=Filtrar]").hide();
-  $("#pesquisar_status").change(function() {
-    $("input[value=Filtrar]").click();
-  });
-    $("#pesquisar_situacao").change(function() {
-    $("input[value=Filtrar]").click();
-  });
-  $("#pesquisar_periodo").change(function() {
-    $("input[value=Filtrar]").click();
-  });
-}); 
+<script>
+$(document).ready(function(){
+    jQuery('form').submit(function() {
+        $('.nav li.active').next('li').removeClass('disabled');
+        $('.nav li.active').next('li').find('a').attr("data-toggle","tab").trigger("click");
+        ajax('{{=URL('gerar_pagar')}}',['fornecedor','demanda','dtinicial', 'dtfinal','documento','status'],'menu1');
+        return false;
+    }); 
+});
 </script>
-
