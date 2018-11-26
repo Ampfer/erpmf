@@ -195,6 +195,7 @@
 'g': 'g',
 'Gerar': 'Gerar',
 'Gerar Curva': 'Gerar Curva',
+'Gerar Curva ABC': 'Gerar Curva ABC',
 'Gerar Orçamento': 'Gerar Orçamento',
 'Graph Model': 'Graph Model',
 'Group ID': 'ID do Grupo',
