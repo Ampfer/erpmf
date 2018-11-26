@@ -36,13 +36,7 @@ def demanda():
 
         formDespesas = LOAD(c='obra', f='demandaDespesas', content='Aguarde, carregando...',
                            target='demandaDespesas', ajax=True, args=idDemanda)
-        
-        formInsumos = LOAD(c='obra', f='demandaInsumos', content='Aguarde, carregando...',
-                           target='demandaInsumos', ajax=True, args=idDemanda)
-        formAbc = LOAD(c='obra', f='demandaAbc', content='Aguarde, carregando...',
-                           target='demandaAbc', ajax=True, args=idDemanda)
-                   
-        #formAbc = ''                 
+                      
         btnExcluir = excluir("#")
         btnNovo = novo("demanda")
 
@@ -119,145 +113,8 @@ def demandaDespesas():
     else:
         despesas = ''
 
-
     return locals()
 
-#@auth.requires_membership('admin')
-def demandaInsumos():
-
-    idDemanda = int(request.args(0))
-    q = (PagarInsumos.pagar == Pagar.id) & (Pagar.demanda==idDemanda)
-    id_pagar = int(db(q).select(PagarInsumos.pagar, orderby=Pagar.emissao).first()['pagar'])
-
-    from datetime import datetime
-
-    today = Pagar[id_pagar].emissao
-
-    inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial else today
-    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal else request.now
-
-    query = []
-
-    form_pesq = SQLFORM.factory(
-        Field('dtinicial','date',default=inicial,requires=data, label='Data Inicial'),
-        Field('dtfinal','date',default=final,requires=data,label='Data Final'),
-        table_name='insumopesquisar',
-        submit_button='Gerar')
-
-    if form_pesq.process().accepted:
-        inicial = form_pesq.vars.dtinicial
-        final = form_pesq.vars.dtfinal
-        query = (Relatorio.datarel>=inicial) & (Relatorio.datarel<=final)
-    elif form_pesq.errors:
-        response.flash = 'Erro no Formulário'
-
-
-    rows = db(q).select(PagarInsumos.insumo.with_alias('insumo'),
-                                                 PagarInsumos.unidade.with_alias('un'),
-                                                 PagarInsumos.quantidade.with_alias('qtde'),
-                                                 PagarInsumos.preco.with_alias('preco'),
-                                                 PagarInsumos.desconto.with_alias('desconto'),
-                                                 PagarInsumos.pagar.with_alias('pagar'))
-
-    Relatorio.truncate()
-    for r in rows:
-        total = round(r.qtde*r.preco-r.desconto,2)
-
-        Relatorio[0] = dict(descricao = Insumo[r.insumo].descricao,
-                            quantidade = r.qtde,
-                            valor=r.preco,
-                            total = total,
-                            codigo = Insumo[r.insumo].codigo,
-                            unidade = r.un,
-                            datarel = Pagar[r.pagar].emissao )
-
-    if query:
-        demandaInsumos = db(query).select(Relatorio.datarel,
-                                                Relatorio.codigo,
-                                                Relatorio.descricao,
-                                                Relatorio.unidade,
-                                                Relatorio.quantidade,
-                                                Relatorio.valor,
-                                                Relatorio.total,orderby=Relatorio.datarel)
-
-
-        insumos = SQLTABLE(demandaInsumos,_id='demandainsumos',
-                                        _class='display',
-                                        _cellspacing = "0",
-                                        _width = "100%",
-                                        headers='labels',
-                                        truncate = 100)
-    else:
-        insumos = ''
-
-    return dict(insumos=insumos,form_pesq=form_pesq)
-
-#@auth.requires_membership('admin')
-def demandaAbc():
-    idDemanda = int(request.args(0))
-    abc = request.vars.abc if request.vars.abc else ''
-    tipo = request.vars.tipo if request.vars.tipo else None
-    query = []
-
-    form_pesq = SQLFORM.factory(
-        Field('abc', default=abc, requires=IS_IN_SET(['INSUMO','ETAPA','FORNECEDOR'], zero=None),label='Curva ABC'),
-        Field('tipo',default=tipo, requires=IS_EMPTY_OR(IS_IN_DB(db,'tipoInsumo.descricao','%(descricao)s',zero='TODOS')),label='Tipo Insumo'),
-        table_name='pesquisar',
-        submit_button='Gerar',
-        )
-
-    if form_pesq.process().accepted:
-        abc = form_pesq.vars.abc
-        tipo = form_pesq.vars.tipo
-    elif form_pesq.errors:
-        response.flash = 'Erro no Formulário'
-
-    Relatorio.truncate()
-    if abc == 'INSUMO' or abc == 'ETAPA':
-        sum = PagarInsumos.quantidade.sum()
-        sum1 = (PagarInsumos.quantidade * PagarInsumos.preco - PagarInsumos.desconto).sum()
-        if abc == 'INSUMO':
-            groupby=PagarInsumos.insumo
-            query = (PagarInsumos.pagar == Pagar.id) & (Pagar.demanda==idDemanda) & (PagarInsumos.insumo == Insumo.id)
-            xdesc = 'Insumo[row.pagarInsumos.insumo].descricao'
-            if tipo != None:
-                query = query & (Insumo.tipo==tipo)
-        else:
-            groupby = PagarInsumos.etapa
-            query = (PagarInsumos.demanda == idDemanda)
-            xdesc = 'Etapas[row.pagarInsumos.etapa].etapa'
-    elif abc == 'FORNECEDOR':
-        sum = Despesas.valor.sum()
-        sum1 = Despesas.valor.sum()
-        query = (Despesas.demanda == idDemanda) & (Despesas.pagar == Pagar.id)
-        groupby = Pagar.fornecedor
-        xdesc = 'Fornecedores[row.pagar.fornecedor].nome'
-
-    if query:
-        total = db(query).select(sum1).first()[sum1] or 1
-        rows = db(query).select(groupby,
-                                sum.with_alias('Quantidade'),
-                                sum1.with_alias('Valor'),
-                                ((sum1/total)*100).with_alias('Porcentagem'),
-                                groupby=groupby,orderby=~sum1)
-        acumulado = 0
-        tot = 0
-        for row in rows:
-            acumulado += row.Porcentagem
-            tot += row.Valor
-            descricao = eval(xdesc)
-            Relatorio[0] = dict(descricao = descricao,
-                                quantidade = row.Quantidade,
-                                valor=row.Valor,
-                                total = tot,
-                                porcentagem = row.Porcentagem,
-                                acumulado = acumulado)
-
-        curvaabc = db(Relatorio.id>0).select()
-    else:
-        curvaabc = ''
-
-    return locals()
 
 def insumos():
 

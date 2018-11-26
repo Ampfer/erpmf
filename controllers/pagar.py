@@ -278,7 +278,7 @@ def pagar_despesas():
             session.flash = 'Valor do Ducumento: %s Soma das Despesas: %s ' %(pagar_valor,total_despesas) 
 
     fields = (Despesas.despesa,Despesas.dtdespesa, Despesas.valor)
-    formDespesas = grid(Despesas.pagar==idPagar,
+    formDespesas = grid(Despesas.pagar==idPagar,alt='250px',
         formname="despesas",searchable = False,args=[idPagar],fields=fields,onvalidation=validar)
 
 
@@ -302,7 +302,7 @@ def pagamento_modal(ids):
     return False
 
 #@auth.requires_membership('admin')
-def pagar_lista():
+def pagar_lista_old():
     from datetime import timedelta,date
 
     status = request.vars.status if request.vars.status else 'Pendente'
@@ -366,6 +366,82 @@ def pagar_lista():
 
     return locals()
 
+#@auth.requires_membership('admin')
+def pagar_lista():
+       
+    form_pesq = SQLFORM.factory(
+        Field('fornecedor','integer',label='Fornecedor:',requires=IS_IN_DB(db,'fornecedores.id','fornecedores.nome',zero='TODOS')),
+        Field('demanda','integer',label='Demanda::',requires=IS_EMPTY_OR(IS_IN_DB(db,'demandas.id','%(codigo)s - %(descricao)s',zero='TODOS'))),
+        Field('dtinicial','date',label='Data Inicial:',requires=data,),
+        Field('dtfinal','date',requires=data,label='Data Final',default=request.now,),
+        Field('documento',label='Documento:'),
+        Field('status',label='Status',default = 'Pendente',requires=IS_IN_SET(['Todos','Pendente','Pago'],zero=None)),
+        table_name='pesquisar',
+        submit_button='Filtrar',
+        )  
+    
+    if form_pesq.process().accepted:
+        pass       
+    elif form_pesq.errors:
+        response.flash = 'Erro no Formulário'
+
+    return dict(form_pesq=form_pesq)
+
+def teste():
+    ids = request.vars['ids[]']
+    print ids
+    redirect(URL('pagar',vars=dict(ids=ids)))
+
+def gerar_pagar():
+    from datetime import datetime
+
+    idFornecedor = request.vars.fornecedor
+    idDemanda = request.vars.demanda
+    inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial != '' else ''
+    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else request.now
+    status = request.vars.status
+    documento = request.vars.documento.split(',')
+    print documento
+
+    query = (Pagar_parcelas.pagar == Pagar.id) & (Fornecedores.id == Pagar.fornecedor)
+    if idFornecedor:
+        query = query & (Pagar.fornecedor == idFornecedor)
+    if idDemanda != '': 
+        query = query & (Pagar.demanda == idDemanda)
+    if inicial != '':
+        query = query & (Pagar_parcelas.vencimento >= inicial)
+    if final != '':
+        query = query & (Pagar_parcelas.vencimento <= final)
+    if status == 'Pendente':
+        query = query & (Pagar_parcelas.dtpagamento == None)
+    if status == 'Pago':
+        query = query & (Pagar_parcelas.dtpagamento != None) 
+    if documento != ['']:
+        query = query & (Pagar.documento.contains(documento))
+
+    total = db(query).select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
+    total_pago = db(query).select(Pagar_parcelas.valorpago.sum()).first()[Pagar_parcelas.valorpago.sum()] or 0
+    total_pendente = total - total_pago
+
+    def status():
+        return 'pendente'
+
+
+    duplicatas = db(query).select(
+                            Pagar.id.with_alias('rowId'),
+                            Fornecedores.nome.with_alias('fornecedor'),
+                            Pagar.documento.with_alias('documento'),
+                            Pagar_parcelas.parcela.with_alias('parcela'),
+                            Pagar.emissao.with_alias('emissao'),
+                            Pagar_parcelas.vencimento.with_alias('vencimento'),
+                            Pagar_parcelas.dtpagamento.with_alias('pagamento'),
+                            Pagar_parcelas.valor.with_alias('valor'),
+                            (Pagar_parcelas.valor - Pagar_parcelas.valorpago).with_alias('pendente'),
+                            orderby = Pagar_parcelas.vencimento
+                            )
+
+    return dict(duplicatas=duplicatas,total=total,total_pago=total_pago,total_pendente=total_pendente)
+
 def buscadoc(ids,loteId=0):
 
     if loteId != 0:
@@ -421,14 +497,15 @@ def lote_delete():
 #@auth.requires_membership('admin')
 def pagar():
 
-    target = request.vars.target
-    url = request.vars.url
-  
-    if type(request.vars.ids) is list:
-        session.ids = request.vars.ids
+    ids=[]
+    for row in request.vars:
+        ids.append( request.vars[row])
+
+    if type(ids) is list:
+        session.ids = ids
     else:
         session.ids = []
-        session.ids.append(request.vars.ids)
+        session.ids.append(ids)
 
     session.id_lote = request.vars.id_lote or 0
     try:
@@ -436,12 +513,12 @@ def pagar():
     except ValueError:
         session.id_lote = 0
 
-    btnVoltar = voltar(url)
+    btnVoltar = voltar('pagar_lista')
 
     #,_onClick="jQuery('#pagarLotes').get(0).reload()"
     #if 
     if session.id_lote ==0:
-        if request.vars.ids == None:
+        if ids == None:
             session.flash = 'Selecione pelo menos uma Parcela'
             redirect(URL(c="pagar",f="pagar_lista"))
     else:

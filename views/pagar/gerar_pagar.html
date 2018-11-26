@@ -1,0 +1,90 @@
+<button id = 'pagar' type="button" class="btn btn-primary right">Pagar Duplicatas</button>
+
+<table id="duplicatas" class="display" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>Fornecedor</th>
+            <th>Documento</th>
+            <th>Parcela</th>
+            <th>Emissão</th>
+            <th>Vencimento</th>
+            <th>Pagamento</th>
+            <th class="text-right">Valor</th>
+            <th class="text-right">Pendente</th>
+            <th>Status</th>            
+        </tr>
+    </thead>
+    <tbody>
+        {{for r in duplicatas:}}
+        <tr id='{{=r.rowId}}'>
+
+            <td>{{=r.fornecedor}}</td>
+            <td>{{=r.documento}}</td>
+            <td>{{=r.parcela}}</td>
+            <td>{{=make_data(r.emissao)}}</td>
+            <td>{{=make_data(r.vencimento)}}</td>
+            <td>{{=make_data(r.pagamento)}}</td>
+            <td class="text-right">{{=r.valor}}</td>
+            <td class="text-right">{{=r.pendente}}</td>
+            <td class="{{='text-danger' if r.pagamento == None else 'text-success'}}">{{= "Pendente" if r.pagamento == None else "Pago"}}</td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+    <div class="row" style="margin-right: 16px">
+        <div class="col col-md-3">
+            <div class="center" style="font-size: 16px">
+            <div class="alert alert-info"> Total Títulos: {{=total}}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-md-3">
+            <div class="center" style="font-size: 16px">
+            <div class="alert alert-success"> Total Pago: {{=total_pago}}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-md-3">
+            <div class="center" style="font-size: 16px">
+            <div class="alert alert-danger"> Total Pendente: {{=total_pendente}}</div>
+        </div>
+    </div>
+        <div class="row">
+        <div class="col col-md-3">
+            <div class="center" style="font-size: 16px">
+            <div class="alert alert-warning"> Total Selecionado: 0,00</div>
+        </div>
+    </div>
+
+<script>
+$(document).ready(function(){
+    $('#duplicatas').DataTable({
+        select: true,
+        paging: false,
+        scrollY: 300,
+        scrollCollapse: true,
+        searching: false,
+        ordering:  true,
+        DT_RowId: 'r.rowId',
+        language: {"url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json"},
+    });
+
+    var table = $('#duplicatas').DataTable();
+ 
+    $('#duplicatas tbody').on( 'click', 'tr', function () {
+        $(this).toggleClass('selected');
+    } );
+ 
+    $('#pagar').click( function () {
+        var resultado = table.rows('.selected').ids();
+        var i;
+        ids = []
+        for (i = 0; i < resultado.length; i++) { 
+            ids[i] = resultado[i];
+            };
+        $.redirect("{{=URL('pagar')}}",ids);
+    });
+});
+</script>
+
+

@@ -1,11 +1,5 @@
-{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
 <div class="container">
-    <div class="panel panel-info">
-        <div class="panel-heading"><h4> Entradas </h4></div>
-            <div class="panel-body">
-                {{=grid_pagar}}
-            </div>
-        </div>
-    </div>
+	{{=titulo("ENTRADAS	 ","Notas Fiscais de Entradas")}}
+    {{=grid_pagar}}
 </div>
