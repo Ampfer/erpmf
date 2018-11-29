@@ -360,8 +360,6 @@ def pagar_lista_old():
     if heading and status == "Pendente":
         heading[0].append(INPUT(_type='checkbox',_onclick="$('input[name=records]').each(function() {this.checked=!this.checked;});"))
 
-    #grid_pagar = DIV(grid_pagar, _class="well")
-
     form_lotes = LOAD(c='pagar',f='lotes',target='pagarLotes',ajax=True)
 
     return locals()
@@ -428,7 +426,7 @@ def gerar_pagar():
 
 
     duplicatas = db(query).select(
-                            Pagar.id.with_alias('rowId'),
+                            Pagar_parcelas.id.with_alias('rowId'),
                             Fornecedores.nome.with_alias('fornecedor'),
                             Pagar.documento.with_alias('documento'),
                             Pagar_parcelas.parcela.with_alias('parcela'),
@@ -471,8 +469,6 @@ def lotes():
                ],
         )
     
-    #form = DIV(form, _class="well")
-
     return locals()
 
 #@auth.requires_membership('admin')
@@ -496,35 +492,42 @@ def lote_delete():
 
 #@auth.requires_membership('admin')
 def pagar():
-
+    '''
     ids=[]
     for row in request.vars:
         ids.append( request.vars[row])
 
+    print type(ids) 
     if type(ids) is list:
         session.ids = ids
     else:
         session.ids = []
         session.ids.append(ids)
-
+    '''
     session.id_lote = request.vars.id_lote or 0
     try:
         int(session.id_lote)
     except ValueError:
         session.id_lote = 0
 
-    btnVoltar = voltar('pagar_lista')
+    #btnVoltar = voltar('pagar_lista')
+
+    btnVoltar = voltar2()
 
     #,_onClick="jQuery('#pagarLotes').get(0).reload()"
     #if 
     if session.id_lote ==0:
-        if ids == None:
+        ids=[]
+        for row in request.vars:
+            ids.append( request.vars[row])
+        if ids == []:
             session.flash = 'Selecione pelo menos uma Parcela'
             redirect(URL(c="pagar",f="pagar_lista"))
+        else:
+            session.ids = ids
     else:
-        #session.ids = db(Pagar_parcelas.lote == session.id_lote).select(db.pagar.id,
-        #                left=db.pagar_parcelas.on(db.pagar.id == db.pagar_parcelas.pagar))
         session.ids = Lote[session.id_lote].parcelas
+
 
     form_parcelas = LOAD(c='pagar',f='mostrar_parcelas',
         content='Aguarde, carregando...',target='mostrar_parcelas',ajax=True,)
@@ -584,8 +587,6 @@ def pagamentos_lista():
     
     novo =A(SPAN(_class="glyphicon glyphicon-plus"), _class="btn btn-default", _id='novo')
     form[0].insert(-1,novo)
-
-    form = DIV(form, _class="well")        
 
     return locals()
 

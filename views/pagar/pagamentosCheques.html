@@ -1,16 +1,14 @@
-<div class="well">
-    <div class="row">
-        <p></p>
-        {{=form_pesq.custom.begin}}
-        <div class="col-md-10">
-            {{=form_pesq.custom.widget.cheque}}
-        </div>
+<div class="row">
+    {{=form_pesq.custom.begin}}
+    <div class="col-md-10">
+        {{=form_pesq.custom.widget.cheque}}
+    </div>
 
-        <div class="col-md-2">
-            {{=form_pesq.custom.submit}}
-        </div>
-        {{=form_pesq.custom.end}}
-    </div><!-- /.row -->
-    {{=gridCheques}}
-    <pre>Total de Cheques : <b>{{=total_cheques}}</b></pre>
-</div><!-- /.well -->
+    <div class="col-md-2">
+        {{=form_pesq.custom.submit}}
+    </div>
+    {{=form_pesq.custom.end}}
+</div><!-- /.row -->
+{{=gridCheques}}
+<pre>Total de Cheques : <b>{{=total_cheques}}</b></pre>
+

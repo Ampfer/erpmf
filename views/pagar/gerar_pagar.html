@@ -3,6 +3,7 @@
 <table id="duplicatas" class="display" cellspacing="0" width="100%">
     <thead>
         <tr>
+            
             <th>Fornecedor</th>
             <th>Documento</th>
             <th>Parcela</th>
@@ -17,7 +18,7 @@
     <tbody>
         {{for r in duplicatas:}}
         <tr id='{{=r.rowId}}'>
-
+            
             <td>{{=r.fornecedor}}</td>
             <td>{{=r.documento}}</td>
             <td>{{=r.parcela}}</td>
@@ -64,8 +65,6 @@ $(document).ready(function(){
         scrollY: 300,
         scrollCollapse: true,
         searching: false,
-        ordering:  true,
-        DT_RowId: 'r.rowId',
         language: {"url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json"},
     });
 
