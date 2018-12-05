@@ -12,7 +12,7 @@
         <div id="home" class="tab-pane fade in active">
             {{=form_pagar.custom.begin}}       
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     {{=form_pagar.custom.label.fornecedor}}
                     <div class="input-group">
                         {{=form_pagar.custom.widget.fornecedor}}
@@ -21,13 +21,14 @@
                         </span>
                     </div><!-- /input-group -->
                 </div>
-                
                 {{=campo(2,form_pagar.custom.label.documento,form_pagar.custom.widget.documento)}}
                 {{=campo(2,form_pagar.custom.label.emissao,form_pagar.custom.widget.emissao)}} 
+                {{=campo(2,form_pagar.custom.label.valor,form_pagar.custom.widget.valor)}} 
             </div>
             <div class="row">
-                {{=campo(4,form_pagar.custom.label.demanda,form_pagar.custom.widget.demanda)}} {{=campo(3,form_pagar.custom.label.tipo,form_pagar.custom.widget.tipo)}} {{=campo(3,form_pagar.custom.label.condicao,form_pagar.custom.widget.condicao)}} 
-                {{=campo(2,form_pagar.custom.label.valor,form_pagar.custom.widget.valor)}} 
+                {{=campo(3,form_pagar.custom.label.condicao,form_pagar.custom.widget.condicao)}} 
+                {{=campo(3,form_pagar.custom.label.tipo,form_pagar.custom.widget.tipo)}}
+                
             </div>
             <hr>
             {{=btnRodape(form_pagar.custom.submit,btnExcluir)}}

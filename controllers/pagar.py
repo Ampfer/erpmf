@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 #@auth.requires_membership('admin')
+def atualizarDemanda():
+    insumos = db(PagarInsumos.id > 0).select()
+    for insumo in insumos:
+        demanda = Pagar[insumo.pagar].demanda
+        PagarInsumos[insumo.id] = dict(demanda=demanda)
+
 def entrada_lista():
     fields = (Pagar.emissao ,Pagar.documento,Pagar.fornecedor, Pagar.demanda, Pagar.valor)
     grid_pagar = grid(Pagar,formname="lista_pagar",fields=fields,orderby=~Pagar.emissao)
@@ -92,12 +98,14 @@ def insumoTrigger():
 
 #@auth.requires_membership('admin')
 def pagarInsumos():
+    
     id_pagar = int(request.args(0))
     sum = (PagarInsumos.preco * PagarInsumos.quantidade - PagarInsumos.desconto).sum()
     total_insumos = float(db(PagarInsumos.pagar==id_pagar).select(sum).first()[sum] or 0)
 
     def atualizaTabelas(form,idpagar=id_pagar):
         session.etapa = form.vars.etapa
+        session.demanda = form.vars.demanda
         idFornecedor = Pagar[int(idpagar)].fornecedor
         #### Atualiza Tabela Custo #####
         query = (Custo.insumo == form.vars.insumo) & (Custo.fornecedor == idFornecedor)
@@ -115,14 +123,17 @@ def pagarInsumos():
         custo = float(db(query).select(max).first()[max] or 0)
         Insumo[insumo] = dict(preco=custo)
 
-
+    PagarInsumos.pagar.default = 10
     PagarInsumos.pagar.default = id_pagar
     PagarInsumos.desconto.default = 0.00
     if session.etapa:
         PagarInsumos.etapa.default = session.etapa
+    if session.demanda:
+        PagarInsumos.demanda.default = session.demanda
+
 
     fields=[PagarInsumos.insumo,PagarInsumos.unidade,PagarInsumos.quantidade,PagarInsumos.preco,PagarInsumos.desconto,
-            PagarInsumos.total,PagarInsumos.etapa]
+            PagarInsumos.total,PagarInsumos.demanda]
 
     formInsumos = grid(PagarInsumos.pagar==id_pagar,alt='250px',
                                args=[id_pagar],formname = "pagarinsumos",
@@ -231,7 +242,7 @@ def geraDespesas():
             valorDespesa = round(float(r.quantidade)*float(r.preco),2) - float(r.desconto)
             tipoInsumo = Insumo(int(r.insumo)).tipo
             conta = db(TipoInsumo.descricao == tipoInsumo).select().first()['conta']
-            query = (Despesas.despesa == int(conta)) & (Despesas.demanda == int(pagar.demanda)) & (Despesas.pagar == int(idPagar))
+            query = (Despesas.despesa == int(conta)) & (Despesas.demanda == int(r.demanda)) & (Despesas.pagar == int(idPagar))
             try:
                 totalDespesas = float(db(query).select().first()['valor'])
             except :
@@ -240,12 +251,13 @@ def geraDespesas():
             Despesas.update_or_insert(query,
                                       pagar = idPagar,
                                       dtdespesa = pagar.emissao,                                  
-                                      demanda=pagar.demanda,
+                                      demanda=r.demanda,
                                       despesa=conta,
                                       valor = valorDespesa + totalDespesas
                                       )   
     except:
         pass
+    session.demanda = ''
     response.js = "$('#despesas').get(0).reload()"
 
 #@auth.requires_membership('admin')
@@ -277,7 +289,7 @@ def pagar_despesas():
         elif round((total_despesas + float(form.vars.valor) - old_valor),2) < round(pagar_valor,2):
             session.flash = 'Valor do Ducumento: %s Soma das Despesas: %s ' %(pagar_valor,total_despesas) 
 
-    fields = (Despesas.despesa,Despesas.dtdespesa, Despesas.valor)
+    fields = (Despesas.dtdespesa,Despesas.despesa, Despesas.demanda, Despesas.valor)
     formDespesas = grid(Despesas.pagar==idPagar,alt='250px',
         formname="despesas",searchable = False,args=[idPagar],fields=fields,onvalidation=validar)
 
@@ -527,7 +539,6 @@ def pagar():
             session.ids = ids
     else:
         session.ids = Lote[session.id_lote].parcelas
-
 
     form_parcelas = LOAD(c='pagar',f='mostrar_parcelas',
         content='Aguarde, carregando...',target='mostrar_parcelas',ajax=True,)

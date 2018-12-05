@@ -46,6 +46,7 @@ PagarInsumos = db.define_table('pagarInsumos',
 							    Field('quantidade','decimal(9,4)',label='Quantidade'),
 							    Field('preco','decimal(7,2)',label='Preço'),
 								Field('desconto','decimal(7,2)',label='Desconto'),
+								Field('demanda', 'reference demandas',label='Demanda'),
 								Field('etapa', 'reference etapas',label='Etapa'),
 								Field.Virtual('total',lambda row: round((row.pagarInsumos.preco*row.pagarInsumos.quantidade)-row.pagarInsumos.desconto,2),label='Total'),
 							   )
@@ -54,6 +55,7 @@ PagarInsumos.pagar.readable = PagarInsumos.pagar.writable = False
 PagarInsumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 PagarInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 PagarInsumos.desconto.requires = IS_DECIMAL_IN_RANGE(dot=',')
+PagarInsumos.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(descricao)s'))
 PagarInsumos.etapa.requires = IS_EMPTY_OR(IS_IN_DB(db,"etapas.id",'%(etapa)s'))
 
 Despesas = db.define_table('despesas',
@@ -67,7 +69,7 @@ Despesas.id.readable = Despesas.id.writable = False
 Despesas.pagar.readable = Despesas.pagar.writable = False
 Despesas.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Despesas.dtdespesa.requires = data
-Despesas.demanda.readable = Despesas.demanda.writable = False
+#Despesas.demanda.readable = Despesas.demanda.writable = False
 #Despesas.demanda.requires = IS_IN_DB(db,"demandas.id",'%(descricao)s')
 #Despesas.despesa.requires = IS_IN_DB(db(PlanoContas3.despesa == 'T'),"plano_contas3.id",'%(nivel2)s - %(conta)s')
 
