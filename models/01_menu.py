@@ -41,16 +41,17 @@ response.menu+=[
     ])]
 response.menu+=[
     (T('Contas a Receber'), False, URL(request.application,'default','index'), [
-    ('Entrada', False, URL(r=request, c='receber', f='entrada_lista')),
+    ('Entrada de Contas a Receber', False, URL(r=request, c='receber', f='entrada_lista')),
     ('Ficha Cliente', False, URL(r=request, c='receber', f='cliente_ficha')),
     ('Contas a Receber', False, URL(r=request, c='receber', f='receber_lista')),
     ])]
 response.menu+=[
     (T('Contas a Pagar'), False, URL(request.application,'default','index'), [
     ('Pedido de Compra', False, URL(r=request, c='pagar', f='compras')),
-    ('Entrada de Nota Fiscal', False, URL(r=request, c='pagar', f='entrada_lista')),
+    ('Entrada Contas a Pagar', False, URL(r=request, c='pagar', f='entrada_lista')),
     ('Ficha Fornecedor', False, URL(r=request, c='pagar', f='fornecedor_ficha')),      
-    ('Contas a Pagar', False, URL(r=request, c='pagar', f='pagar_lista')),     
+    ('Contas a Pagar', False, URL(r=request, c='pagar', f='pagar_lista')),
+    ('Pagamentos', False, URL(r=request, c='pagar', f='lotes')), 
     ])]
 response.menu+=[
     (T('Financeiro'), False, URL(request.application,'default','index'), [

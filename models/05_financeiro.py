@@ -19,6 +19,13 @@ Lote.tipo.readable = Lote.tipo.writable = False
 Lote.dtlote.readable = Lote.dtlote.writable = False
 Lote.parcelas.readable = Lote.parcelas.writable =False
 
+Lote_parcelas = db.define_table('lote_parcelas',
+	Field('lote','reference lote'),
+	Field('parcela','reference pagar_parcelas'),
+	Field('valpag','decimal(7,2)'),
+	)
+Lote_parcelas.requires = IS_DECIMAL_IN_RANGE(dot=',')
+
 Conta_corrente = db.define_table('conta_corrente',
 	Field('descricao','string',label='Descricão do Lançamento',length=60),
 	Field('dtpagamento','date',label='Data'),

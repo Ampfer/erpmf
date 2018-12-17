@@ -256,31 +256,25 @@ def pesquisar_cliente():
 
 #@auth.requires_membership('admin')
 def receber():
-
-    target = request.vars.target
-    url = request.vars.url
-  
-    if type(request.vars.ids) is list:
-        session.ids = request.vars.ids
-    else:
-        session.ids = []
-        session.ids.append(request.vars.ids)
-
     session.id_lote = request.vars.id_lote or 0
     try:
         int(session.id_lote)
     except ValueError:
         session.id_lote = 0
 
-    btnVoltar = voltar(url)
+    btnVoltar = voltar('receber_lista')  
 
-    if request.vars.ids == None:
-        if session.id_lote ==0:
+    if session.id_lote ==0:
+        ids=[]
+        for row in request.vars:
+            ids.append( request.vars[row])
+        if ids == []:
             session.flash = 'Selecione pelo menos uma Parcela'
             redirect(URL(c="receber",f="receber_lista"))
         else:
-            session.ids = db(Receber_parcelas.lote == session.id_lote).select(db.receber.id,
-                            left=db.receber_parcelas.on(db.receber.id == db.receber_parcelas.receber))
+            session.ids = ids
+    else:
+        session.ids = Lote[session.id_lote].parcelas
 
     formParcelas = LOAD(c='receber',f='mostrar_parcelas',
         content='Aguarde, carregando...',target='mostrarparcelas',ajax=True,)
@@ -296,13 +290,18 @@ def receber():
     
 #@auth.requires_membership('admin')
 def mostrar_parcelas():
-    query = db(Receber_parcelas.id.belongs(session.ids))    
-    session.total_receber = query.select(Receber_parcelas.valor.sum()).first()[Receber_parcelas.valor.sum()] or 0
+
+    query = db(Receber_parcelas.id.belongs(session.ids))  
+    sum = (Receber_parcelas.valor - Receber_parcelas.valorpago).sum()  
+    session.total_receber = query.select(sum).first()[sum] or 0
+
     form = grid(query,searchable = False,create=False,deletable = False,editable = False,)
+
     return dict(form=form)
 
 #@auth.requires_membership('a#dmin')    
 def recebimentos_lista():
+
     query = db(Conta_corrente.lote == session.id_lote)
     session.total_recebimentos = query.select(Conta_corrente.vlrecebimento.sum()).first()[Conta_corrente.vlrecebimento.sum()] or 0
     fields = [Conta_corrente.lote, Conta_corrente.descricao, Conta_corrente.conta, Conta_corrente.dtpagamento,
@@ -341,6 +340,7 @@ def recebimentos_cheques():
     pass
 
 def recebimentos():
+
     idRecebimento = request.args(0) or "0"
 
     Conta_corrente.lote.readable = Conta_corrente.lote.writable = False 
@@ -363,7 +363,7 @@ def recebimentos():
             descricao = "REC LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0)[0])
             
             Conta_corrente.insert(dtpagamento = formRecebimentos.vars.dtpagamento, 
-                                  vlpagamento = formRecebimentos.vars.vlrecebimento,
+                                  vlrecebimento = formRecebimentos.vars.vlrecebimento,
                                   tipo = 'receber', 
                                   lote=session.id_lote,
                                   conta= formRecebimentos.vars.conta,
@@ -375,7 +375,7 @@ def recebimentos():
             atualizaRecebimentos(session.id_lote)              
 
             response.flash='Recebimento Salvo com Sucesso!'
-            response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
+            response.js = 'hide_modal(%s);' %("'recebimento_lista'")
         elif formRecebimentos.errors:
             response.flash = 'Erro no Formulário...!' 
         
@@ -387,7 +387,7 @@ def recebimentos():
         if formRecebimentos.process().accepted:
             atualizaRecebimentos(session.id_lote)
             response.flash = 'Recebimento Alterado com Sucesso!'
-            response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
+            response.js = 'hide_modal(%s);' %("'recebimentoslista'")
 
         elif formRecebimentos.errors:
             response.flash = 'Erro no Formulário...!'
@@ -404,8 +404,9 @@ def buscadoc(loteId):
     doctos = []
     for x in dcto:
         doctos.append('(' + x.receber.documento + '-' + x.receber_parcelas.parcela + ') ')
-    return doctos#
+    return doctos
 
+'''
 def atualizaRecebimentos(idlote):
     query = db(Conta_corrente.lote == idlote)
     sum = Conta_corrente.vlrecebimento.sum()
@@ -435,6 +436,63 @@ def atualizaRecebimentos(idlote):
                                                                     orderby=~Receber_parcelas.vencimento).first()
         id_parcela = parcela[Receber_parcelas.id]
         Receber_parcelas[id_parcela] = dict(valorpago=float(parcela[Receber_parcelas.valor]) + valor)
+'''
+def totalLote(idLote):
+    query = (Conta_corrente.lote == idLote)
+    sum = (Conta_corrente.vlrecebimento + Conta_corrente.desconto - Conta_corrente.juros).sum()
+    try:
+        total = round(float(db(query).select(sum).first()[sum]),2)
+    except:
+        total = 0
+    return total
+
+
+def atualizaRecebimentos(idLote):
+
+    ids = Lote[idLote].parcelas
+    valorpago = totalLote(idLote)
+    datapg = None 
+    parcelas = db(Receber_parcelas.id.belongs(ids)).select(Receber_parcelas.id, Receber_parcelas.valor,
+                                                                 orderby=Receber_parcelas.vencimento)
+    # zerando pagamentos do Lote
+    db(Lote_parcelas.lote == idLote).update(valpag=0)    
+
+    for parcela in parcelas:
+        idParcela = parcela.id
+        valorpendente = float(parcela.valor) - valorPago(idParcela)
+        valor = min(valorpago,valorpendente)
+        
+        query = (Lote_parcelas.lote == idLote) & (Lote_parcelas.parcela == idParcela)
+        Lote_parcelas.update_or_insert(query,
+            lote= idLote,
+            parcela = idParcela,
+            valpag =  valor,
+            )
+        
+        valorpago = valorpago - valor       
+        
+        atualizaParcela(idParcela,idLote)
+
+
+def valorPago(idParcela):
+    query = db(Lote_parcelas.parcela == idParcela)
+    sum = (Lote_parcelas.valpag).sum()
+    try:
+        valor = round(float(query.select(sum).first()[sum]),2)
+    except:
+        valor = 0
+    return valor   
+
+def atualizaParcela(idParcela,idLote):
+    
+    valor=valorPago(idParcela)
+    Receber_parcelas[idParcela] = dict(valorpago=valor)
+
+    if idLote == None:
+        Receber_parcelas[idParcela] = dict(dtpagamento=None)
+    elif Receber_parcelas[idParcela].valor <= valor:
+        datapg = db(Conta_corrente.lote == idLote).select(Conta_corrente.dtpagamento,orderby=~Conta_corrente.dtpagamento).first() or None
+        Receber_parcelas[idParcela] = dict(dtpagamento=datapg['dtpagamento'])
 
 def recebimentos_delete():
     id = request.args(0)
@@ -454,4 +512,63 @@ def recebimentos_delete():
     response.js = "$('#recebimentos_lista').get(0).reload()"
 
 def receber_lista():
-    pass
+           
+    form_pesq = SQLFORM.factory(
+        Field('cliente','integer',label='Cliente:',requires=IS_IN_DB(db,'clientes.id','clientes.nome',zero='TODOS')),
+        Field('status',label='Status',default = 'Pendente',requires=IS_IN_SET(['Todos','Pendente','Pago'],zero=None)),
+        Field('dtinicial','date',label='Data Inicial:',requires=data,),
+        Field('dtfinal','date',requires=data,label='Data Final',),
+        Field('documento',label='Documento:'),
+        table_name='pesquisar',
+        submit_button='Filtrar',
+        )  
+    
+    if form_pesq.process().accepted:
+        pass       
+    elif form_pesq.errors:
+        response.flash = 'Erro no Formulário'
+
+    return dict(form_pesq=form_pesq)
+
+def gerar_receber():
+    from datetime import datetime
+
+    idCliente = request.vars.cliente
+    inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial != '' else ''
+    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else request.now
+    status = request.vars.status
+    documento = request.vars.documento.split(',')
+    
+
+    query = (Receber_parcelas.receber == Receber.id) & (Clientes.id == Receber.cliente)
+    if idCliente:
+        query = query & (Receber.cliente == idCliente)
+    if inicial != '':
+        query = query & (Receber_parcelas.vencimento >= inicial)
+    if final != '':
+        query = query & (Receber_parcelas.vencimento <= final)
+    if status == 'Pendente':
+        query = query & (Receber_parcelas.dtpagamento == None)
+    if status == 'Pago':
+        query = query & (Receber_parcelas.dtpagamento != None) 
+    if documento != ['']:
+        query = query & (Receber.documento.contains(documento))
+
+    total = db(query).select(Receber_parcelas.valor.sum()).first()[Receber_parcelas.valor.sum()] or 0
+    total_pago = db(query).select(Receber_parcelas.valorpago.sum()).first()[Receber_parcelas.valorpago.sum()] or 0
+    total_pendente = total - total_pago
+
+    duplicatas = db(query).select(
+                            Receber_parcelas.id.with_alias('rowId'),
+                            Clientes.nome.with_alias('cliente'),
+                            Receber.documento.with_alias('documento'),
+                            Receber_parcelas.parcela.with_alias('parcela'),
+                            Receber.emissao.with_alias('emissao'),
+                            Receber_parcelas.vencimento.with_alias('vencimento'),
+                            Receber_parcelas.dtpagamento.with_alias('pagamento'),
+                            Receber_parcelas.valor.with_alias('valor'),
+                            (Receber_parcelas.valor - Receber_parcelas.valorpago).with_alias('pendente'),
+                            orderby = Receber_parcelas.vencimento
+                            )
+
+    return dict(duplicatas=duplicatas,total=total,total_pago=total_pago,total_pendente=total_pendente)

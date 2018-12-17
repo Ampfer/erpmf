@@ -381,11 +381,10 @@ def pagar_lista():
        
     form_pesq = SQLFORM.factory(
         Field('fornecedor','integer',label='Fornecedor:',requires=IS_IN_DB(db,'fornecedores.id','fornecedores.nome',zero='TODOS')),
-        Field('demanda','integer',label='Demanda::',requires=IS_EMPTY_OR(IS_IN_DB(db,'demandas.id','%(codigo)s - %(descricao)s',zero='TODOS'))),
-        Field('dtinicial','date',label='Data Inicial:',requires=data,),
-        Field('dtfinal','date',requires=data,label='Data Final',default=request.now,),
-        Field('documento',label='Documento:'),
         Field('status',label='Status',default = 'Pendente',requires=IS_IN_SET(['Todos','Pendente','Pago'],zero=None)),
+        Field('dtinicial','date',label='Data Inicial:',requires=data,),
+        Field('dtfinal','date',requires=data,label='Data Final',),
+        Field('documento',label='Documento:'),
         table_name='pesquisar',
         submit_button='Filtrar',
         )  
@@ -397,27 +396,19 @@ def pagar_lista():
 
     return dict(form_pesq=form_pesq)
 
-def teste():
-    ids = request.vars['ids[]']
-    print ids
-    redirect(URL('pagar',vars=dict(ids=ids)))
-
 def gerar_pagar():
     from datetime import datetime
 
     idFornecedor = request.vars.fornecedor
-    idDemanda = request.vars.demanda
     inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial != '' else ''
     final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else request.now
     status = request.vars.status
     documento = request.vars.documento.split(',')
-    print documento
+    
 
     query = (Pagar_parcelas.pagar == Pagar.id) & (Fornecedores.id == Pagar.fornecedor)
     if idFornecedor:
         query = query & (Pagar.fornecedor == idFornecedor)
-    if idDemanda != '': 
-        query = query & (Pagar.demanda == idDemanda)
     if inicial != '':
         query = query & (Pagar_parcelas.vencimento >= inicial)
     if final != '':
@@ -432,10 +423,6 @@ def gerar_pagar():
     total = db(query).select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
     total_pago = db(query).select(Pagar_parcelas.valorpago.sum()).first()[Pagar_parcelas.valorpago.sum()] or 0
     total_pendente = total - total_pago
-
-    def status():
-        return 'pendente'
-
 
     duplicatas = db(query).select(
                             Pagar_parcelas.id.with_alias('rowId'),
@@ -463,7 +450,7 @@ def buscadoc(ids,loteId=0):
     doctos = []
     for x in dcto:
         doctos.append('(' + x.pagar.documento + '-' + x.pagar_parcelas.parcela + ') ')
-    return doctos#
+    return doctos
 
 #@auth.requires_membership('admin')
 def lotes():
@@ -477,57 +464,40 @@ def lotes():
         links =[lambda row: A(SPAN(_class="glyphicon glyphicon-pencil"), _class="btn btn-default",
                                    _href=URL('pagar','pagar',vars=dict(id_lote=row.id,target='pagarLotes',url='pagar_lista'))),
                 lambda row: A(SPAN(_class="glyphicon glyphicon-trash"),_id="lote_delete", _class="btn btn-default",
-                                   _href=URL('pagar','lote_delete',vars=dict(id_lote=row.id,total=row.total,url='pagar_lista')))
+                                   _href=URL('pagar','lote_delete',vars=dict(id_lote=row.id,total=row.total,url='lotes')))
                ],
         )
     
-    return locals()
+    return dict(form=form)
 
 #@auth.requires_membership('admin')
 def lote_delete():
     url = request.vars.url
-    if type(request.vars.ids) is list:
-        session.ids = request.vars.ids
-    else:
-        session.ids = []
-        session.ids.append(request.vars.ids)
-    
     id_lote = request.vars.id_lote
-    total = 0 - float(request.vars.total)
-    datapg = None
+
+    parcelas = Lote[id_lote].parcelas
+    
     del Lote[id_lote]
-    atualizaPagamentos(id_lote)
-    idsCheques = db(Cheques.lotpag==id_lote).select(Cheques.id)
-    for idCheque in idsCheques:
-        Cheques[idCheque.id] = dict(lotpag=None)
+    db(Lote_parcelas.lote == id_lote).delete()
+    db(Conta_corrente.lote == id_lote).delete()
+    db(Cheques.lotpag==id_lote).delete()
+
+    for parcela in parcelas:
+        atualizaParcela(parcela,None)
+    
     redirect(URL(url))
 
 #@auth.requires_membership('admin')
 def pagar():
-    '''
-    ids=[]
-    for row in request.vars:
-        ids.append( request.vars[row])
-
-    print type(ids) 
-    if type(ids) is list:
-        session.ids = ids
-    else:
-        session.ids = []
-        session.ids.append(ids)
-    '''
+    
     session.id_lote = request.vars.id_lote or 0
     try:
         int(session.id_lote)
     except ValueError:
         session.id_lote = 0
 
-    #btnVoltar = voltar('pagar_lista')
-
-    btnVoltar = voltar2()
-
-    #,_onClick="jQuery('#pagarLotes').get(0).reload()"
-    #if 
+    btnVoltar = voltar('pagar_lista')  
+    
     if session.id_lote ==0:
         ids=[]
         for row in request.vars:
@@ -556,7 +526,8 @@ def mostrar_parcelas():
         
     query = db(Pagar_parcelas.id.belongs(session.ids))
 
-    session.total_pagar = query.select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
+    sum = (Pagar_parcelas.valor - Pagar_parcelas.valorpago).sum()
+    session.total_pagar = query.select(sum).first()[sum] or 0
     form = SQLFORM.grid(query,
         searchable = False,create=False,deletable = False,editable = False,details=False,
         csv=False,user_signature=False,
@@ -599,9 +570,10 @@ def pagamentos_lista():
     novo =A(SPAN(_class="glyphicon glyphicon-plus"), _class="btn btn-default", _id='novo')
     form[0].insert(-1,novo)
 
-    return locals()
+    return dict(form=form)
 
 #@auth.requires_membership('admin')
+'''
 def pagamentos():
 
     id_pagamento = request.args(0) or "0"
@@ -652,7 +624,131 @@ def pagamentos():
             response.flash = 'Erro no Formulário...!'
 
     return locals()
+'''
+def pagamentos():
 
+    id_pagamento = request.args(0) or "0"
+
+    Conta_corrente.lote.readable = False
+    Conta_corrente.vlrecebimento.readable = Conta_corrente.vlrecebimento.writable = False
+    Conta_corrente.descricao.readable = Conta_corrente.descricao.writable = False
+    Conta_corrente.vlrecebimento.default = 0
+    Conta_corrente.desconto.default = 0
+    Conta_corrente.juros.default = 0
+
+    if id_pagamento == "0":
+        Conta_corrente.dtpagamento.default= request.now.date()
+        Conta_corrente.vlpagamento.default = session.total_pagar - session.total_pagamentos
+        form_pagamentos = SQLFORM.factory(Lote,Conta_corrente,_id='form_pagamentos',field_id='id',table_name='pagamentos')
+
+        if form_pagamentos.process().accepted:
+            if session.id_lote == 0:
+                session.id_lote = Lote.insert(dtlote = form_pagamentos.vars.dtpagamento,
+                                              tipo = 'pagar',
+                                              parcelas=session.ids)
+
+            descricao = "PAG LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0,session.id_lote)[0])
+
+            Conta_corrente.insert(dtpagamento = form_pagamentos.vars.dtpagamento,
+                                  vlpagamento = form_pagamentos.vars.vlpagamento,
+                                  desconto = form_pagamentos.vars.desconto,
+                                  juros = form_pagamentos.vars.juros,
+                                  tipo = 'pagar',
+                                  lote=session.id_lote,
+                                  conta= form_pagamentos.vars.conta,
+                                  descricao=descricao)
+            
+            atualizaPagamentos(session.id_lote)
+
+            response.flash='Pagamentos Salvo com Sucesso!'
+            response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
+        elif form_pagamentos.errors:
+            response.flash = 'Erro no Formulário...!' 
+    else:
+        valoranterior = db(Conta_corrente.id == id_pagamento).select(Conta_corrente.vlpagamento).first()[Conta_corrente.vlpagamento]
+
+        form_pagamentos = SQLFORM(Conta_corrente,id_pagamento,submit_button='Alterar',_id='form_pagamentos',field_id='id')
+
+        if form_pagamentos.process().accepted:
+            atualizaPagamentos(session.id_lote)
+            response.flash = 'Pagamento Alterado com Sucesso!'
+            response.js = 'hide_modal(%s);' %("'pagamentos_lista'")
+
+        elif form_pagamentos.errors:
+            response.flash = 'Erro no Formulário...!'
+
+    return dict(form_pagamentos=form_pagamentos)
+
+def totalLote(idLote):
+    query = (Conta_corrente.lote == idLote)
+    sum = (Conta_corrente.vlpagamento + Conta_corrente.desconto - Conta_corrente.juros).sum()
+    #sum = (Conta_corrente.vlpagamento).sum()
+    try:
+        total = round(float(db(query).select(sum).first()[sum]),2)
+    except:
+        total = 0
+    return total
+
+
+def atualizaPagamentos(idLote):
+
+    ids = Lote[idLote].parcelas
+    valorpago = totalLote(idLote)
+    datapg = None 
+    parcelas = db(Pagar_parcelas.id.belongs(ids)).select(Pagar_parcelas.id, Pagar_parcelas.valor,
+                                                                 orderby=Pagar_parcelas.vencimento)
+    # zerando pagamentos do Lote
+    db(Lote_parcelas.lote == idLote).update(valpag=0)    
+
+    for parcela in parcelas:
+        idParcela = parcela.id
+        valorpendente = float(parcela.valor) - valorPago(idParcela)
+        valor = min(valorpago,valorpendente)
+        
+        query = (Lote_parcelas.lote == idLote) & (Lote_parcelas.parcela == idParcela)
+        Lote_parcelas.update_or_insert(query,
+            lote= idLote,
+            parcela = idParcela,
+            valpag =  valor,
+            )
+        
+        valorpago = valorpago - valor       
+        
+        atualizaParcela(idParcela,idLote)
+
+
+def valorPago(idParcela):
+    query = db(Lote_parcelas.parcela == idParcela)
+    sum = (Lote_parcelas.valpag).sum()
+    try:
+        valor = round(float(query.select(sum).first()[sum]),2)
+    except:
+        valor = 0
+    return valor   
+
+def atualizaParcela(idParcela,idLote):
+    
+    valor=valorPago(idParcela)
+    Pagar_parcelas[idParcela] = dict(valorpago=valor)
+
+    if idLote == None:
+        Pagar_parcelas[idParcela] = dict(dtpagamento=None)
+    elif Pagar_parcelas[idParcela].valor <= valor:
+        datapg = db(Conta_corrente.lote == idLote).select(Conta_corrente.dtpagamento,orderby=~Conta_corrente.dtpagamento).first() or None
+        Pagar_parcelas[idParcela] = dict(dtpagamento=datapg['dtpagamento'])
+    
+
+def atualizarcontaspagar():
+    contas = db(Conta_corrente.id>0).select(orderby=Conta_corrente.dtpagamento)
+    for conta in contas:
+        if conta.tipo == 'pagar':
+            try:
+                atualizaPagamentos(conta.lote)
+            except:
+                print conta.lote
+
+
+'''
 #@auth.requires_membership('admin')
 def atualizaPagamentos(idlote):
 
@@ -695,7 +791,7 @@ def atualizaPagamentos(idlote):
                                                                     orderby=~Pagar_parcelas.vencimento).first()
         id_parcela = parcela[Pagar_parcelas.id]
         Pagar_parcelas[id_parcela] = dict(valorpago=float(parcela[Pagar_parcelas.valor]) + valor)
-
+'''
 
 def excluirCheque():
     idCheque = request.args(0)
@@ -759,13 +855,13 @@ def fornecedor_ficha():
               Pagar_parcelas.dtpagamento,Pagar_parcelas.valor,Pagar_parcelas.lote,Pagar_parcelas.valorpendente, Pagar_parcelas.status]
     
     if session.fornecedor:
-
+        '''
         links = [lambda row: A(SPAN(_class="glyphicon glyphicon-share-alt"),' Pagar', _class="btn btn-default",_id='pagar',_title="Pagar Parcelas",
                                         _href=URL('pagar',vars=dict(id_lote = row.pagar_parcelas.lote,ids=row.pagar_parcelas.id,url="fornecedor_ficha")))]
-
+        '''
         form_parcelas = grid(query,
             formname="fornecedor_parcelas",field_id = Pagar_parcelas.id,orderby=Pagar_parcelas.vencimento,fields=fields,
-            links = links,deletable = False,editable = False,create=False,searchable=False)
+            deletable = False,editable = False,create=False,searchable=False)
 
     formPagamentos = LOAD(c='pagar',f='fornecedorPagamentos',target='fornecedorPagamentos',ajax=True,args=session.fornecedor)
 
@@ -974,7 +1070,7 @@ def compraGeraPdf(id_compra):
                                Compras[id_compra].demanda.endereco.estado)
 
     demanda = Compras[id_compra].demanda.descricao
-    print demanda
+    
     obs = Compras[id_compra].obs
     insumos = db(ComprasInsumos.compra == id_compra).select()
 

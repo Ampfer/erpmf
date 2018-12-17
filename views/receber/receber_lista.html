@@ -1,46 +1,43 @@
-{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
-{{include 'modal.html'}}
-
 <div class="container">
-  <h3>Contas a Receber </h3>
-  <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#home">Parcelas</a></li>
-    <li><a data-toggle="tab" href="#menu1">Lotes</a></li>
-  </ul>
-  <div class="tab-content">
-    <div id="home" class="tab-pane fade in active">
-      {{=form_pesq.custom.begin}}
-      <div class="row">
-        <div class="col-md-3"> Status {{=form_pesq.custom.widget.status}} </div>
-        <div class="col-md-3"> Situação {{=form_pesq.custom.widget.situacao}} </div>
-        <div class="col-md-3"> Período {{=form_pesq.custom.widget.periodo}} </div>
-        <div class="col-md-3"> {{=form_pesq.custom.submit}}</div>
-      </div><!-- /.row -->
-      {{=form_pesq.custom.end}}
-		  {{=grid_receber}} 
-      <pre>Total: <b>{{=total}}</b>    Total Pago : <b>{{=total_pago}}</b>     Total Pendente : <b>{{=total_pendente}}</b></pre>
+    {{=titulo("RECEBER ","Relatório de Titulos")}}
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#home">Pesquisa</a></li>
+        <li><a data-toggle="tab" href="#menu1">Resultado</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+            <h3>Fitros de Pesquisa</h3>
+            {{=form_pesq.custom.begin}}
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.cliente,form_pesq.custom.widget.cliente)}}
+                {{=campo(4,form_pesq.custom.label.status,form_pesq.custom.widget.status)}}
+            </div>
+            <div class="row">
+                {{=campo(4,form_pesq.custom.label.dtinicial,form_pesq.custom.widget.dtinicial)}}
+                {{=campo(4,form_pesq.custom.label.dtfinal,form_pesq.custom.widget.dtfinal)}}
+            </div>
+            <div class="row">
+                {{=campo(8,form_pesq.custom.label.documento,form_pesq.custom.widget.documento)}}
+            </div>
+            <hr>
+            {{=btnRodape(form_pesq.custom.submit)}}
+            {{=form_pesq.custom.end}}
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            
+        </div>
     </div>
-    <div id="menu1" class="tab-pane fade">
-    	{{=form_lotes}} 
-    </div>         
-  </div>
 </div>
 
-<script type="text/javascript">
-jQuery(function($){
-	$("input[value='Salvar']").attr('value','Receber Duplicadas');
-  $("input[value=Filtrar]").hide();
-  $("#pesquisar_status").change(function() {
-    $("input[value=Filtrar]").click();
-  });
-    $("#pesquisar_situacao").change(function() {
-    $("input[value=Filtrar]").click();
-  });
-  $("#pesquisar_periodo").change(function() {
-    $("input[value=Filtrar]").click();
-  });
-
-}); 
+<script>
+$(document).ready(function(){
+    jQuery('form').submit(function() {
+        $('.nav li.active').next('li').removeClass('disabled');
+        $('.nav li.active').next('li').find('a').attr("data-toggle","tab").trigger("click");
+        ajax('{{=URL('gerar_receber')}}',['cliente','dtinicial', 'dtfinal','documento','status'],'menu1');
+        return false;
+    }); 
+});
 </script>
 

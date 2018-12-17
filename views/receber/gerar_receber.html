@@ -1,10 +1,10 @@
-<button id = 'pagar' type="button" class="btn btn-primary right">Pagar Duplicatas</button>
+<button id = 'receber' type="button" class="btn btn-primary right">Receber Duplicatas</button>
 
 <table id="duplicatas" class="display" cellspacing="0" width="100%">
     <thead>
         <tr>
             
-            <th>Fornecedor</th>
+            <th>Cliente</th>
             <th>Documento</th>
             <th>Parcela</th>
             <th>Emissão</th>
@@ -19,7 +19,7 @@
         {{for r in duplicatas:}}
         <tr id='{{=r.rowId}}'>
             
-            <td>{{=r.fornecedor}}</td>
+            <td>{{=r.cliente}}</td>
             <td>{{=r.documento}}</td>
             <td>{{=r.parcela}}</td>
             <td>{{=make_data(r.emissao)}}</td>
@@ -75,16 +75,14 @@ $(document).ready(function(){
         $(this).toggleClass('selected');
     } );
  
-    $('#pagar').click( function () {
+    $('#receber').click( function () {
         var resultado = table.rows('.selected').ids();
         var i;
         ids = []
         for (i = 0; i < resultado.length; i++) { 
             ids[i] = resultado[i];
             };
-        $.redirect("{{=URL('pagar')}}",ids);
+        $.redirect("{{=URL('receber')}}",ids);
     });
 });
 </script>
-
-

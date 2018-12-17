@@ -1,33 +1,21 @@
-{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
 {{include 'modal.html'}}
 <div class="container">
-    <div class="panel panel-info">
-        <div class="panel-heading"><h4>Recebimetnos de Duplicatas</h4></div>
-        <div class="panel-body">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#home">Duplicatas</a></li>
-                <li><a data-toggle="tab" href="#menu1">Recebimentos</a></li>
-                <li><a data-toggle="tab" href="#menu2">Cheques</a></li>
-            </ul>
-            <div class="tab-content">
-                <div id="home" class="tab-pane fade in active">
-                    {{=formParcelas}}
-                </div>
-            <div id="menu1" class="tab-pane fade">
-                {{=formRecebimentos}}
-            </div>
-            <div id="menu2" class="tab-pane fade">
-                {{=formCheques}}
-            </div>
-            </div>
-            <div class="panel panel-info">
-                <div class="panel-body">
-                    <div class="right">
-                        {{=btnVoltar}}
-                    </div>
-                </div>
-            </div>
+    {{=titulo("RECEBER ","Recebimentos de Titulos",btnVoltar)}}
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#home">Duplicatas</a></li>
+        <li><a data-toggle="tab" href="#menu1">Recebimentos</a></li>
+        <li><a data-toggle="tab" href="#menu2">Cheques</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+            {{=formParcelas}}
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            {{=formRecebimentos}}
+        </div>
+        <div id="menu2" class="tab-pane fade">
+            {{=formCheques}}
         </div>
     </div>
 </div>
