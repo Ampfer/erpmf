@@ -354,7 +354,7 @@ def recebimentos():
     if idRecebimento == "0":
         Conta_corrente.dtpagamento.default= request.now.date()
         Conta_corrente.vlrecebimento.default = session.total_receber - session.total_recebimentos
-        formRecebimentos = SQLFORM.factory(Lote,Conta_corrente,_id='formRecebimentos',field_id='id',table_name='recebimentos')
+        formRecebimentos = SQLFORM.factory(Lote,Conta_corrente,_id='formRecebimentos',field_id='id',table_name='conta_corrente')
         
         if formRecebimentos.process().accepted:
             if session.id_lote == 0:
@@ -375,14 +375,14 @@ def recebimentos():
             atualizaRecebimentos(session.id_lote)              
 
             response.flash='Recebimento Salvo com Sucesso!'
-            response.js = 'hide_modal(%s);' %("'recebimento_lista'")
+            response.js = 'hide_modal(%s);' %("'recebimentoslista'")
         elif formRecebimentos.errors:
             response.flash = 'Erro no Formulário...!' 
         
     else:
         valoranterior = db(Conta_corrente.id == idRecebimento).select(Conta_corrente.vlrecebimento).first()[Conta_corrente.vlrecebimento]
 
-        formRecebimentos = SQLFORM(Conta_corrente,idRecebimento,submit_button='Alterar',_id='formRecebimentos',field_id='id')
+        formRecebimentos = SQLFORM(Conta_corrente,idRecebimento,submit_button='Alterar',_id='formRecebimentos',field_id='id',table_name='recebimentos')
 
         if formRecebimentos.process().accepted:
             atualizaRecebimentos(session.id_lote)
@@ -460,7 +460,11 @@ def atualizaRecebimentos(idLote):
     for parcela in parcelas:
         idParcela = parcela.id
         valorpendente = float(parcela.valor) - valorPago(idParcela)
+        print valorPago(idParcela)
+        print 'valorpendente', valorpendente
+
         valor = min(valorpago,valorpendente)
+        print 'valor', valor
         
         query = (Lote_parcelas.lote == idLote) & (Lote_parcelas.parcela == idParcela)
         Lote_parcelas.update_or_insert(query,
@@ -473,9 +477,8 @@ def atualizaRecebimentos(idLote):
         
         atualizaParcela(idParcela,idLote)
 
-
 def valorPago(idParcela):
-    query = db(Lote_parcelas.parcela == idParcela)
+    query = db(Lote_parcelas.parcela == idParcela) & (Lote_parcelas.lote==Lote.id) & (Lote.tipo=='receber')
     sum = (Lote_parcelas.valpag).sum()
     try:
         valor = round(float(query.select(sum).first()[sum]),2)
