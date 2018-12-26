@@ -1,0 +1,14 @@
+{{if gridAtividades.create_form or gridAtividades.update_form:}}
+    {{=gridAtividades[1].custom.begin}}
+    <div class="row">
+        <div class="col-md-4">
+            {{=gridAtividades[1].custom.label.atividade}}
+            {{=gridAtividades[1].custom.widget.atividade}}
+        </div>
+    </div>
+    <hr>
+    {{=btnRodape(gridAtividades[1].custom.submit,btnVoltar,btnExcluir)}}
+    {{=gridAtividades[1].custom.end}}
+{{else:}}
+    {{=gridAtividades}}
+{{pass}}

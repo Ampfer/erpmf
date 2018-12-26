@@ -1,58 +1,55 @@
-<div class="well">
-    {{=form_pesq.custom.begin}}
-    <div class="row">
-        <div class="col-md-7">
-            {{=form_pesq.custom.label.atividade}}
-            {{=form_pesq.custom.widget.atividade}}
-        </div>
-        <div class="col-md-3">
-            {{=form_pesq.custom.label.tipo}}
-            {{=form_pesq.custom.widget.tipo}}
-        </div>
-        <div class="col-md-2" style="margin-top: 55px">
-            {{=form_pesq.custom.submit}}
-        </div>
+{{=form_pesq.custom.begin}}
+<div class="row">
+    <div class="col-md-7">
+        {{=form_pesq.custom.label.atividade}}
+        {{=form_pesq.custom.widget.atividade}}
     </div>
-    {{=form_pesq.custom.end}}
+    <div class="col-md-3">
+        {{=form_pesq.custom.label.tipo}}
+        {{=form_pesq.custom.widget.tipo}}
+    </div>
+    <div class="col-md-2" style="margin-top: 55px">
+        {{=form_pesq.custom.submit}}
+    </div>
 </div>
-<div class="well">
-    <div style="text-align: center">
-        <h3>{{=legenda}}</h3>
-        <h2>{{=totalOrcamento}}</h2>
-    </div>
+{{=form_pesq.custom.end}}
+<div style="text-align: center">
+    <h3>{{=legenda}}</h3>
+    <h2>{{=totalOrcamento}}</h2>
+</div>
 
-    <table class="table tree-2 table-bordered table-striped table-condensed">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th style="text-align: center;">UN</th>
-                <th style="text-align: center;">Quantidade</th>
-                <th style="text-align: center;">Valor</th>
-                <th style="text-align: center;">Total</th>
-            </tr>
-        </thead>
-        <body>
-            {{for linha in linhas:}}
-                {{if linha['p'] == 0:}}   
-                    <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
-                        <td>{{=linha['item']}}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                {{else:}}
-                    <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
-                        <td>{{=linha['item']}}</td>
-                        <td style="text-align: center;">{{=linha['unidade']}}</td>
-                        <td style="{{=linha['css']}}">{{=linha['qtde']}}</td>
-                        <td style="{{=linha['css']}}">{{=linha['valor']}}</td>
-                        <td style="{{=linha['css']}}">{{=linha['total']}}</td>
-                    </tr>
-                {{pass}}
+<table class="table tree-2 table-bordered table-striped table-condensed">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th style="text-align: center;">UN</th>
+            <th style="text-align: center;">Quantidade</th>
+            <th style="text-align: center;">Valor</th>
+            <th style="text-align: center;">Total</th>
+        </tr>
+    </thead>
+    <body>
+        {{for linha in linhas:}}
+            {{if linha['p'] == 0:}}   
+                <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
+                    <td>{{=linha['item']}}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            {{else:}}
+                <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
+                    <td>{{=linha['item']}}</td>
+                    <td style="text-align: center;">{{=linha['unidade']}}</td>
+                    <td style="{{=linha['css']}}">{{=linha['qtde']}}</td>
+                    <td style="{{=linha['css']}}">{{=linha['valor']}}</td>
+                    <td style="{{=linha['css']}}">{{=linha['total']}}</td>
+                </tr>
             {{pass}}
-            </body>
-    </table> 
-</div>          
+        {{pass}}
+        </body>
+</table> 
+
 
 
 

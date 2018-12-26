@@ -1,50 +1,21 @@
 {{if formEnderecos.create_form or formEnderecos.update_form:}}
     {{=formEnderecos[1].custom.begin}}
-    <div class="well">
-        <div class="row">
-            <div class="col-md-4">
-                {{=formEnderecos[1].custom.label.tipo}}
-                {{=formEnderecos[1].custom.widget.tipo}}
-            </div>
-            <div class="col-md-8">
-                {{=formEnderecos[1].custom.label.endereco}}
-                {{=formEnderecos[1].custom.widget.endereco}}
-            </div>
-        </div>
-        <div class="row">
-            <p></p>
-            <div class="col-md-4">
-                {{=formEnderecos[1].custom.label.bairro}}
-                {{=formEnderecos[1].custom.widget.bairro}}
-            </div>
-            <div class="col-md-4">
-                {{=formEnderecos[1].custom.label.cidade}}
-                {{=formEnderecos[1].custom.widget.cidade}}
-            </div>
-            <div class="col-md-2">
-                {{=formEnderecos[1].custom.label.estado}}
-                {{=formEnderecos[1].custom.widget.estado}}
-            </div>
-            <div class="col-md-2">
-                {{=formEnderecos[1].custom.label.cep}}
-                {{=formEnderecos[1].custom.widget.cep}}
-            </div>
-        </div>
+    
+    <div class="row">
+        {{=campo(4,formEnderecos[1].custom.label.tipo,formEnderecos[1].custom.widget.tipo)}}
+        {{=campo(8,formEnderecos[1].custom.label.endereco,formEnderecos[1].custom.widget.endereco)}}
     </div>
-    <div class="panel panel-info">
-        <div class="panel-body">
-            <div class="right">
-                {{=formEnderecos[1].custom.submit}}
-                {{=btnVoltar}}
-                {{=btnExcluir}}
-            </div>
-        </div>
+    <div class="row">
+        {{=campo(4,formEnderecos[1].custom.label.bairro,formEnderecos[1].custom.widget.bairro)}}
+        {{=campo(4,formEnderecos[1].custom.label.cidade,formEnderecos[1].custom.widget.cidade)}}
+        {{=campo(2,formEnderecos[1].custom.label.estado,formEnderecos[1].custom.widget.estado)}}
+        {{=campo(2,formEnderecos[1].custom.label.cep,formEnderecos[1].custom.widget.cep)}}
     </div>
+    <hr>
+    {{=btnRodape(formEnderecos[1].custom.submit,btnVoltar,btnExcluir)}}
     {{=formEnderecos[1].custom.end}}
 {{else:}}
-    <div class="well">
-        {{=formEnderecos}}
-    </div>
+    {{=formEnderecos}}
 {{pass}}
 
 <script type="text/javascript">
