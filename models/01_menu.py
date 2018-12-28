@@ -59,6 +59,7 @@ response.menu+=[
     ('Conta', False, URL(r=request, c='financeiro', f='contas')),
     ('Cheques', False, URL(r=request, c='financeiro', f='cheques')),
     ('Conta Corrente', False, URL(r=request, c='financeiro', f='conta_corrente')),
+    ('Transferências', False, URL(r=request, c='financeiro', f='transferencias')),
     ])]
 response.menu+=[
     (T('Engenharia'), False, URL(request.application,'default','index'), [

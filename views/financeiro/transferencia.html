@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+<div class="container">
+    {{=titulo("FINANCEIRO ","Transferência entre Contas",btnNovo,btnVoltar)}}
+    {{=formTransferencia.custom.begin}}
+    <div class="row">
+        {{=campo(5,formTransferencia.custom.label.origem,formTransferencia.custom.widget.origem)}}
+        {{=campo(5,formTransferencia.custom.label.destino,formTransferencia.custom.widget.destino)}}
+        {{=campo(2,formTransferencia.custom.label.valor,formTransferencia.custom.widget.valor)}}
+    </div>
+    <hr>
+    {{=btnRodape(formTransferencia.custom.submit,btnExcluir)}}
+    {{=formTransferencia.custom.end}}
+</div>

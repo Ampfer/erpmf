@@ -116,6 +116,43 @@ def conta_corrente_delete():
     return locals()
 
 #@auth.requires_membership('admin')
+def transferencias():
+    fields=[Transferencias.origem,Transferencias.destino,Transferencias.valor]
+    gridTransferencia = grid(Transferencias,formname="transferencia",fields=fields)
+
+    if request.args(-2) == 'new':
+       redirect(URL('transferencia'))
+    elif request.args(-3) == 'edit':
+       idTransferencia = request.args(-1)
+       redirect(URL('transferencia', args=idTransferencia ))
+
+    return dict(gridTransferencia=gridTransferencia)
+
+#@auth.requires_membership('admin')
+def transferencia():
+    idTransferencia = request.args(0) or "0"
+
+    if idTransferencia == "0":
+        formTransferencia = SQLFORM(Transferencias,field_id='id', _id='form_cliente')
+        btnNovo=btnExcluir=btnVoltar = ''
+    else:
+        formTransferencia = SQLFORM(Transferencias,idTransferencia,_id='formTransferencia',field_id='id')
+
+        btnExcluir = excluir("#")
+        btnNovo = novo("transferencia")
+
+    btnVoltar = voltar("transferencias")
+
+    if formTransferencia.process().accepted:
+        response.flash = 'transferencia Salvo com Sucesso!'
+        redirect(URL('transferencia', args=formTransferencia.vars.id))
+
+    elif formTransferencia.errors:
+        response.flash = 'Erro no Formulário Principal!'
+
+    return dict(formTransferencia=formTransferencia,btnNovo=btnNovo,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+
+#@auth.requires_membership('admin')
 def banco():
     formBanco = SQLFORM.grid(Banco,
             csv=False,user_signature=False,details=False,maxtextlength=50,
