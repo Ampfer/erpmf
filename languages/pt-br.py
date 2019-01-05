@@ -68,6 +68,7 @@
 'Cannot be empty': 'Não pode ser vazio',
 'Ccdestino': 'Ccdestino',
 'Ccdorigem': 'Ccdorigem',
+'Ccorigem': 'Ccorigem',
 'Celular:': 'Celular:',
 'Cep:': 'Cep:',
 'change password': 'modificar senha',

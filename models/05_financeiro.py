@@ -51,9 +51,11 @@ Transferencias = db.define_table('transferencia',
 	Field('origem','reference conta'),
 	Field('destino','reference conta'),
 	Field('valor','double'),
-	Field('ccdorigem','integer'),
+	Field('dttransferencia','date',label='Data'),
+	Field('ccorigem','integer'),
 	Field('ccdestino','integer')
 	)
+Transferencias.dttransferencia.requires = data
 
 Banco = db.define_table('banco',
 	Field('codigo', 'string',label = 'Numero',length=3, unique = True),
