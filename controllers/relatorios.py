@@ -36,7 +36,7 @@ def gerar_abc():
         query = (PagarInsumos.pagar == Pagar.id) & (PagarInsumos.insumo == Insumo.id)
         xdesc = 'Insumo[row.pagarInsumos.insumo].descricao'
         if idDemanda != '':
-            query = query & (Pagar.demanda==idDemanda)
+            query = query & (PagarInsumos.demanda==idDemanda)
             demanda = Demandas[int(idDemanda)].descricao
         if tipo != '':
             query = query & (Insumo.tipo==tipo)
@@ -47,7 +47,7 @@ def gerar_abc():
         sum1 = Pagar.valor.sum()
         groupby = Pagar.fornecedor
         if idDemanda != '':
-            query = (Pagar.demanda==idDemanda)
+            query = (PagarInsumos.demanda==idDemanda)
             demanda = Demandas[int(idDemanda)].descricao
         else:
             query = (Pagar.id > 0)
@@ -118,7 +118,7 @@ def gerar_historico_insumo():
     if final != '':
         query = query & (Pagar.emissao <= final)
     if idDemanda != '': 
-        query = query & (Pagar.demanda == idDemanda)
+        query = query & (PagarInsumos.demanda == idDemanda)
     if idInsumo != '':
         query = query & (PagarInsumos.insumo == idInsumo)
     

@@ -314,69 +314,6 @@ def pagamento_modal(ids):
     return False
 
 #@auth.requires_membership('admin')
-def pagar_lista_old():
-    from datetime import timedelta,date
-
-    status = request.vars.status if request.vars.status else 'Pendente'
-    situacao = request.vars.situacao if request.vars.situacao else 'Todos'
-    periodo = request.vars.periodo if request.vars.periodo else 'Todos'
-       
-    periodoset = ['Todos','-7 dias','+7 dias','-30 dias','+30 dias','-60 dias','+60 dias']
-    form_pesq = SQLFORM.factory(
-        Field('status',default = status, requires=IS_IN_SET(['Todos','Pendente','Pago'],zero=None)),
-        Field('situacao',default = situacao, requires=IS_IN_SET(['Todos','Vencidos','a Vencer'],zero=None)),
-        Field('periodo',default = periodo, requires=IS_IN_SET(periodoset,zero=None)),
-        table_name='pesquisar',
-        submit_button='Filtrar',
-        )  
-    
-    if form_pesq.process().accepted:
-        status = form_pesq.vars.status
-        periodo = form_pesq.vars.periodo
-        situacao = form_pesq.vars.situacao        
-    elif form_pesq.errors:
-        response.flash = 'Erro no Formulário'
-
-    datainicial = datafinal = request.now
-    datainicial = datainicial - timedelta(7) if periodo == '-7 dias' else datainicial
-    datainicial = datainicial - timedelta(30) if periodo == '-30 dias' else datainicial
-    datafinal = datafinal + timedelta(7) if periodo == '+7 dias' else datafinal
-    datafinal = datafinal + timedelta(30) if periodo == '+30 dias' else datafinal
-    datainicial = datainicial - timedelta(60) if periodo == '-60 dias' else datainicial
-    datafinal = datafinal + timedelta(60) if periodo == '+60 dias' else datafinal
-
-    query = (Pagar_parcelas.pagar == Pagar.id)
-    query = query & (Pagar_parcelas.dtpagamento == None) if status == 'Pendente' else query
-    query = query & (Pagar_parcelas.dtpagamento != None) if status == 'Pago' else query
-    query = query & (Pagar_parcelas.vencimento < request.now) if situacao == 'Vencidos' else query
-    query = query & (Pagar_parcelas.vencimento > request.now) if situacao == 'a Vencer' else query
-    query = query & (Pagar_parcelas.vencimento <= datafinal) & (Pagar_parcelas.vencimento >= datainicial) if periodo != 'Todos' else query
-    query = query & request.vars.keywords if request.vars.keywords else query
-
-    total = db(query).select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
-    total_pago = db(query).select(Pagar_parcelas.valorpago.sum()).first()[Pagar_parcelas.valorpago.sum()] or 0
-    total_pendente = total - total_pago
-
-    fields = [Pagar.fornecedor,Pagar.documento,Pagar_parcelas.parcela,Pagar.emissao,Pagar_parcelas.vencimento,
-              Pagar_parcelas.dtpagamento,Pagar_parcelas.valor,Pagar_parcelas.valorpendente, Pagar_parcelas.status]
-    
-    #selectable = (lambda ids: redirect(URL('pagar',vars=dict(ids=ids)))) if status != "Pendente" else None
-    selectable = None if status != "Pendente" else (lambda ids: redirect(URL('pagar',vars=dict(ids=ids,url="pagar_lista"))))
-
-    grid_pagar = grid(db(query),
-        formname="lista_pagar",field_id = Pagar_parcelas.id,
-        fields=fields,orderby=Pagar_parcelas.vencimento,selectable= selectable, 
-        deletable = False,editable = False,create=False) 
-
-    heading = grid_pagar.elements('th')
-    if heading and status == "Pendente":
-        heading[0].append(INPUT(_type='checkbox',_onclick="$('input[name=records]').each(function() {this.checked=!this.checked;});"))
-
-    form_lotes = LOAD(c='pagar',f='lotes',target='pagarLotes',ajax=True)
-
-    return locals()
-
-#@auth.requires_membership('admin')
 def pagar_lista():
        
     form_pesq = SQLFORM.factory(
@@ -401,7 +338,7 @@ def gerar_pagar():
 
     idFornecedor = request.vars.fornecedor
     inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial != '' else ''
-    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else request.now
+    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else ''
     status = request.vars.status
     documento = request.vars.documento.split(',')
     
@@ -500,7 +437,6 @@ def pagar():
     
     if session.id_lote ==0:
         ids=[]
-        print request.vars
         for row in request.vars:
             ids.append( request.vars[row])
         if ids == []:
@@ -675,10 +611,10 @@ def atualizaPagamentos(idLote):
 
 
 def valorPago(idParcela):
-    query = db(Lote_parcelas.parcela == idParcela) & (Lote_parcelas.lote==Lote.id) & (Lote.tipo=='pagar')
+    query = (Lote_parcelas.parcela == idParcela) & (Lote.id==Lote_parcelas.lote) & (Lote.tipo=='pagar')
     sum = (Lote_parcelas.valpag).sum()
     try:
-        valor = round(float(query.select(sum).first()[sum]),2)
+        valor = round(float(db(query).select(sum).first()[sum]),2)
     except:
         valor = 0
     return valor   
@@ -686,14 +622,16 @@ def valorPago(idParcela):
 def atualizaParcela(idParcela,idLote):
     
     valor=valorPago(idParcela)
+   
     Pagar_parcelas[idParcela] = dict(valorpago=valor)
 
     if idLote == None:
         Pagar_parcelas[idParcela] = dict(dtpagamento=None)
-    elif Pagar_parcelas[idParcela].valor <= valor:
+    
+    if round(Pagar_parcelas[idParcela].valor,2) <= round(valor,2):
         datapg = db(Conta_corrente.lote == idLote).select(Conta_corrente.dtpagamento,orderby=~Conta_corrente.dtpagamento).first() or None
         Pagar_parcelas[idParcela] = dict(dtpagamento=datapg['dtpagamento'])
-    
+
 
 def atualizarcontaspagar():
     contas = db(Conta_corrente.id>0).select(orderby=Conta_corrente.dtpagamento)
@@ -1154,4 +1092,68 @@ def atualizaPagamentos(idlote):
                                                                     orderby=~Pagar_parcelas.vencimento).first()
         id_parcela = parcela[Pagar_parcelas.id]
         Pagar_parcelas[id_parcela] = dict(valorpago=float(parcela[Pagar_parcelas.valor]) + valor)
+'''
+'''
+#@auth.requires_membership('admin')
+def pagar_lista_old():
+    from datetime import timedelta,date
+
+    status = request.vars.status if request.vars.status else 'Pendente'
+    situacao = request.vars.situacao if request.vars.situacao else 'Todos'
+    periodo = request.vars.periodo if request.vars.periodo else 'Todos'
+       
+    periodoset = ['Todos','-7 dias','+7 dias','-30 dias','+30 dias','-60 dias','+60 dias']
+    form_pesq = SQLFORM.factory(
+        Field('status',default = status, requires=IS_IN_SET(['Todos','Pendente','Pago'],zero=None)),
+        Field('situacao',default = situacao, requires=IS_IN_SET(['Todos','Vencidos','a Vencer'],zero=None)),
+        Field('periodo',default = periodo, requires=IS_IN_SET(periodoset,zero=None)),
+        table_name='pesquisar',
+        submit_button='Filtrar',
+        )  
+    
+    if form_pesq.process().accepted:
+        status = form_pesq.vars.status
+        periodo = form_pesq.vars.periodo
+        situacao = form_pesq.vars.situacao        
+    elif form_pesq.errors:
+        response.flash = 'Erro no Formulário'
+
+    datainicial = datafinal = request.now
+    datainicial = datainicial - timedelta(7) if periodo == '-7 dias' else datainicial
+    datainicial = datainicial - timedelta(30) if periodo == '-30 dias' else datainicial
+    datafinal = datafinal + timedelta(7) if periodo == '+7 dias' else datafinal
+    datafinal = datafinal + timedelta(30) if periodo == '+30 dias' else datafinal
+    datainicial = datainicial - timedelta(60) if periodo == '-60 dias' else datainicial
+    datafinal = datafinal + timedelta(60) if periodo == '+60 dias' else datafinal
+
+    query = (Pagar_parcelas.pagar == Pagar.id)
+    query = query & (Pagar_parcelas.dtpagamento == None) if status == 'Pendente' else query
+    query = query & (Pagar_parcelas.dtpagamento != None) if status == 'Pago' else query
+    query = query & (Pagar_parcelas.vencimento < request.now) if situacao == 'Vencidos' else query
+    query = query & (Pagar_parcelas.vencimento > request.now) if situacao == 'a Vencer' else query
+    query = query & (Pagar_parcelas.vencimento <= datafinal) & (Pagar_parcelas.vencimento >= datainicial) if periodo != 'Todos' else query
+    query = query & request.vars.keywords if request.vars.keywords else query
+
+    total = db(query).select(Pagar_parcelas.valor.sum()).first()[Pagar_parcelas.valor.sum()] or 0
+    total_pago = db(query).select(Pagar_parcelas.valorpago.sum()).first()[Pagar_parcelas.valorpago.sum()] or 0
+    total_pendente = total - total_pago
+
+    fields = [Pagar.fornecedor,Pagar.documento,Pagar_parcelas.parcela,Pagar.emissao,Pagar_parcelas.vencimento,
+              Pagar_parcelas.dtpagamento,Pagar_parcelas.valor,Pagar_parcelas.valorpendente, Pagar_parcelas.status]
+    
+    #selectable = (lambda ids: redirect(URL('pagar',vars=dict(ids=ids)))) if status != "Pendente" else None
+    selectable = None if status != "Pendente" else (lambda ids: redirect(URL('pagar',vars=dict(ids=ids,url="pagar_lista"))))
+
+    grid_pagar = grid(db(query),
+        formname="lista_pagar",field_id = Pagar_parcelas.id,
+        fields=fields,orderby=Pagar_parcelas.vencimento,selectable= selectable, 
+        deletable = False,editable = False,create=False) 
+
+    heading = grid_pagar.elements('th')
+    if heading and status == "Pendente":
+        heading[0].append(INPUT(_type='checkbox',_onclick="$('input[name=records]').each(function() {this.checked=!this.checked;});"))
+
+    form_lotes = LOAD(c='pagar',f='lotes',target='pagarLotes',ajax=True)
+
+    return locals()
 '''

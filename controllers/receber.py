@@ -460,11 +460,7 @@ def atualizaRecebimentos(idLote):
     for parcela in parcelas:
         idParcela = parcela.id
         valorpendente = float(parcela.valor) - valorPago(idParcela)
-        print valorPago(idParcela)
-        print 'valorpendente', valorpendente
-
         valor = min(valorpago,valorpendente)
-        print 'valor', valor
         
         query = (Lote_parcelas.lote == idLote) & (Lote_parcelas.parcela == idParcela)
         Lote_parcelas.update_or_insert(query,
@@ -478,10 +474,10 @@ def atualizaRecebimentos(idLote):
         atualizaParcela(idParcela,idLote)
 
 def valorPago(idParcela):
-    query = db(Lote_parcelas.parcela == idParcela) & (Lote_parcelas.lote==Lote.id) & (Lote.tipo=='receber')
+    query = (Lote_parcelas.parcela == idParcela) & (Lote_parcelas.lote==Lote.id) & (Lote.tipo=='receber')
     sum = (Lote_parcelas.valpag).sum()
     try:
-        valor = round(float(query.select(sum).first()[sum]),2)
+        valor = round(float(db(query).select(sum).first()[sum]),2)
     except:
         valor = 0
     return valor   
@@ -493,9 +489,20 @@ def atualizaParcela(idParcela,idLote):
 
     if idLote == None:
         Receber_parcelas[idParcela] = dict(dtpagamento=None)
-    elif Receber_parcelas[idParcela].valor <= valor:
+    
+    elif round(Receber_parcelas[idParcela].valor,2) <= round(valor,2):
         datapg = db(Conta_corrente.lote == idLote).select(Conta_corrente.dtpagamento,orderby=~Conta_corrente.dtpagamento).first() or None
         Receber_parcelas[idParcela] = dict(dtpagamento=datapg['dtpagamento'])
+
+def atualizarcontasreceber():
+    contas = db(Conta_corrente.id>0).select(orderby=Conta_corrente.dtpagamento)
+    for conta in contas:
+        if conta.tipo == 'receber':
+            try:
+                atualizaRecebimentos(conta.lote)
+            except:
+                print conta.lote
+
 
 def recebimentos_delete():
     id = request.args(0)
@@ -538,7 +545,7 @@ def gerar_receber():
 
     idCliente = request.vars.cliente
     inicial = datetime.strptime(request.vars.dtinicial,'%d/%m/%Y').date() if request.vars.dtinicial != '' else ''
-    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else request.now
+    final = datetime.strptime(request.vars.dtfinal,'%d/%m/%Y').date() if request.vars.dtfinal != '' else ''
     status = request.vars.status
     documento = request.vars.documento.split(',')
     
