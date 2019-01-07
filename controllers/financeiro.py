@@ -1,8 +1,32 @@
 #@auth.requires_membership('admin')
-def contas():
-    formConta = SQLFORM.grid(Conta,
-            csv=False,user_signature=False,details=False,
+def banco():
+    formBanco = SQLFORM.grid(Banco,
+            csv=False,user_signature=False,details=False,maxtextlength=50,
             )
+    btnVoltar = voltar('banco')
+    btnNovo = novo('banco/new/banco')
+    btnExcluir = excluir('#')
+
+    return locals()
+
+#@auth.requires_membership('admin')
+def contas():
+    formConta = grid(Conta)
+
+    btnVoltar = voltar('contas')
+    btnNovo = novo('contas/new/conta')
+    btnExcluir = excluir('#')
+
+    return locals()
+
+#@auth.requires_membership('admin')
+def cheques():
+    formCheques = grid(Cheques)
+
+    btnVoltar = voltar("cheques")
+    btnExcluir = excluir("#")
+    btnNovo = novo("cheques/new/cheques")
+
     return locals()
 
 #@auth.requires_membership('admin')
@@ -64,13 +88,11 @@ def extrato():
                       ],
             )
 
-    novo =A(SPAN(_class="glyphicon glyphicon-plus"),' Novo', _class="btn btn-default", _id='novo')
+    novo =A(SPAN(_class="glyphicon glyphicon-plus"),' Novo Lançamento', _class="btn btn-default", _id='novo')
     my_extra_element = TR(H4('Saldo Anterior: ', saldo_inicial))
     
     form_conta[0].insert(-1,novo)                      
     form_conta[1].insert(-1,my_extra_element)
-
-    form_conta = DIV(form_conta, _class="well")
 
     return locals()
 
@@ -114,25 +136,99 @@ def conta_corrente_delete():
         del Conta_corrente[id]
     redirect(URL('conta_corrente',vars=dict(conta = session.conta)))
     return locals()
+    
+#@auth.requires_membership('admin')
+def transferencias():
+    fields=[Transferencias.origem,Transferencias.destino,Transferencias.valor]
+    gridTransferencia = grid(Transferencias,formname="transferencia",fields=fields,ondelete = transferencia_delete)
+
+    if request.args(-2) == 'new':
+       redirect(URL('transferencia'))
+    elif request.args(-3) == 'edit':
+       idTransferencia = request.args(-1)
+       redirect(URL('transferencia', args=idTransferencia ))
+
+    return dict(gridTransferencia=gridTransferencia)
 
 #@auth.requires_membership('admin')
-def banco():
-    formBanco = SQLFORM.grid(Banco,
-            csv=False,user_signature=False,details=False,maxtextlength=50,
-            )
-    return locals()
+def transferencia():
+    idTransferencia = request.args(0) or "0"
+    Transferencias.ccorigem.writable = False
+    Transferencias.ccdestino.writable = False
+    Transferencias.dttransferencia.default = request.now
+
+    if idTransferencia == "0":
+        formTransferencia = SQLFORM(Transferencias,field_id='id', _id='form_cliente')
+        btnNovo=btnExcluir=btnVoltar = ''
+    else:
+        formTransferencia = SQLFORM(Transferencias,idTransferencia,_id='formTransferencia',field_id='id')
+
+        btnExcluir = excluir("#")
+        btnNovo = novo("transferencia")
+
+    btnVoltar = voltar("transferencias")
+
+    if formTransferencia.process().accepted:
+        origem = formTransferencia.vars.origem
+        destino = formTransferencia.vars.destino
+        dttransferencia = formTransferencia.vars.dttransferencia
+        valor = formTransferencia.vars.valor
+        descricaoOgigem = 'TRANSFERÊNCIA: %s' %(Conta[destino].descricao)
+        descricaoDestino = 'TRANSFERÊNCIA: %s' %(Conta[origem].descricao)
+
+        response.flash = 'transferencia Salvo com Sucesso!'
+
+        if idTransferencia == "0":
+            
+            idOrigem = Conta_corrente.insert(
+                conta = origem,
+                descricao=descricaoOgigem,
+                dtpagamento=dttransferencia,
+                vlpagamento = valor,
+                vlrecebimento = 0,
+                tipo = 'transferencia',
+                juros = 0,
+                desconto = 0
+                )
+            
+            idDestino = Conta_corrente.insert(
+                conta = destino,
+                descricao=descricaoDestino,
+                dtpagamento=dttransferencia,
+                vlpagamento = 0,
+                vlrecebimento = valor,
+                tipo = 'transferencia',
+                juros = 0,
+                desconto = 0
+                )
+
+            Transferencias[int(formTransferencia.vars.id)] = dict(ccorigem = idOrigem,ccdestino = idDestino)
+            
+        else:
+            ccorigem = Transferencias[int(formTransferencia.vars.id)].ccorigem
+            Conta_corrente[ccorigem] = dict(conta = origem,
+                                            descricao=descricaoOgigem,
+                                            vlpagamento = valor, 
+                                            dtpagamento = dttransferencia)
+
+            ccdestino = Transferencias[int(formTransferencia.vars.id)].ccdestino
+            Conta_corrente[ccdestino] = dict(conta = destino,
+                                             descricao=descricaoDestino,
+                                             vlrecebimento = valor, 
+                                             dtpagamento = dttransferencia)
+
+        redirect(URL('transferencia', args=formTransferencia.vars.id))
+
+
+    elif formTransferencia.errors:
+        response.flash = 'Erro no Formulário Principal!'
+
+    return dict(formTransferencia=formTransferencia,btnNovo=btnNovo,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
 
 #@auth.requires_membership('admin')
-def cheques():
-    formCheques = SQLFORM.grid(Cheques,
-            csv=False,user_signature=False,details=False,maxtextlength=50,
-            )
+def transferencia_delete(table,id):
+    ccorigem = Transferencias[id].ccorigem
+    ccdestino = Transferencias[id].ccdestino
+    del Conta_corrente[ccorigem]
+    del Conta_corrente[ccdestino]
 
-    btnVoltar = A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",
-                  _title="Voltar...",
-                  _href=URL(c="financeiro", f="cheques"))
-    btnExcluir = A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",
-                   _href="#")
-    btnNovo = A(SPAN(_class="glyphicon glyphicon-plus"), ' Novo ', _class="btn btn-primary",
-                _title="Novo...", _href=URL("cheques/new/cheques"))
-    return locals()

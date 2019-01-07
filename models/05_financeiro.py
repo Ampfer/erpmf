@@ -47,22 +47,32 @@ Conta_corrente.vlpagamento.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Conta_corrente.juros.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Conta_corrente.desconto.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
+Transferencias = db.define_table('transferencia',
+	Field('origem','reference conta'),
+	Field('destino','reference conta'),
+	Field('valor','double'),
+	Field('dttransferencia','date',label='Data'),
+	Field('ccorigem','integer'),
+	Field('ccdestino','integer')
+	)
+Transferencias.dttransferencia.requires = data
+
 Banco = db.define_table('banco',
-						Field('codigo', 'string',label = 'Numero',length=3, unique = True),
-						Field('nome','string',label = 'Banco',length=50),
-						)
+	Field('codigo', 'string',label = 'Numero',length=3, unique = True),
+	Field('nome','string',label = 'Banco',length=50),
+	)
 
 Cheques = db.define_table('cheques',
-						  Field('banco','string',label='Banco',length=3),
-						  Field('agencia','string',label='Agência',length=4),
-						  Field('conta', 'string',label='Conta Corrente', length=20),
-						  Field('cheque','string',label='Cheque N.', length=20),
-						  Field('valor','decimal(7,2)',label='Valor'),
-						  Field('dtcheque','date',label='Bom para'),
-                          Field('nome','string',label='Nome',length=100),
-						  Field('lotrec','reference lote',),
-						  Field('lotpag','reference lote',),
-						  )
+	Field('banco','string',label='Banco',length=3),
+	Field('agencia','string',label='Agência',length=4),
+	Field('conta', 'string',label='Conta Corrente', length=20),
+	Field('cheque','string',label='Cheque N.', length=20),
+	Field('valor','decimal(7,2)',label='Valor'),
+	Field('dtcheque','date',label='Bom para'),
+	Field('nome','string',label='Nome',length=100),
+	Field('lotrec','reference lote',),
+	Field('lotpag','reference lote',),
+	)
 Cheques.banco.requires = IS_IN_DB(db,'banco.codigo','%(codigo)s')
 Cheques.id.readable = Cheques.id.writable = False
 Cheques.lotrec.readable = Cheques.lotrec.writable = False

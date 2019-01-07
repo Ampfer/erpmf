@@ -1,53 +1,40 @@
+{{=formAtividade.custom.begin}}
+<div class="row">
+  {{=campo(4,formAtividade.custom.label.etapa,formAtividade.custom.widget.etapa)}}
+  {{=campo(4,formAtividade.custom.label.atividade,formAtividade.custom.widget.atividade)}}
+  {{=campo(2,formAtividade.custom.label.quantidade,formAtividade.custom.widget.quantidade)}}
+  <div class="col-md-2">
+    <div style="margin-top: 25px">{{=formAtividade.custom.submit}}</div>
+  </div>
+</div>
+{{=formAtividade.custom.end}}
 
-<div class="well">
-    {{=formAtividade.custom.begin}}
-    <div class="row">
-        <div class="col-md-4">
-            {{=formAtividade.custom.label.etapa}}
-            {{=formAtividade.custom.widget.etapa}}
-        </div>
-        <div class="col-md-4">
-            {{=formAtividade.custom.label.atividade}}
-            {{=formAtividade.custom.widget.atividade}}
-        </div>
-        <div class="col-md-2">
-            {{=formAtividade.custom.label.quantidade}}
-            {{=formAtividade.custom.widget.quantidade}}
-        </div>
-        <div class="col-md-2">
-            <div style="margin-top: 25px">{{=formAtividade.custom.submit}}</div>
-        </div>
-    </div>
-    {{=formAtividade.custom.end}}
-    <div class="well">
-    <table class="table tree-2 table-bordered table-striped table-condensed">
-    <thead>
-        <tr>
-          <th>Item</th>
-          <th style="text-align: center;">UN</th>
-          <th style="text-align: center;">Quantidade</th>
-        </tr>
-    </thead>
-    <body>
+<table class="table tree-2 table-bordered table-striped table-condensed">
+  <thead>
+      <tr>
+        <th>Item</th>
+        <th style="text-align: center;">UN</th>
+        <th style="text-align: center;">Quantidade</th>
+      </tr>
+  </thead>
+  <body>
     {{for linha in linhas:}}
         {{if linha['p'] == 0:}}   
-            <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
-                <td>{{=linha['item']}}</td>
-                <td></td>
-                <td></td>
+          <tr class="treegrid-{{=linha['c']}} treegrid-expanded" id='0'>
+            <td>{{=linha['item']}}</td>
+            <td></td>
+            <td></td>
           </tr>
         {{else:}}
-            <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
+          <tr class="treegrid-{{=linha['c']}} treegrid-parent-{{=linha['p']}}">
             <td >{{=linha['item']}}</td>
             <td style="text-align: center;">{{=linha['unidade']}}</td>
             <td class="editavel" id="{{=linha['id']}}" style="text-align: center;">{{=linha['qtde']}}</td>
-            </tr>
+          </tr>
         {{pass}}
     {{pass}}
-    </body>
-    </table> 
-    </div>
-</div>
+  </body>
+</table> 
 
 
 <script type="text/javascript">

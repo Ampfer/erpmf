@@ -181,6 +181,11 @@ Atividades_Itens.atividade.readable = Atividades_Itens.atividade.writable = Fals
 Atividades_Itens.composicao.requires = IS_EMPTY_OR(IS_IN_DB(db,"composicao.id",'%(descricao)s (%(unidade)s)'))
 Atividades_Itens.insumo.requires = IS_EMPTY_OR(IS_IN_DB(db,"insumos.id",'%(descricao)s (%(unidade)s)'))
 
+Etapa_Atividades = db.define_table('etapas_atividades',
+    Field('etapa','reference etapas'),
+    Field('atividade','reference atividades')
+    )
+
 Obras = db.define_table('obras',
     Field('demanda','integer',label='Demanda:'),
     Field('descricao', 'string', label='Descrição:'),

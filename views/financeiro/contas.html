@@ -1,33 +1,15 @@
 {{extend 'layout.html'}}
 <div class="container">
-    <div class="panel panel-info">
-        <div class="panel-heading"><h4>Cheques</h4></div>
-        <div class="panel-body">
-            {{if formConta.create_form or formConta.update_form:}}
-                {{=formConta[1].custom.begin}}
-                <div class="row">
-                    <div class="col-md-6">
-                        {{=formConta[1].custom.label.descricao}}
-                        {{=formConta[1].custom.widget.descricao}}
-                    </div>
-                </div>
-                <h1></h1>
-                <div class="panel panel-info">
-                    <div class="panel-body">
-                        <div class="right">
-                            {{=formConta[1].custom.submit}}
-                            {{=A(SPAN(_class="glyphicon glyphicon-arrow-left"), ' Voltar ', _class="btn btn-warning",_title="Voltar...",_href=URL(c="financeiro", f="contas"))}}
-                            {{if formConta.update_form:}}
-                                {{=A(SPAN(_class="glyphicon glyphicon-plus"), ' Novo ', _class="btn btn-primary",_title="Novo...", _href=URL("contas/new/contas"))}}
-                                {{=A(SPAN(_class="glyphicon glyphicon-trash"), ' Excluir ', _class="btn btn-danger", _title="Excluir...",_href="#")}}
-                            {{pass}}
-                        </div>
-                    </div>
-                </div>
-                {{=formConta[1].custom.end}}
-            {{else:}}
-                {{=formConta}}
-            {{pass}}
+    {{=titulo("FINANCEIRO ","Cadastro de Contas")}}
+    {{if formConta.create_form or formConta.update_form:}}
+        {{=formConta[1].custom.begin}}
+        <div class="row">
+            {{=campo(6,formConta[1].custom.label.descricao,formConta[1].custom.widget.descricao)}}                    
         </div>
-    </div>
+        <hr>
+        {{=btnRodape(formConta[1].custom.submit,btnNovo,btnVoltar,btnExcluir)}}
+        {{=formConta[1].custom.end}}
+    {{else:}}
+        {{=formConta}}
+    {{pass}}
 </div>

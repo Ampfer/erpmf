@@ -1,0 +1,24 @@
+{{extend 'layout.html'}}
+<div class="container">
+    {{=titulo("ETAPAS ","Cadastro de Etapas",btnNovo,btnVoltar)}}
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#home">Etapa</a></li>
+        <li><a data-toggle="tab" href="#menu1">Atividades</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+            {{=formEtapa.custom.begin}}
+            <div class="row">
+                {{=campo(6,formEtapa.custom.label.etapa,formEtapa.custom.widget.etapa)}}
+                {{=campo(2,formEtapa.custom.label.item,formEtapa.custom.widget.item)}}
+            </div>
+            <hr>
+            {{=btnRodape(formEtapa.custom.submit,btnExcluir)}}
+            {{=formEtapa.custom.end}}
+        </div>
+        <div id="menu1" class="tab-pane fade">
+            {{=loadAtividade}}
+        </div>
+    </div>
+</div>
+

@@ -3,14 +3,58 @@
 def etapas():
     fields=[Etapas.item, Etapas.etapa]
     form_etapa = grid(Etapas,50,fields=fields,orderby=Etapas.item)
-    btnExcluir = excluir("#") if form_etapa.update_form else ''
-    btnNovo = novo("etapas/new/etapas")
-    btnVoltar = voltar("etapas")
-    return dict(form_etapa=form_etapa,btnExcluir=btnExcluir,btnNovo=btnNovo,btnVoltar=btnVoltar)
+    if request.args(-2) == 'new':
+           redirect(URL('etapa'))
+    elif request.args(-3) == 'edit':
+       idEtapa = request.args(-1)
+       redirect(URL('etapa', args=idEtapa))
+
+    return dict(form_etapa=form_etapa)
+
+#@auth.requires_membership('admin')
+def etapa():
+    idEtapa = request.args(0) or "0"
+    btnVoltar = voltar('etapas')
+
+    if idEtapa == "0":
+        formEtapa = SQLFORM(Etapas,field_id='id',_id='formEtapa')
+        loadAtividade = '' 
+        btnExcluir = btnNovo = ''
+    else:
+        formEtapa = SQLFORM(Etapas, idEtapa,_id='formEtapa',field_id='id')
+
+        loadAtividade = LOAD(c='obra', f='etapa_atividades', content='Aguarde, carregando...',
+                           target='etapaatividades', ajax=True, args=idEtapa)
+                      
+        btnExcluir = excluir("#")
+        btnNovo = novo("etapa")
+
+    if formEtapa.process().accepted:
+        response.flash = 'Etapa Salva com Sucesso!'
+        redirect(URL('etapa', args=formEtapa.vars.id))
+
+    elif formEtapa.errors:
+        response.flash = 'Erro no Formulário Principal!'
+
+    return dict(formEtapa=formEtapa,loadAtividade=loadAtividade,btnNovo=btnNovo,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+
+#@auth.requires_membership('admin')
+def etapa_atividades():
+    idEtapa = int(request.args(0))
+    Etapa_Atividades.etapa.readable = Etapa_Atividades.etapa.writable = False
+    Etapa_Atividades.etapa.default = idEtapa
+
+
+    fields = [Etapa_Atividades.atividade]
+    gridAtividades = grid((Etapa_Atividades.etapa==idEtapa),args=[idEtapa],searchable=False,fields=fields,alt='300px')
+    
+    btnExcluir = excluir("#") if gridAtividades.update_form else ''
+    btnVoltar = voltar1('etapaatividades')
+    
+    return dict(gridAtividades=gridAtividades, btnExcluir=btnExcluir,btnVoltar=btnVoltar)
 
 #@auth.requires_membership('admin')def demandas():
 def demandas():
-    pass
     formDemandas = grid((Demandas),
                               formname="listaDemandas",deletable=False )
 
@@ -20,7 +64,7 @@ def demandas():
        idDemanda = request.args(-1)
        redirect(URL('demanda', args=idDemanda ))
 
-    return locals()
+    return dict(formDemandas = formDemandas)
 
 #@auth.requires_membership('admin')
 def demanda():
@@ -47,7 +91,7 @@ def demanda():
     elif formDemanda.errors:
         response.flash = 'Erro no Formulário Principal!'
 
-    return locals()
+    return dict(formDemanda=formDemanda,formDespesas=formDespesas,btnNovo=btnNovo,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
 
 #@auth.requires_membership('admin')
 def demandaDespesas():
@@ -599,11 +643,12 @@ def obra():
 def buscar_atividade():
     import json
 
-    rows  = db(Atividades.etapa == request.vars.etapa).select() 
+    rows  = db(Etapa_Atividades.etapa == request.vars.etapa).select() 
     atividades = []
     for row in rows:
-        atv = '%s (%s)' %(row.atividade,row.unidade)
-        atividades.append(dict(atividade = atv , id = row.id)) 
+        atividade = Atividades[row.atividade]
+        atv = '%s (%s)' %(atividade.atividade,atividade.unidade)
+        atividades.append(dict(atividade = atv , id = atividade.id)) 
     atividadeJson = json.dumps(atividades)
 
     jquery = "$('#atividade_atividade').find('option').remove();$.each(%s, function (i, d) {$('<option>').val(d.id).text(d.atividade).appendTo($('#atividade_atividade'));});" %(atividadeJson)
@@ -879,3 +924,12 @@ def gerar_linhas(idObra,itens):
                            css = 'text-align: right;padding-right: 10px',
                            ))
     return linhas
+
+
+def atualizaretapa():
+    atividades = db(Atividades.id>0).select()
+    for atividade in atividades:
+        Etapa_Atividades.update_or_insert((Etapa_Atividades.etapa == atividade.etapa) & (Etapa_Atividades.atividade == atividade.id),
+                                         etapa = atividade.etapa,
+                                         atividade = atividade.id   
+                                         )
