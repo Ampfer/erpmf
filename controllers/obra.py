@@ -192,6 +192,7 @@ def insumoCadastro():
     if session.unidade:
         Insumo.unidade.default = session.unidade
     Insumo.conta.default = 5
+    Insumo.tipo.default = 'MATERIAL'
 
     if id_insumo == "0":
         formInsumo = SQLFORM(Insumo, field_id='id', _id='form_insumo')
