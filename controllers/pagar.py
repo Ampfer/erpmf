@@ -82,6 +82,7 @@ def pesquisarInsumo():
 
 def insumoTrigger():
     idFornecedor = Pagar(request.vars.id_pagar).fornecedor
+    conta = Insumo[request.vars.insumo].conta
     query = (Custo.insumo==request.vars.insumo) & (Custo.fornecedor==idFornecedor)
     try:
         custo = db(query).select(Custo.custo,Custo.unidade).first()
@@ -93,8 +94,9 @@ def insumoTrigger():
 
     return "jQuery('#pagarInsumos_preco').val('%s');" \
            "jQuery('#pagarInsumos_unidade').val('%s');" \
+           "jQuery('#pagarInsumos_conta').val('%s');" \
            "jQuery('#pagarInsumos_quantidade').focus();" \
-           % (preco,unidade)
+           % (preco,unidade,conta)
 
 #@auth.requires_membership('admin')
 def pagarInsumos():
