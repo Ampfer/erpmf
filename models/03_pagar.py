@@ -47,6 +47,7 @@ PagarInsumos = db.define_table('pagarInsumos',
 							    Field('preco','decimal(7,2)',label='Preço'),
 								Field('desconto','decimal(7,2)',label='Desconto'),
 								Field('demanda', 'reference demandas',label='Demanda'),
+								Field('conta','reference plano_contas3',ondelete = "SET NULL"),
 								Field('etapa', 'reference etapas',label='Etapa'),
 								Field.Virtual('total',lambda row: round((row.pagarInsumos.preco*row.pagarInsumos.quantidade)-row.pagarInsumos.desconto,2),label='Total'),
 							   )

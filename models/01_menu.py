@@ -67,7 +67,7 @@ response.menu+=[
     ('Etapas', False, URL(r=request, c='obra', f='etapas')),
     ('Tarefas', False, URL(r=request, c='obra', f='atividades')),
     ('Composição', False, URL(r=request, c='obra', f='composicao')),
-    ('Insumo', False, URL(r=request, c='obra', f='insumos')),
+    ('Insumos', False, URL(r=request, c='obra', f='insumos')),
     ('Obras', False, URL(r=request, c='obra', f='obras')),
     ])]
 response.menu+=[

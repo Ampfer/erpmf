@@ -1,87 +1,37 @@
 {{extend 'layout.html'}}
 <div class="container">
-    <div class="panel panel-info">
-        <div class="panel-heading"><h6>Cadastro de Insumos</h6></div>
-        <div class="panel-body">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#home">Insumos</a></li>
-                <li><a data-toggle="tab" href="#menu1">Fornecedor</a></li>
-                <li><a data-toggle="tab" href="#menu2">Histórico</a></li>
-            </ul>
-            <div class="tab-content">
-                <div id="home" class="tab-pane fade in active">
+    <div class="container">
+    {{=titulo("INSUMOS ","Cadastro de Insumos",btnNovo,btnVoltar)}}
 
-                        {{=formInsumo.custom.begin}}
-                        <div class="well">
-                            <div class="row">
-                                <div class="col-md-10">
-                                    {{=formInsumo.custom.label.descricao}}
-                                    {{=formInsumo.custom.widget.descricao}}
-                                </div>
-                                <div class="col-md-2">
-                                    {{=formInsumo.custom.label.unidade}}
-                                    {{=formInsumo.custom.widget.unidade}}
-                                </div>
-                            </div>
-                            <p></p>
-                            <div class="row">
-                                <div class="col-md-8">
-                                    {{=formInsumo.custom.label.tipo}}
-                                    {{=formInsumo.custom.widget.tipo}}
-                                </div>
-                                <div class="col-md-2">
-                                    {{=formInsumo.custom.label.codigo}}
-                                    {{=formInsumo.custom.widget.codigo}}
-                                </div>
-                                <div class="col-md-2">
-                                    {{=formInsumo.custom.label.preco}}
-                                    {{=formInsumo.custom.widget.preco}}
-                                </div>
-                            </div>
-                            <p></p>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {{=formInsumo.custom.label.obs}}
-                                    {{=formInsumo.custom.widget.obs}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="panel panel-info">
-                            <div class="panel-body">
-                                <div class="right">
-                                    {{=formInsumo.custom.submit}}
-                                    {{=btnNovo}}
-                                    {{=btnExcluir}}
-                                    {{=btnVoltar}}
-                                </div>
-                            </div>
-                        </div>
-                        {{=formInsumo.custom.end}}
-
-                </div>
-                <div id="menu1" class="tab-pane fade">
-                    {{=formFornecedor}}
-                    <div class="panel panel-info">
-                        <div class="panel-body">
-                            <div class="right">
-                                {{=btnVoltar}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="menu2" class="tab-pane fade">
-                    {{=formHistorico}}
-                    <div class="panel panel-info">
-                        <div class="panel-body">
-                            <div class="right">
-                                {{=btnVoltar}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="tab" href="#home">Insumos</a></li>
+        <li><a data-toggle="tab" href="#menu1">Fornecedor</a></li>
+        <li><a data-toggle="tab" href="#menu2">Histórico</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+            {{=formInsumo.custom.begin}}
+            <div class="row">
+                {{=campo(2,formInsumo.custom.label.codigo,formInsumo.custom.widget.codigo)}}
+                {{=campo(6,formInsumo.custom.label.descricao,formInsumo.custom.widget.descricao)}}
+                {{=campo(2,formInsumo.custom.label.unidade,formInsumo.custom.widget.unidade)}}
+                {{=campo(2,formInsumo.custom.label.preco,formInsumo.custom.widget.preco)}}
             </div>
+            <div class="row">
+                {{=campo(4,formInsumo.custom.label.tipo,formInsumo.custom.widget.tipo)}}
+                {{=campo(4,formInsumo.custom.label.conta,formInsumo.custom.widget.conta)}}
+                {{=campo(4,formInsumo.custom.label.obs,formInsumo.custom.widget.obs)}}
+            </div>
+            <hr>
+            {{=btnRodape(formInsumo.custom.submit,btnExcluir)}}
+            {{=formInsumo.custom.end}}
         </div>
-    </div>
+        <div id="menu1" class="tab-pane fade">
+            {{=formFornecedor}}
+        </div>
+        <div id="menu2" class="tab-pane fade">
+            {{=formHistorico}}
+     </div>
 </div>
 <script type="text/javascript">
 jQuery(function($){

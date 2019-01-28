@@ -80,51 +80,6 @@ Unidade = db.define_table('unidade',
 	)
 Unidade.unidade.requires = [IS_NOT_EMPTY(),IS_LENGTH(4),IS_NOT_IN_DB(db,'unidade.unidade')]
 
-def valor_insumo(id,tipo=[]):
-	idInsumo = int(id)
-	tp = Insumo[int(id)].tipo
-	if tp in tipo or tipo == []:
-		return Insumo[idInsumo].preco
-	else:
-		return 0
-	
-Insumo = db.define_table('insumos',
-                         Field('descricao', 'string', label='Descrição:', length=100),
-                         Field('codigo', 'string', label='Código:', length=07),
-                         Field('unidade', 'string', label='Unidade:', length=04),
-                         Field('tipo','string', label='Tipo:', length=30),
-                         Field('preco','decimal(7,2)',label='Preço'),
-                         Field('obs','string',label='Observação'),
-                         format='%(descricao)s',
-                         )
-Insumo.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
-Insumo.tipo.requires = IS_IN_DB(db,"tipoInsumo.descricao")
-Insumo.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
-Insumo.descricao.requires = IS_UPPER()
-
-def buscaInsumo(id):
-    if not id:
-        raise HTTP(404, 'ID insumo não encontrado')
-    try:
-        insumo = db(db.insumos.id == id).select().first()
-    except ValueError:
-        raise HTTP(404, 'Argumento INSUMO inválido')
-    if not insumo:
-        raise HTTP(404, 'Insumo não encontrado')
-    return insumo
-
-Custo = db.define_table('custos',
-						Field('insumo','reference insumos',label='Insumo:'),
-						Field('fornecedor','reference fornecedores',label='Fornecedor:'),
-						Field('custo','decimal(7,2)',label='Custo:'),
-						Field('unidade','string',label='Unidade:', length=04),
-						Field('embalagem','integer',label='Embalagem:')
-						)
-Custo.fornecedor.readable = Custo.fornecedor.writable = False
-Custo.insumo.readable = Custo.insumo.writable = False
-Custo.unidade.requires = IS_IN_DB(db,'unidade.unidade',)
-Custo.custo.requires = IS_DECIMAL_IN_RANGE(dot=',')
-
 PlanoContas1 = db.define_table('plano_contas1',
 						Field('conta','string',label='Descrição:', length=50),
 						format='%(conta)s'
@@ -153,6 +108,52 @@ TipoInsumo = db.define_table('tipoInsumo',
                              )
 TipoInsumo.descricao.requires = [IS_UPPER(),notempty]
 TipoInsumo.sigla.requires = [IS_UPPER(),notempty]
+
+Insumo = db.define_table('insumos',
+                         Field('descricao', 'string', label='Descrição:', length=100),
+                         Field('codigo', 'string', label='Código:', length=07),
+                         Field('unidade', 'string', label='Unidade:', length=04),
+                         Field('tipo','string', label='Tipo:', length=30),
+                         Field('conta','reference plano_contas3',ondelete = "SET NULL"),
+                         Field('preco','decimal(7,2)',label='Preço'),
+                         Field('obs','string',label='Observação'),
+                         format='%(descricao)s',
+                         )
+Insumo.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
+Insumo.tipo.requires = IS_IN_DB(db,"tipoInsumo.descricao")
+Insumo.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
+Insumo.descricao.requires = IS_UPPER()
+
+def buscaInsumo(id):
+    if not id:
+        raise HTTP(404, 'ID insumo não encontrado')
+    try:
+        insumo = db(db.insumos.id == id).select().first()
+    except ValueError:
+        raise HTTP(404, 'Argumento INSUMO inválido')
+    if not insumo:
+        raise HTTP(404, 'Insumo não encontrado')
+    return insumo
+
+def valor_insumo(id,tipo=[]):
+	idInsumo = int(id)
+	tp = Insumo[int(id)].tipo
+	if tp in tipo or tipo == []:
+		return Insumo[idInsumo].preco
+	else:
+		return 0
+	
+Custo = db.define_table('custos',
+						Field('insumo','reference insumos',label='Insumo:'),
+						Field('fornecedor','reference fornecedores',label='Fornecedor:'),
+						Field('custo','decimal(7,2)',label='Custo:'),
+						Field('unidade','string',label='Unidade:', length=04),
+						Field('embalagem','integer',label='Embalagem:')
+						)
+Custo.fornecedor.readable = Custo.fornecedor.writable = False
+Custo.insumo.readable = Custo.insumo.writable = False
+Custo.unidade.requires = IS_IN_DB(db,'unidade.unidade',)
+Custo.custo.requires = IS_DECIMAL_IN_RANGE(dot=',')
 
 Produtos = db.define_table('produtos',
                          Field('descricao', 'string', label='Descrição:', length=100),
