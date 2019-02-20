@@ -5,6 +5,7 @@ Pagar = db.define_table('pagar',
 	Field('demanda', 'reference demandas',label='Demanda'),
 	Field('emissao','date', label='Data:'),
 	Field('tipo','string',label='Tipo:',length=30 ),
+	Field('remetente','reference remetente',label='Remetente:'),
 	Field('valor','decimal(7,2)',label='Valor:'),
 	Field('condicao','reference condicao', label='Condição de Pagamento:',ondelete = "SET NULL")
 	)
@@ -14,6 +15,7 @@ Pagar.valor.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Pagar.emissao.requires = data
 Pagar.tipo.requires = IS_IN_SET(['Compra','Transferência','Devolução'],zero=None)
 Pagar.condicao.requires = IS_IN_DB(db,"condicao.id",'%(descricao)s',zero='Condição de Pagamento')
+Pagar.remetente.requires = IS_EMPTY_OR(IS_IN_DB(db,"remetente.id",'%(nome)s',))
 Pagar.demanda.requires = IS_EMPTY_OR(IS_IN_DB(db,"demandas.id",'%(descricao)s'))
 
 Pagar_parcelas = db.define_table('pagar_parcelas',
@@ -103,6 +105,7 @@ Compras.tipo.requires = IS_IN_SET(['Pedido','Orçamento'],zero=None)
 ComprasInsumos = db.define_table('comprasInsumos',
 	Field('compra','reference compras'),
 	Field('insumo','reference insumos',label='Insumo'),
+	Field('detalhe','string',length=50,label='Detalhe'),
 	Field('unidade','string',length=4,label='Unidade'),
 	Field('quantidade','decimal(9,4)',label='Quantidade'),
 	Field('preco','decimal(7,2)',label='Preço'),
@@ -114,3 +117,4 @@ ComprasInsumos.compra.readable = ComprasInsumos.compra.writable = False
 ComprasInsumos.quantidade.requires = [IS_DECIMAL_IN_RANGE(dot=','),notempty]
 ComprasInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 ComprasInsumos.desconto.requires = IS_DECIMAL_IN_RANGE(dot=',')
+ComprasInsumos.detalhe.requires = IS_UPPER()

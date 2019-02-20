@@ -1,4 +1,8 @@
-{{=form}}
+{{extend 'layout.html'}}
+<div class="container">
+    {{=titulo("recebimentos ","Relatório de Recebimetnos")}}
+	{{=form}}
+</div>
 <script>
   $(document).ready(function(){
     $('#lote_delete').click(

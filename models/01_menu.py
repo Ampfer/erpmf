@@ -44,6 +44,7 @@ response.menu+=[
     ('Entrada de Contas a Receber', False, URL(r=request, c='receber', f='entrada_lista')),
     ('Ficha Cliente', False, URL(r=request, c='receber', f='cliente_ficha')),
     ('Contas a Receber', False, URL(r=request, c='receber', f='receber_lista')),
+    ('Recebimetnos', False, URL(r=request, c='receber', f='lotes')), 
     ])]
 response.menu+=[
     (T('Contas a Pagar'), False, URL(request.application,'default','index'), [

@@ -341,6 +341,7 @@
 'Registration key': 'Chave de registro',
 'Relatórios': 'Relatórios',
 'Remember me (for 30 days)': 'Remember me (for 30 days)',
+'Remetente:': 'Remetente:',
 'remove all': 'remove all',
 'remove this file': 'remove this file',
 'remove this file group': 'remove this file group',

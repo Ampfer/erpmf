@@ -826,13 +826,13 @@ def compraInsumos():
     ComprasInsumos.compra.default = id_compra
     ComprasInsumos.desconto.default = 0.00
 
-    fields=[ComprasInsumos.insumo,ComprasInsumos.unidade,ComprasInsumos.quantidade,ComprasInsumos.preco,ComprasInsumos.desconto,
+    fields=[ComprasInsumos.insumo,ComprasInsumos.detalhe,ComprasInsumos.unidade,ComprasInsumos.quantidade,ComprasInsumos.preco,ComprasInsumos.desconto,
             ComprasInsumos.total]
 
-    formInsumos = SQLFORM.grid(ComprasInsumos.compra==id_compra,
-                               user_signature=False,args=[id_compra],formname = "comprainsumos",
-                               searchable = False, csv = False, maxtextlength = 50,fields=fields,
-                               deletable=True,details=False,
+    formInsumos = grid(ComprasInsumos.compra==id_compra,
+                               args=[id_compra],formname = "comprainsumos",
+                               searchable = False, fields=fields,
+                               deletable=True,
                                )
 
     if formInsumos.create_form or formInsumos.update_form:
@@ -952,8 +952,9 @@ def compraGeraPdf(id_compra):
             pdf.ln(9)
             pdf.set_font('Arial', 'B', 10)
             pdf.set_fill_color(192,192,192)
-            pdf.cell(20, 8, "Código".decode('UTF-8').encode('cp1252'), 0, 0, 'C',True)
+            pdf.cell(20, 8, "Código".decode('UTF-8').encode('cp1252'), 0, 0, 'C', True)
             pdf.cell(100, 8, "Descrição".decode('UTF-8').encode('cp1252'), 0, 0, 'C', True)
+            #pdf.cell(20, 8, "Detalhe".decode('UTF-8').encode('cp1252'), 0, 0, 'C',True)
             pdf.cell(10, 8, "Un".decode('UTF-8').encode('cp1252'), 0, 0, 'C', True)
             pdf.cell(20, 8, "Qtde".decode('UTF-8').encode('cp1252'), 0, 0, 'C', True)
             pdf.cell(20, 8, "Preço".decode('UTF-8').encode('cp1252'), 0, 0, 'C', True)
@@ -961,7 +962,7 @@ def compraGeraPdf(id_compra):
             pdf.set_font('Times', '', 10)
 
         codigo = Insumo[int(r.insumo)].codigo
-        descricao = r.insumo.descricao.decode('UTF-8').encode('cp1252')
+        descricao = "%s %s" %(r.insumo.descricao.decode('UTF-8').encode('cp1252'),r.detalhe.decode('UTF-8').encode('cp1252'))
         unidade = r.unidade.decode('UTF-8').encode('cp1252')
         qtde = str("%0.2f") %round(r.quantidade,2)
         preco = moeda(r.preco)

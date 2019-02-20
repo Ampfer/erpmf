@@ -165,3 +165,7 @@ Produtos = db.define_table('produtos',
 Produtos.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
 Produtos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 Produtos.descricao.requires = IS_UPPER()
+
+Rementente = db.define_table('remetente',
+                             Field('nome','string',label='Rementente', length = 100),                            
+                             )

@@ -360,7 +360,7 @@ def recebimentos():
             if session.id_lote == 0:
                 session.id_lote = Lote.insert(dtlote = formRecebimentos.vars.dtpagamento,tipo = 'receber',parcelas=session.ids)
 
-            descricao = "REC LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0)[0])
+            descricao = "REC LT %s %s" %('{:0>4}'.format(session.id_lote),buscadoc(0,session.id_lote)[0])
             
             Conta_corrente.insert(dtpagamento = formRecebimentos.vars.dtpagamento, 
                                   vlrecebimento = formRecebimentos.vars.vlrecebimento,
@@ -394,6 +394,22 @@ def recebimentos():
 
     return locals()
 
+
+def buscadoc(ids,loteId=0):
+
+    if loteId != 0:
+        ids = Lote[loteId].parcelas
+
+    dcto = db(Receber_parcelas.id.belongs(ids)).select(db.receber.documento, db.receber_parcelas.parcela,
+          left=db.receber_parcelas.on(db.receber.id == db.receber_parcelas.receber))
+
+
+    doctos = []
+    for x in dcto:
+        doctos.append('(' + x.receber.documento + '-' + x.receber_parcelas.parcela + ') ')
+    return doctos
+
+'''
 def buscadoc(loteId):
     if loteId == 0:
         dcto = db(Receber_parcelas.id.belongs(session.ids)).select(db.receber.documento, db.receber_parcelas.parcela,
@@ -406,7 +422,6 @@ def buscadoc(loteId):
         doctos.append('(' + x.receber.documento + '-' + x.receber_parcelas.parcela + ') ')
     return doctos
 
-'''
 def atualizaRecebimentos(idlote):
     query = db(Conta_corrente.lote == idlote)
     sum = Conta_corrente.vlrecebimento.sum()
@@ -520,6 +535,41 @@ def recebimentos_delete():
     atualizaPagamentos(float(valoranterior),datapg)
     
     response.js = "$('#recebimentos_lista').get(0).reload()"
+
+
+#@auth.requires_membership('admin')
+def lotes():
+    Lote.id.readable = True
+    Lote.dtlote.readable = True
+    Lote.documentos = Field.Virtual('documentos',lambda row: buscadoc(row.lote.parcelas),label='Documentos')
+    form = grid(Lote.tipo == "receber",
+    orderby=~Lote.dtlote,create=False,deletable=False,editable=False,
+    searchable=False,formname="receberLotes",
+    links =[lambda row: A(SPAN(_class="glyphicon glyphicon-pencil"), _class="btn btn-default",
+    _href=URL('receber','receber',vars=dict(id_lote=row.id,target='receberLotes',url='receber_lista'))),
+    lambda row: A(SPAN(_class="glyphicon glyphicon-trash"),_id="lote_delete", _class="btn btn-default",
+    _href=URL('receber','lote_delete',vars=dict(id_lote=row.id,total=row.total,url='lotes')))
+    ],
+    )
+    return dict(form=form)
+
+
+#@auth.requires_membership('admin')
+def lote_delete():
+    url = request.vars.url
+    id_lote = request.vars.id_lote
+
+    parcelas = Lote[id_lote].parcelas
+    
+    del Lote[id_lote]
+    db(Lote_parcelas.lote == id_lote).delete()
+    db(Conta_corrente.lote == id_lote).delete()
+    #db(Cheques.lotpag==id_lote).delete()
+
+    for parcela in parcelas:
+        atualizaParcela(parcela,None)
+    
+    redirect(URL(url))
 
 def receber_lista():
            
