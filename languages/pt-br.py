@@ -230,6 +230,7 @@
 'Invalid email': 'Email inválido',
 'Invalid login': 'Invalid login',
 'Invalid Query': 'Consulta Inválida',
+'Invalid query': 'Invalid query',
 'invalid request': 'requisição inválida',
 'Item:': 'Item:',
 'JSON': 'JSON',
