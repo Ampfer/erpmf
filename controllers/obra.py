@@ -543,7 +543,7 @@ def atividades():
 
     Atividades.valor = Field.Virtual('valor',lambda row:valor_atividade(int(row.atividades.id)), label='Valor')
 
-    fields = [Atividades.atividade, Atividades.etapa,Atividades.unidade, Atividades.valor]
+    fields = [Atividades.atividade,Atividades.unidade, Atividades.valor]
     gridAtividades = grid(Atividades,70,fields=fields,orderby=[Atividades.etapa,Atividades.atividade])
 
     if gridAtividades.create_form:
@@ -556,6 +556,7 @@ def atividades():
 #@auth.requires_membership('admin')
 def atividade():
     idAtividade = request.args(-1) or "0"
+    Atividades.etapa.writable = False
 
     if idAtividade == "0":
         formAtividade = SQLFORM(Atividades, field_id='id', _id='atividade')
@@ -696,6 +697,7 @@ def obra_atividades():
     if formAtividade.process(onvalidation = valida_atividade).accepted:
         
         atualizar_item(idObra = idObra,
+                       idEtapa = formAtividade.vars.etapa,
                        idAtividade=formAtividade.vars.atividade,
                        quantidade = formAtividade.vars.quantidade)
 
@@ -710,16 +712,16 @@ def obra_atividades():
 
     return dict(formAtividade=formAtividade,linhas=linhas)
 
-def atualizar_item(idObra,idAtividade,quantidade):
+def atualizar_item(idObra,idEtapa,idAtividade,quantidade):
 
     itens = db(Atividades_Itens.atividade == idAtividade).select()
-    etapa = Atividades[int(idAtividade)]['etapa']
+    #etapa = Atividades[int(idAtividade)]['etapa']
     
     for item in itens:
-        Obras_Itens.update_or_insert((Obras_Itens.obra==idObra)&(Obras_Itens.etapa==etapa)&(Obras_Itens.atividade==idAtividade)&(Obras_Itens.composicao==item.composicao)&(Obras_Itens.insumo==item.insumo),
+        Obras_Itens.update_or_insert((Obras_Itens.obra==idObra)&(Obras_Itens.etapa==idEtapa)&(Obras_Itens.atividade==idAtividade)&(Obras_Itens.composicao==item.composicao)&(Obras_Itens.insumo==item.insumo),
                            obra=idObra,
                            atividade = idAtividade,
-                           etapa = etapa, 
+                           etapa = idEtapa, 
                            composicao = item.composicao, 
                            insumo=item.insumo,
                            quantidade = quantidade,
@@ -728,10 +730,11 @@ def atualizar_item(idObra,idAtividade,quantidade):
 
 def alterar_item():
     id  = request.post_vars.id
+    print id
     valor = request.post_vars.valor
     if id.count("-") > 0:
-        idObra,idAtividade = id.split('-')
-        atualizar_item(idObra=idObra,idAtividade=idAtividade,quantidade=valor)
+        idObra,idEtapa,idAtividade = id.split('-')
+        atualizar_item(idObra=idObra,idEtapa=idEtapa,idAtividade=idAtividade,quantidade=valor)
         response.js = "$('#obraatividades').get(0).reload()"
     else:
         qtde = float(Obras_Itens[int(id)].quantidade)
@@ -919,7 +922,7 @@ def gerar_linhas(idObra,itens):
                                total = "{0:.2f}".format(round(valor * float(item.quantidade),2)),
                                c=c, 
                                p=pp,
-                               id = "%s-%s" %(idObra,item.atividade),
+                               id = "%s-%s-%s" %(idObra,idEtapa,item.atividade),
                                css = 'text-align: right; color:#0000ff;pad;padding-right: 10px',
                                ))
             atividade = False
