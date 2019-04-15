@@ -73,10 +73,13 @@ def demanda():
 
     if idDemanda == "0":
         formDemanda = SQLFORM(Demandas,field_id='id',_id='formDemanda')
-        formDespesas = formInsumos = formAbc = '' 
+        formDespesas = formInsumos = formAbc = formAtividades ='' 
         btnExcluir = btnNovo = ''
     else:
         formDemanda = SQLFORM(Demandas, idDemanda,_id='formDemanda',field_id='id')
+
+        formAtividades = LOAD(c='obra', f='demandaAtividades', content='Aguarde, carregando...',
+                           target='demandaatividades', ajax=True, args=idDemanda)
 
         formDespesas = LOAD(c='obra', f='demandaDespesas', content='Aguarde, carregando...',
                            target='demandaDespesas', ajax=True, args=idDemanda)
@@ -91,7 +94,24 @@ def demanda():
     elif formDemanda.errors:
         response.flash = 'Erro no Formulário Principal!'
 
-    return dict(formDemanda=formDemanda,formDespesas=formDespesas,btnNovo=btnNovo,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+    return dict(formDemanda=formDemanda,formDespesas=formDespesas,formAtividades=formAtividades,btnNovo=btnNovo,btnVoltar=btnVoltar,btnExcluir=btnExcluir)
+
+#@auth.requires_membership('admin')
+def demandaAtividades():
+    idDemanda = int(request.args(0))
+    Demanda_Atividades.demanda.default = idDemanda
+
+    gridAtividades = grid(Demanda_Atividades.demanda==idDemanda,formname="atividades",
+                 searchable = False,args=[idDemanda],)
+
+    btnVoltar = voltar1('atividades')
+
+    if gridAtividades.update_form:
+      btnExcluir = excluir("#")
+    else:
+      btnExcluir = ''
+
+    return dict(gridAtividades = gridAtividades)
 
 #@auth.requires_membership('admin')
 def demandaDespesas():

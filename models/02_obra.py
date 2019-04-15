@@ -36,6 +36,11 @@ Demandas.cliente.requires = IS_IN_DB(db,"clientes.id",'%(nome)s')
 Demandas.endereco.requires = IS_EMPTY_OR(IS_IN_DB(db,"enderecos.id",'%(endereco)s - %(bairro)s - %(cidade)s - %(estado)s '))
 Demandas.tipo.requires = IS_IN_SET(TipoDemanda,zero=None)
 
+Demanda_Atividades = db.define_table('demanda_atividades',
+    Field('demanda','reference demandas', label= 'Demanda:'),
+    Field('etapa','reference etapas', label= 'Etapa:'),
+    Field('descricao','string',label='Descrição:',length=60),
+    )
 
 def valorComposicao(id,tipo=[]):
     idComposicao = int(id)
