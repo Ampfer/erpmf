@@ -135,3 +135,67 @@ def gerar_historico_insumo():
    
     return dict(insumos=insumos)
 
+def exportar_cliente():
+    import csv
+    c = csv.writer(open("sigo_clientes.csv", "wb",),delimiter=';')
+    clientes = db(Clientes.id>0).select()
+    
+    for cli in clientes:
+        tipo = 'Pessoa {}'.format(cli.tipo)
+        if cli.razao == '':
+            razao = cli.nome
+        else:
+            razao = cli.razao
+
+        try:
+            con = db(Contatos.cliente == cli.id).select().first()
+            fone = con.fone
+            email = con.email
+        except:
+            fone = ''
+            email = ''
+        try:
+            end = db(Enderecos.cliente == cli.id).select().first()
+            endereco = end.endereco
+            bairro = end.bairro
+            cidade = end.cidade
+            estado = end.estado
+            cep = end.cep
+        except:
+            endereco = ''
+            bairro = ''
+            cidade = ''
+            estado = ''
+            cep = ''
+
+        row = []    
+        row.append(tipo) #Tipo de Cliente
+        row.append(razao) #Nome/Razão Social
+        row.append(cli.nome) #Nome Fantasia
+        row.append(cli.cnpj_cpf) #CPF/CNPJ
+        row.append('') #Inscrição Estadual
+        row.append('') #Inscrição Municipal
+        row.append('') #Data de Nascimento
+        row.append(cli.ie_rg) #RG
+        row.append('') #Emissor RG
+        row.append('') #Estado RG
+        row.append(fone) #Telefone 1
+        row.append('') #Telefone 2
+        row.append('') #Telefone 3
+        row.append(email) #Email 1
+        row.append('') #Email 2
+        row.append('') #Email 3
+        row.append('Residencial') #Tipo de Endereço
+        row.append(estado) #Estado
+        row.append(cidade) #Municipio
+        row.append(cep) #CEP
+        row.append(endereco) #Rua/Est./Av.
+        row.append(bairro) #Bairro
+        row.append('') #Número
+        row.append('') #Complemento
+        row.append('') #Andar
+        row.append('') #Apartamento
+        row.append('') #Bloco
+        row.append('') #Acesso 
+    
+        c.writerow(row)
