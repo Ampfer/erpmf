@@ -21,34 +21,38 @@ def exportar_atividades():
     for item in itens:
         if item.atividade != atividadeId:
             atividadeId = item.atividade
+            codigo = '2{:0>4}'.format(int(atividadeId)+247)
             atv = Atividades[atividadeId]
             atividade = atv.atividade
             unidade = atv.unidade
             valor = valor_atividade(int(atividadeId))
             row = []
             row.append('')  # 'SIGLA DA CLASSE',
-            row.append(int(atividadeId)+247) # 'CODIGO DA COMPOSICAO',
+            row.append(codigo) # 'CODIGO DA COMPOSICAO',
             row.append(atividade) # 'DESCRICAO DA COMPOSICAO',
             row.append(unidade) # 'UNIDADE',
             row.append(valor) # 'CUSTO TOTAL',
             c.writerow(row)
             
         if item.tipo == 'Composição':
-            cod_item = item.composicao
+            cod_item = '2{:0>4}'.format(int(item.composicao)) 
             desc_item = db(Composicao.id == item.composicao).select().first()['descricao']
             vl_item = valorComposicao(item.composicao)
+            tipo_item = 'COMPOSIÇÃO'
+
         elif item.tipo == 'Insumo':
-            cod_item = item.insumo
+            cod_item =  '1{:0>4}'.format(item.insumo)
             desc_item = db(Insumo.id == item.insumo).select().first()['descricao']
             vl_item = db(Insumo.id == item.insumo).select().first()['preco']
+            tipo_item = 'INSUMO'
         
         row = []
         row.append('')  # 'SIGLA DA CLASSE',
-        row.append(int(atividadeId)+247) # 'CODIGO DA COMPOSICAO',
+        row.append(codigo) # 'CODIGO DA COMPOSICAO',
         row.append(atividade) # 'DESCRICAO DA COMPOSICAO',
         row.append(unidade) # 'UNIDADE',
         row.append(valor) # 'CUSTO TOTAL',
-        row.append(item.tipo) # 'TIPO ITEM',
+        row.append(tipo_item) # 'TIPO ITEM',
         row.append(cod_item) # 'CODIGO ITEM',
         row.append(desc_item) # 'DESCRIÇÃO ITEM',
         row.append(item.unidade) # 'UNIDADE ITEM',
@@ -70,13 +74,14 @@ def exportar_composicao():
     for item in itens:
         if item.composicao != composicaoId:
             composicaoId = item.composicao
+            codigo = '2{:0>4}'.format(int(composicaoId))
             com = Composicao[composicaoId]
             composicao = com.descricao
             unidade = com.unidade
             valor = valorComposicao(int(composicaoId))
             row = []
             row.append('')  # 'SIGLA DA CLASSE',
-            row.append(composicaoId) # 'CODIGO DA COMPOSICAO',
+            row.append(codigo) # 'CODIGO DA COMPOSICAO',
             row.append(composicao) # 'DESCRICAO DA COMPOSICAO',
             row.append(unidade) # 'UNIDADE',
             row.append(valor) # 'CUSTO TOTAL',
@@ -84,15 +89,15 @@ def exportar_composicao():
             
         desc_item = db(Insumo.id == item.insumo).select().first()['descricao']
         vl_item = db(Insumo.id == item.insumo).select().first()['preco']
-        
+        cod_item = '1{:0>4}'.format(item.insumo)
         row = []
         row.append('')  # 'SIGLA DA CLASSE',
-        row.append(composicaoId) # 'CODIGO DA COMPOSICAO',
+        row.append(codigo) # 'CODIGO DA COMPOSICAO',
         row.append(composicao) # 'DESCRICAO DA COMPOSICAO',
         row.append(unidade) # 'UNIDADE',
         row.append(valor) # 'CUSTO TOTAL',
         row.append('INSUMO') # 'INSUMO',
-        row.append(item.insumo) # 'CODIGO ITEM',
+        row.append(cod_item) # 'CODIGO ITEM',
         row.append(desc_item) # 'DESCRIÇÃO ITEM',
         row.append(item.unidade) # 'UNIDADE ITEM',
         row.append(item.quantidade) # 'COEFICIENTE',
@@ -101,10 +106,37 @@ def exportar_composicao():
         
         c.writerow(row)
 
+def exportar_insumos():
+    import csv
+    c = csv.writer(open("sigo_insumo.csv", "wb",),delimiter=';')
+    c.writerow(['CLASSE','CODIGO','DESCRICAO DO INSUMO','UNIDADE DE MEDIDA','VALOR UNITÁRIO R$'])
+    
+    insumos = db(Insumo.tipo.belongs('MATERIAL','SERVIÇO','MÃO DE OBRA','EQUIPAMENTOS')).select(orderby = Insumo.tipo)
+    for insumo in insumos:
+        codigo = '1{:0>4}'.format(insumo.id)
+        if insumo.tipo in ('MATERIAL','SERVIÇO'):
+            classe = 'MAT'
+        elif insumo.tipo == 'MÃO DE OBRA':
+            classe = 'MDO'
+        elif insumo.tipo == 'EQUIPAMENTOS':
+            classe = 'EQU'
+        else:
+            classe = insumo.tipo
+
+        row = []
+        row.append(classe)
+        row.append(codigo)
+        row.append(insumo.descricao)
+        row.append(insumo.unidade)
+        row.append(insumo.preco)
+
+        c.writerow(row)
+
+
 def exportar_fornecedor():
     import csv
     c = csv.writer(open("sigo_fornecedor.csv", "wb",),delimiter=';')
-    fornecedores = db(Fornecedores.id>0).select()
+    fornecedores = db(Fornecedores.cnpj_cpf != '').select(orderby=Fornecedores.tipo)
     c.writerow(['Tipo de Fornecedor','Nome/Razão Social','Nome Fantasia','CPF/CNPJ','Inscrição Estadual','Inscrição Municipal',
             'Data de Nascimento','RG','Emissor RG','Estado RG','Telefone 1','Telefone 2','Telefone 3','Email 1','Email 2',
             'Email 3','Tipo de Endereço','Estado','Municipio','CEP','Rua/Est./Av.','Bairro','Número','Complemento','Andar',
