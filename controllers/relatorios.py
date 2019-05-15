@@ -199,3 +199,34 @@ def exportar_cliente():
         row.append('') #Acesso 
     
         c.writerow(row)
+
+
+def exportar_atividades():
+    atividades = db(Atividades.id>0).select()
+    for atv in atividades:
+        vl_atv = valor_atividade(int(1))
+        print vl_atv
+        itens = db(Atividades_Itens.id == atv.id).select()
+        for item in itens:
+            if item.tipo == 'Composição':
+                cod_item = item.composicao
+                desc_item = db(Composicao.id == item.composicao).select().first()['descricao']
+                vl_item = valorComposicao(item.composicao)
+            elif item.tipo == 'Insumo':
+                cod_item = item.insumo
+                desc_item = db(Insumos.id == item.insumo).select().first()['descricao']
+                vl_item = db(Insumos.id == item.insumo).select().first()['preco']
+            row = []
+            row.append('')  # 'SIGLA DA CLASSE',
+            row.append(atv.id) # 'CODIGO DA COMPOSICAO',
+            row.append(atv.atividade) # 'DESCRICAO DA COMPOSICAO',
+            row.append(atv.unidade) # 'UNIDADE',
+            row.append(vl_atv) # 'CUSTO TOTAL',
+            row.append(item.tipo.upper()) # 'TIPO ITEM',
+            row.append(cod_item) # 'CODIGO ITEM',
+            row.append(desc_item) # 'DESCRIÇÃO ITEM',
+            row.append(item.unidade) # 'UNIDADE ITEM',
+            row.append(item.quantidade) # 'COEFICIENTE',
+            row.append(vl_item) # 'UNITARIO',
+            row.append(round(item.quantidade*vl_item,2)) # 'CUSTO TOTAL'
+            print row
