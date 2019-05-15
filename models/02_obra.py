@@ -65,6 +65,7 @@ def valorMaoObra(id):
 Composicao = db.define_table('composicao',
      Field('descricao', 'string', label='Descrição:', length=100),
      Field('unidade', 'string', label='Unidade:', length=04),
+     Field('valor','decimal(7,2)', label='Valor:'),
      format='%(descricao)s',
      )
 Composicao.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s - %(descricao)s')
@@ -151,7 +152,7 @@ OrcamentoInsumos.preco.requires = IS_DECIMAL_IN_RANGE(dot=',')
 def valor_item(idItem):
     item = Atividades_Itens[int(idItem)]
     if item.composicao:
-        valor = round(valorComposicao(int(item.composicao))* float(item.quantidade),2)
+        valor = round(valorComposicao(int(item.composicao)) * float(item.quantidade),2)
     elif item.insumo:
         valor = round(Insumo[int(item.insumo)].preco * float(item.quantidade),2)
     return valor.quantize(Decimal('1.00'), rounding=ROUND_DOWN)    
@@ -160,13 +161,14 @@ def valor_atividade(idAtividade):
     itens = db(Atividades_Itens.atividade==idAtividade).select()
     valor = 0
     for item in itens:
-        valor += valor_item(item(item.atividade))
+        valor += valor_item(int(item.atividade))
     return valor.quantize(Decimal('1.00'), rounding=ROUND_DOWN)
 
 Atividades = db.define_table('atividades',
     Field('atividade','string',label='Descrição:',length=100),
     Field('etapa','reference etapas', label='Etapa:'),
     Field('unidade', 'string', label='Unidade:', length=04),
+    #Field('valor','decimal(7,2)', label='Valor:'),
     format = '%(atividade)s'
     )
 Atividades.unidade.requires = IS_IN_DB(db,"unidade.unidade",'%(unidade)s')
