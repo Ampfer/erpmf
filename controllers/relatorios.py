@@ -226,7 +226,7 @@ def exportar_atividades():
             row.append(cod_item) # 'CODIGO ITEM',
             row.append(desc_item) # 'DESCRIÇÃO ITEM',
             row.append(item.unidade) # 'UNIDADE ITEM',
-            row.append(item.quantidade) # 'COEFICIENTE',
+            row.append(item.quantidade.str()) # 'COEFICIENTE',
             row.append(vl_item) # 'UNITARIO',
             row.append(round(item.quantidade*vl_item,2)) # 'CUSTO TOTAL'
             print row
